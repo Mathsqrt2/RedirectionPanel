@@ -1,0 +1,7 @@
+@import "./../../../styleset.scss";
+
+.content {
+    width: 100%;
+    height: calc(100dvh - $headerHeight);
+    background-color: hsl(215, 12%, 5%);
+}
