@@ -1,7 +1,9 @@
 @import "./../../../styleset.scss";
 
 .header{
+    box-sizing: border-box;
     width: 100%;
     height: $headerHeight;
-    background-color: hsl(215, 12%, 16%);
+    background-color: $headerBackground;
+    border-bottom: $borderWidth solid $accent;
 }

@@ -1,0 +1,15 @@
+@import "./../styleset.scss";
+
+.content {
+    width: 100%;
+    height: fit-content;
+    position: relative;
+    min-height: calc(100dvh - $headerHeight - $footerHeight);
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    background-color: $contentBackground;
+}
