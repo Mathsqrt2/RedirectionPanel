@@ -12,6 +12,7 @@ import { AuthService } from './services/auth.service';
 import { MainSectionComponent } from './admin/main-section/main-section.component';
 import { ShowRedirectionsComponent } from './admin/show-redirections/show-redirections.component';
 import { CurrentPanelComponent } from './admin/current-panel/current-panel.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { CurrentPanelComponent } from './admin/current-panel/current-panel.compo
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    ReactiveFormsModule,
   ],
   providers: [
     AuthGuard,

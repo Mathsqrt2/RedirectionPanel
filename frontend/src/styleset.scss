@@ -5,8 +5,12 @@ $borderWidth: 6px;
 $headerBackground: hsl(215, 12%, 6%);
 $footerBackground: hsl(215, 4%, 5%);
 $contentBackground: hsl(215, 5%, 10%);
+
 $accent: hsl(215, 70%, 50%);
-$glowColor: rgba(166, 166, 166, 0.3);
+$accent-hover: hsl(215, 60%, 60%);
+$glowColor: rgba(166, 166, 166, 0.2);
+$shadowColor: rgba(5, 5, 5, 0.7);
 
 $text-hover: #aaa;
 $text-default: #fff;
+$text-faded: #999;

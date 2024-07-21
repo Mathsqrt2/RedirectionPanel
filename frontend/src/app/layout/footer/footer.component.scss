@@ -1,7 +1,20 @@
 @import "./../../../styleset.scss";
 
-.footer{
-    height: $footerHeight;
+:host {
+    position: relative;
+    z-index: 10;
+}
+
+.footer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
     width: 100%;
+    height: $footerHeight;
+
+    color: $text-faded;
     background-color: $footerBackground;
+    box-shadow: 0 0 64px $shadowColor;
 }

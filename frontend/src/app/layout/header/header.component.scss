@@ -1,5 +1,10 @@
 @import "./../../../styleset.scss";
 
+:host{
+    position: relative;
+    z-index: 10;
+}
+
 .header{
     display: flex;
     justify-content: space-between;
@@ -12,6 +17,8 @@
 
     background-color: $headerBackground;
     border-bottom: $borderWidth solid $accent;
+
+    box-shadow: 0 0 64px $shadowColor;
 }
 
 .header-image{

@@ -1,0 +1,50 @@
+@import "./../../../styleset.scss";
+
+h3 {
+    margin: 0;
+}
+
+#form-field {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+
+    background-color: $headerBackground;
+    padding: 42px 50px;
+    border-radius: 42px;
+    box-shadow: 0 0 32px $glowColor;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-input {
+    outline: none;
+    border: none;
+    background-color: $contentBackground;
+    border-bottom: 4px solid $accent;
+    color: white;
+    padding: 6px;
+}
+
+#form-submit {
+    margin-top: 10px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    outline: none;
+    border: none;
+
+    color: white;
+    background-color: $accent;
+    transition: all 0.3s ease-in-out;
+
+    &:hover{
+        transform: scale(0.95);
+        background-color: $accent-hover;
+    }
+}
