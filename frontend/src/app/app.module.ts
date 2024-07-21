@@ -9,6 +9,9 @@ import { LoginComponent } from './layout/login/login.component';
 import { NotFoundPageComponent } from './not-found-page/not-found-page.component';
 import { AuthGuard } from './services/auth-guard.service';
 import { AuthService } from './services/auth.service';
+import { MainSectionComponent } from './admin/main-section/main-section.component';
+import { ShowRedirectionsComponent } from './admin/show-redirections/show-redirections.component';
+import { CurrentPanelComponent } from './admin/current-panel/current-panel.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +20,9 @@ import { AuthService } from './services/auth.service';
     FooterComponent,
     LoginComponent,
     NotFoundPageComponent,
+    MainSectionComponent,
+    ShowRedirectionsComponent,
+    CurrentPanelComponent,
   ],
   imports: [
     BrowserModule,
