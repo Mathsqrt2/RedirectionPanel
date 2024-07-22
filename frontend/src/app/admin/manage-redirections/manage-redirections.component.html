@@ -1,1 +1,47 @@
-<p>manage-redirections works!</p>
+<div class="redirection-management-field">
+
+    <form class="form-field">
+
+        <h3>UTWÓRZ PRZEKIEROWANIE</h3>
+
+        <div class="inputs-field">
+            <div class="form-control-group">
+                <label for="path">path</label>
+                <input type="text" id="path" name="path" placeholder="przekierowanie">
+            </div>
+            <div class="form-control-group">
+                <label for="url">url</label>
+                <input type="text" id="url" name="url" placeholder="gdzie prowadzi">
+            </div>
+            <div class="form-control-group">
+                <label for="tags">tags</label>
+                <input type="text" id="tags" name="tags" placeholder="tagi">
+            </div>
+        </div>
+
+        <input type="button" value="stwórz" class="confirm-button">
+
+    </form>
+
+    <table class="table-field">
+        <tr>
+            <th class="narrow-col">id</th>
+            <th class="wide-col">url</th>
+            <th class="wide-col">path</th>
+            <th class="narrow-col">30d clicks</th>
+            <th class="narrow-col">total clicks</th>
+            <th colspan="2"></th>
+        </tr>
+        <tr *ngFor="let redirection of redirections; index as i;">
+
+            <td>{{i+1}}</td>
+            <td>path</td>
+            <td>url</td>
+            <td>2137</td>
+            <td>42069</td>
+            <td>edytuj</td>
+            <td>X</td>
+
+        </tr>
+    </table>
+</div>

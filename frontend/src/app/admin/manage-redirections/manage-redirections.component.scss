@@ -1,0 +1,83 @@
+@import "./../../../styleset.scss";
+
+.redirection-management-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+
+    padding: 32px 42px;
+    border-radius: 24px;
+    background-color: $menu-background;
+    box-shadow: 0 0 32px $shadowColor;
+    border-top: 4px solid $accent;
+}
+
+.form-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.inputs-field {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.form-control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+
+
+h3 {
+    margin: unset;
+}
+
+table,
+tr,
+th,
+td {
+
+    border-collapse: collapse;
+    border: 1px solid rgba(255, 255, 255, 1);
+    overflow: hidden;
+}
+
+.narrow-col {
+    padding: 4px 2px;
+}
+
+th {
+    background-color: $accent;
+    padding: 10px 40px;
+}
+
+td {
+    text-align: center;
+    padding: 6px 8px;
+}
+
+.confirm-button {
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    background-color: $accent;
+    color: $text-default;
+
+    &:hover {
+        transform: scale(0.97);
+        background-color: $accent-hover;
+    }
+}
+
+.table-field{
+    overflow: hidden;
+}

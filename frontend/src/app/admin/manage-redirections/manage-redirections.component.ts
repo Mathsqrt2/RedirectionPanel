@@ -7,4 +7,6 @@ import { Component } from '@angular/core';
 })
 export class ManageRedirectionsComponent {
 
+  redirections: any[] = [1,2,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1];
+
 }
