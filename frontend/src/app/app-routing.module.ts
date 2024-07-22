@@ -8,7 +8,7 @@ import { CurrentPanelComponent } from './admin/current-panel/current-panel.compo
 import { RegisterComponent } from './layout/register/register.component';
 
 const routes: Routes = [
-  { path: "", component: LoginComponent },
+  { path: "login", component: LoginComponent },
   {
     path: "admin", canActivate: [AuthGuard], component: MainSectionComponent, children: [
       { path: ":panelid", canActivate: [AuthGuard], component: CurrentPanelComponent }
@@ -18,6 +18,7 @@ const routes: Routes = [
   { path: "login", component: LoginComponent },
 
   { path: "not-found", component: NotFoundPageComponent },
+  { path: "", redirectTo: 'login', pathMatch: "full" },
   { path: "**", redirectTo: 'not-found' },
 ];
 

@@ -1,6 +1,6 @@
 <form id="form-field" [formGroup]="loginForm" (ngSubmit)="onSubmit()" (keyup.enter)="onSubmit()">
 
-    <h3>ZALOGUJ SIĘ</h3>
+    <h3>ZAREJESTRUJ SIĘ</h3>
     <div class="form-group">
         <label>Login</label>
         <input type="text" name="login" id="login" class="form-input" formControlName="login">
@@ -22,16 +22,22 @@
 
     <div class="form-group">
         <label for="password">Hasło</label>
-        <input type="password" name="password-confirm" id="password-confirm" class="form-input" formControlName="password-confirm">
+        <input type="password" name="password-confirm" id="password-confirm" class="form-input"
+            formControlName="password-confirm">
 
         <div *ngIf="loginForm.get('password-confirm').touched && !loginForm.get('password-confirm').valid">
             <span class="error-code"> The password is required</span>
         </div>
+        <div
+            *ngIf="loginForm.get('password-confirm').touched && !loginForm.get('password-confirm').valid && loginForm.get('password-confirm').errors['passwordMustMatch']">
+            <span class="error-code"> Passwords must match</span>
+        </div>
     </div>
 
     <div class="buttons-field">
-        <input type="button" class="form-button" id="register-href" value="Zarejestruj" routerLink="register">
-        <input type="submit" class="form-button" id="form-submit" value="Zaloguj">
+        <input type="submit" class="form-button" id="register-href" value="Przejdź dalej">
+        <label for="login-href" class="reg-label"> Masz już konto?</label>
+        <input type="button" class="form-button" id="login-href" value="Zaloguj się" routerLink="/">
     </div>
 
     <div *ngIf="accountDoesntExist">

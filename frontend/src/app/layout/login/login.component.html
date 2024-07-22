@@ -21,8 +21,9 @@
     </div>
 
     <div class="buttons-field">
-        <input type="button" class="form-button" id="register-href" value="Zarejestruj" routerLink="register">
         <input type="submit" class="form-button" id="form-submit" value="Zaloguj">
+        <label for="register-href" class="reg-label">Nie masz konta?</label>
+        <input type="button" class="form-button" id="register-href" value="Zarejestruj się" routerLink="/register">
     </div>
 
     <div *ngIf="accountDoesntExist">

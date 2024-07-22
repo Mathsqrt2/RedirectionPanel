@@ -19,6 +19,7 @@ export class RegisterComponent implements OnInit {
   ];
 
   areEquals(control: FormControl): { [s: string]: boolean } {
+    console.log("checked");
     if (control?.value !== this.loginForm?.value?.password) {
       return { 'passwordMustMatch': true };
     }
@@ -29,11 +30,8 @@ export class RegisterComponent implements OnInit {
     this.loginForm = new FormGroup({
       'login': new FormControl(null, [Validators.required, Validators.minLength(3)]),
       'password': new FormControl(null, [Validators.required, Validators.minLength(3)]),
-      'password-confirm': new FormControl(null, [Validators.required, Validators.minLength(3), this.areEquals.bind(this)]),
+      'password-confirm': new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
-
-    this.loginForm.valueChanges.subscribe(v => console.log(this.loginForm.errors));
-
   };
 
 

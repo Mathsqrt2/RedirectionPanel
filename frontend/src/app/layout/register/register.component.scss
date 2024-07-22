@@ -31,20 +31,32 @@ h3 {
     border-bottom: 4px solid $accent;
     color: white;
     padding: 6px;
+
+    transition: all 0.8s ease-in-out;
+
+    &:focus{
+        box-shadow: 0 0 16px 4px $accent-focus;
+    }
 }
 
 .buttons-field {
+    margin-top: 16px;
     display: flex;
-    flex-direction: row;
-    gap: 16px;
+    flex-direction: column;
+    gap: 11px;
 }
 
 .error-code {
     color: $text-error;
 }
 
+.reg-label{
+    margin-top: 20px;
+    color: $text-faded;
+}
+
 .form-button {
-    margin-top: 10px;
+    
     padding: 12px 16px;
     border-radius: 8px;
     outline: none;

@@ -24,15 +24,18 @@ export class LoginComponent implements OnInit {
 
     ngOnInit(): void {
         this.loginForm = new FormGroup({
-            'login': new FormControl(null, [Validators.required, Validators.minLength(3)]),
-            'password': new FormControl(null, [Validators.required, Validators.minLength(3)]),
+            'login': new FormControl(null, [Validators.required]),
+            'password': new FormControl(null, [Validators.required]),
         })
     };
 
     onSubmit(): void {
-        console.log(this.loginForm.value);
+        console.log(this.loginForm);
         console.log("hash", SHA512(this.loginForm.value.password).toString())
-        this.loginForm.reset();
+
+        if(this.loginForm.status === 'VALID'){
+            this.loginForm.reset();
+        }
     };
 }
 
