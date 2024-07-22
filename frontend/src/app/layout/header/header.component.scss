@@ -24,6 +24,7 @@
 .header-image{
     height: 100%;
     border-radius: 50%;
+    box-shadow: 0 0 16px 4px rgba(255,255,255,0.2);
 }
 
 li{
@@ -33,4 +34,16 @@ li{
     &:hover {
         color: $text-hover;
     }
+}
+
+.left-section{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    height: 100%;
+}
+h2{
+    text-shadow: 0 0 16px rgba(255,255,255,0.7);
 }

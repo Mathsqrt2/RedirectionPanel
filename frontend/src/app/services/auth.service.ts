@@ -2,6 +2,9 @@ import Crypto from "crypto-js";
 import { Subject } from "rxjs";
 
 export class AuthService {
+
+    isLoggedIn: Boolean = true;
+
     private userLogin: string = Crypto.SHA256("qwertyz").toString(Crypto.enc.UTF8);
     private userPassword: string = Crypto.SHA256('dvpa123').toString(Crypto.enc.UTF8);
     public authSubject = new Subject<boolean>();
