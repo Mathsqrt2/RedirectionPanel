@@ -5,6 +5,7 @@ import { NotFoundPageComponent } from './not-found-page/not-found-page.component
 import { AuthGuard } from './services/auth-guard.service';
 import { MainSectionComponent } from './admin/main-section/main-section.component';
 import { CurrentPanelComponent } from './admin/current-panel/current-panel.component';
+import { RegisterComponent } from './layout/register/register.component';
 
 const routes: Routes = [
   { path: "", component: LoginComponent },
@@ -13,6 +14,7 @@ const routes: Routes = [
       { path: ":panelid", canActivate: [AuthGuard], component: CurrentPanelComponent }
     ],
   },
+  { path: "register", component: RegisterComponent },
   { path: "login", component: LoginComponent },
 
   { path: "not-found", component: NotFoundPageComponent },

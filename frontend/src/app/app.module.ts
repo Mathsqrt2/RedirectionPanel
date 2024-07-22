@@ -14,6 +14,7 @@ import { ShowRedirectionsComponent } from './admin/show-redirections/show-redire
 import { CurrentPanelComponent } from './admin/current-panel/current-panel.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from "@angular/common/http";
+import { RegisterComponent } from './layout/register/register.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { HttpClientModule } from "@angular/common/http";
     MainSectionComponent,
     ShowRedirectionsComponent,
     CurrentPanelComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,
