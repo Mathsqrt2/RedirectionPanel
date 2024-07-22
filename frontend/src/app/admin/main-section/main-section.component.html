@@ -1,9 +1,16 @@
 <div class="pages-menu">
     <div class="admin-menu">
-        <h3>Administracja</h3>
+        <h3 routerLink="/admin">Administracja</h3>
+        <ul>
+            <li *ngFor="let route of menuRoutes" class="panel-route"
+            routerLinkActive="active"
+            routerLink={{route.getRoute()}}>
+                {{route.getTitle()}}
+            </li>
+        </ul>
     </div>
     <div>
-        <input type="button" value="Wyloguj"/>
+        <input type="button" value="Wyloguj" routerLink="/" id="logout" />
     </div>
 </div>
 <div class="pages-content">

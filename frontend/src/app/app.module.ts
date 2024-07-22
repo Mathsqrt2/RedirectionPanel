@@ -11,10 +11,13 @@ import { AuthGuard } from './services/auth-guard.service';
 import { AuthService } from './services/auth.service';
 import { MainSectionComponent } from './admin/main-section/main-section.component';
 import { ShowRedirectionsComponent } from './admin/show-redirections/show-redirections.component';
-import { CurrentPanelComponent } from './admin/current-panel/current-panel.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from "@angular/common/http";
 import { RegisterComponent } from './layout/register/register.component';
+import { ManageUsersComponent } from './admin/manage-users/manage-users.component';
+import { ManageRedirectionsComponent } from './admin/manage-redirections/manage-redirections.component';
+import { DisplayStatsComponent } from './admin/display-stats/display-stats.component';
+import { AdminService } from './services/admin.service';
 
 @NgModule({
   declarations: [
@@ -25,8 +28,10 @@ import { RegisterComponent } from './layout/register/register.component';
     NotFoundPageComponent,
     MainSectionComponent,
     ShowRedirectionsComponent,
-    CurrentPanelComponent,
     RegisterComponent,
+    ManageUsersComponent,
+    ManageRedirectionsComponent,
+    DisplayStatsComponent,
   ],
   imports: [
     BrowserModule,
@@ -37,6 +42,7 @@ import { RegisterComponent } from './layout/register/register.component';
   providers: [
     AuthGuard,
     AuthService,
+    AdminService,
   ],
   bootstrap: [
     AppComponent

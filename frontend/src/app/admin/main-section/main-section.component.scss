@@ -18,17 +18,69 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-    
+
     width: 400px;
     min-height: calc(100dvh - $headerHeight);
     height: fit-content;
     position: relative;
     z-index: 1;
     box-sizing: border-box;
-    padding: 30px 0px;
+    padding-top: 15px;
+    padding-bottom: 50px;
 
     background-color: $menu-background;
+}
 
+.admin-menu {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.active {
+    color: $text-default;
+    background-color: $menu-background-hover;
+}
+
+ul {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 0;
+    margin: 0;
+    color: $text-faded;
+}
+
+.panel-route {
+    width: 100%;
+    list-style-type: none;
+    padding: 14px 32px;
+    transition: all 0.21s ease-in-out;
+    cursor: pointer;
+
+    &:hover {
+        background-color: $menu-background-hover;
+        color: $text-default;
+    }
+}
+
+#logout {
+    color: $text-default;
+    background-color: $accent;
+
+    padding: 12px 24px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+        transform: scale(0.95);
+        background-color: $accent-hover;
+    }
 }
 
 .pages-content {
