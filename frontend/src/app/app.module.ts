@@ -13,6 +13,7 @@ import { MainSectionComponent } from './admin/main-section/main-section.componen
 import { ShowRedirectionsComponent } from './admin/show-redirections/show-redirections.component';
 import { CurrentPanelComponent } from './admin/current-panel/current-panel.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { HttpClientModule } from "@angular/common/http";
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
+    HttpClientModule,
   ],
   providers: [
     AuthGuard,
