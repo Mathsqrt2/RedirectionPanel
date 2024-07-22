@@ -2,9 +2,8 @@
     <div class="admin-menu">
         <h3 routerLink="/admin">Administracja</h3>
         <ul>
-            <li *ngFor="let route of menuRoutes" class="panel-route"
-            routerLinkActive="active"
-            routerLink={{route.getRoute()}}>
+            <li *ngFor="let route of menuRoutes" class="panel-route" routerLinkActive="active"
+                routerLink={{route.getRoute()}}>
                 {{route.getTitle()}}
             </li>
         </ul>

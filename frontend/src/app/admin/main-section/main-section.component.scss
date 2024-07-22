@@ -2,10 +2,10 @@
 
 :host {
     width: 100%;
-    min-height: calc(100dvh - $headerHeight);
+    height: calc(100dvh - $headerHeight - $footerHeight);
     height: fit-content;
     position: relative;
-    z-index: 1;
+    z-index: 0;
 
     display: flex;
     flex-direction: row;
@@ -20,8 +20,7 @@
     align-items: center;
 
     width: 400px;
-    min-height: calc(100dvh - $headerHeight);
-    height: fit-content;
+    height: calc(100dvh - $headerHeight - $footerHeight);
     position: relative;
     z-index: 1;
     box-sizing: border-box;
@@ -86,13 +85,14 @@ ul {
 .pages-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-
+    
+    padding: 100px 0;
     width: 100%;
-    height: calc(100dvh - $headerHeight);
+    height: calc(100dvh - $headerHeight - $footerHeight);
     position: relative;
     z-index: 1;
-    
+
     overflow-x: hidden;
 }

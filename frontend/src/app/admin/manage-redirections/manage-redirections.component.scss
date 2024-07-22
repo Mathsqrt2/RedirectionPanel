@@ -81,3 +81,9 @@ td {
 .table-field{
     overflow: hidden;
 }
+
+hr{
+    width: 100%;
+    border: 2px solid $accent;
+    border-radius: 3px;
+}
