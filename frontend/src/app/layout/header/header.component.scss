@@ -1,11 +1,11 @@
 @import "./../../../styleset.scss";
 
-:host{
+:host {
     position: relative;
     z-index: 10;
 }
 
-.header{
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -19,15 +19,16 @@
     border-bottom: $borderWidth solid $accent;
 
     box-shadow: 0 0 64px $shadowColor;
+    transition: all $duration ease-in-out;
 }
 
-.header-image{
+.header-image {
     height: 100%;
     border-radius: 50%;
-    box-shadow: 0 0 16px 4px rgba(255,255,255,0.2);
+    box-shadow: 0 0 16px 4px rgba(255, 255, 255, 0.2);
 }
 
-li{
+li {
     list-style-type: none;
     color: $text-default;
 
@@ -36,7 +37,7 @@ li{
     }
 }
 
-.left-section{
+.left-section {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -44,6 +45,22 @@ li{
     gap: 20px;
     height: 100%;
 }
-h2{
-    text-shadow: 0 0 16px rgba(255,255,255,0.7);
+
+h2 {
+    text-shadow: 0 0 16px rgba(255, 255, 255, 0.7);
+    transition: all $duration ease-in-out;
+}
+
+@media (max-width: 996px) {
+
+    .header {
+        height: $headerHeightSmall;
+        padding: 12px 32px 12px 18px;
+        text-wrap: nowrap;
+    }
+
+    h2 {
+        font-size: medium;
+    }
+
 }

@@ -22,6 +22,8 @@ const routes: Routes = [
   { path: "login", component: LoginComponent },
 
   { path: "not-found", component: NotFoundPageComponent },
+  
+  { path: "redirections", redirectTo: 'login' },
   { path: "", redirectTo: 'login', pathMatch: "full" },
   { path: "**", redirectTo: 'not-found' },
 ];

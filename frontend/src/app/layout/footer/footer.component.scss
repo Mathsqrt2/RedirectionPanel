@@ -17,4 +17,16 @@
     color: $text-faded;
     background-color: $footerBackground;
     box-shadow: 0 0 64px $shadowColor;
+
+    transition: all $duration ease-in-out;
+}
+
+@media (max-width: 996px) {
+
+    .footer {
+        height: $footerHeightSmall;
+        padding: 12px 32px 12px 18px;
+        text-wrap: nowrap;
+        font-size: small;
+    }
 }

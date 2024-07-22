@@ -28,6 +28,7 @@
     padding-bottom: 50px;
 
     background-color: $menu-background;
+    transition: all 0.3s ease-in-out;
 }
 
 .admin-menu {
@@ -87,7 +88,7 @@ ul {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    
+
     padding: 100px 0;
     width: 100%;
     height: calc(100dvh - $headerHeight - $footerHeight);
@@ -95,4 +96,18 @@ ul {
     z-index: 1;
 
     overflow-x: hidden;
+}
+
+@media (max-width: 996px) {
+
+    .pages-menu {
+        display: none;
+    }
+
+    :host,
+    .pages-menu,
+    .pages-content {
+        min-height: calc(100dvh - $headerHeightSmall - $footerHeightSmall);
+    }
+
 }

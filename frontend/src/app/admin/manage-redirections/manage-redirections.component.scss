@@ -7,11 +7,13 @@
     justify-content: center;
     gap: 32px;
 
-    padding: 32px 42px;
+    padding: 32px 58px;
     border-radius: 24px;
     background-color: $menu-background;
     box-shadow: 0 0 32px $shadowColor;
     border-top: 4px solid $accent;
+
+    transition: all $duration ease-in-out;
 }
 
 .form-field {
@@ -35,8 +37,6 @@
     justify-content: flex-start;
 }
 
-
-
 h3 {
     margin: unset;
 }
@@ -45,24 +45,27 @@ table,
 tr,
 th,
 td {
-
     border-collapse: collapse;
     border: 1px solid rgba(255, 255, 255, 1);
-    overflow: hidden;
 }
 
 .narrow-col {
-    padding: 4px 2px;
+    padding: 5px 4px;
+}
+
+.wide-col {
+    min-width: 120px;
 }
 
 th {
     background-color: $accent;
-    padding: 10px 40px;
+    padding: 12px 40px;
 }
 
 td {
     text-align: center;
-    padding: 6px 8px;
+    overflow: hidden;
+    padding: 6px 12px;
 }
 
 .confirm-button {
@@ -78,12 +81,44 @@ td {
     }
 }
 
-.table-field{
+.table-field {
     overflow: hidden;
 }
 
-hr{
+hr {
     width: 100%;
     border: 2px solid $accent;
     border-radius: 3px;
+}
+
+@media (max-width: 996px) {
+
+    .redirection-management-field {
+        padding: 24px 12px; 
+        gap: 10px;
+    }
+
+    *{
+        font-size:x-small;
+    }
+
+    th {
+        padding: 4px 26px;
+    }
+
+    td{
+        padding: 3px 6px;
+    }
+
+    .wide-col{
+        min-width: 60px;
+    }
+
+    .narrow-col {
+        padding: 2px 3px;
+    }
+
+    .inputs-field{
+        flex-direction: column;
+    }
 }
