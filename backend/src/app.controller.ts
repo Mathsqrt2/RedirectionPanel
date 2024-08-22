@@ -10,10 +10,4 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Post("/api")
-  response(): string {
-    console.log('zapytano');
-    return "dziala";
-  }
-
 }
