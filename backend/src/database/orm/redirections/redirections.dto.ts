@@ -9,6 +9,6 @@ export class RedirectionsDto {
     route: string;
 
     @IsNumber()
-    userId: number;
+    user: number;
 
 }

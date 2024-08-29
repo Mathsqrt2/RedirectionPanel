@@ -1,6 +1,6 @@
 import { Controller, Post, Param, Body, Get, Query, Put, Patch, Delete, HttpStatus } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
-import { CRUDBody, CRUDResponse } from "./database.types";
+import { DTOs, CRUDResponse } from "./database.types";
 
 @Controller(`api`)
 export class DatabaseController {
@@ -64,7 +64,7 @@ export class DatabaseController {
     @Post(`multiple/:endpoint`)
     async createMultipleElements(
         @Param(`endpoint`) endpoint: string,
-        @Body() dataArray: CRUDBody[],
+        @Body() dataArray: DTOs[],
     ): Promise<CRUDResponse> {
         try {
             return await this.database.createMultipleElements({ endpoint, dataArray });
@@ -80,7 +80,7 @@ export class DatabaseController {
     @Post(`/:endpoint`)
     async createSingleElement(
         @Param(`endpoint`) endpoint: string,
-        @Body() data: CRUDBody,
+        @Body() data: DTOs,
     ): Promise<CRUDResponse> {
         try {
             return await this.database.createSingleElement({ endpoint, data });
@@ -97,7 +97,7 @@ export class DatabaseController {
     async updateSingleElement(
         @Param(`endpoint`) endpoint: string,
         @Param(`id`) id: number,
-        @Body() data: CRUDBody,
+        @Body() data: DTOs,
     ) {
         try {
             return await this.database.updateSingleElement({ endpoint, id, data });
@@ -114,7 +114,7 @@ export class DatabaseController {
     async patchSingleElementById(
         @Param(`endpoint`) endpoint: string,
         @Param(`id`) id: number,
-        @Body() data: CRUDBody,
+        @Body() data: DTOs,
     ) {
         try {
             return await this.database.patchSingleElement({ endpoint, id, data });
@@ -132,7 +132,7 @@ export class DatabaseController {
         @Param(`endpoint`) endpoint: string,
         @Param(`param`) param: string,
         @Param(`value`) value: string | number,
-        @Body() data: CRUDBody,
+        @Body() data: DTOs,
     ) {
         try {
             return await this.database.patchMultipleElementsByParam({ endpoint, param, value, data });
