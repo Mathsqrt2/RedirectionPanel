@@ -8,9 +8,6 @@ export class RedirectionsDto {
     @IsString()
     route: string;
 
-    @IsDate()
-    creationTime: Date;
-
     @IsNumber()
     userId: number;
 

@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsDate } from 'class-validator';
+import { IsString, IsDate, IsNumber } from 'class-validator';
 
 export class LogsDto {
 
@@ -8,7 +8,10 @@ export class LogsDto {
     @IsString()
     description: string;
 
-    @IsDate()
-    creationTime: Date;
+    @IsString()
+    status: string;
+
+    @IsNumber()
+    duration: number;
 
 }

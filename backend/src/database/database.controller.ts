@@ -9,7 +9,7 @@ export class DatabaseController {
     ) { }
 
     @Get(`/:endpoint`)
-    async getCRUDMultipleElements(
+    async getElements(
 
     ) {
 
