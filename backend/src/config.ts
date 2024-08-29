@@ -1,12 +1,12 @@
-import env from 'dotenv';
+import * as env from 'dotenv';
 env.config();
 
 export default {
     port: process.env.PORT,
     database: {
-        host: process.env.HOST,
-        username: process.env.USERNAME,
-        password: process.env.PASSWORD,
+        host: process.env.DBHOST,
+        username: process.env.DBUSERNAME,
+        password: process.env.DBPASSWORD,
         database: process.env.DATABASE,
     }
 }

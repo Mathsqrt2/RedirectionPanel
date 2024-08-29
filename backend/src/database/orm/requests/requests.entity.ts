@@ -1,14 +1,14 @@
 import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, ManyToOne } from "typeorm";
-import { RedirectionsEntity as Redirection } from "../redirections/redirections.entity";
+import { Redirections as Redirection } from "../redirections/redirections.entity";
 
 @Entity()
-export class RequestsEntity {
+export class Requests {
 
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Redirection, redirection => redirection.id)
-    redirectionId: Redirection;
+    @ManyToOne(() => Redirection, redirection => redirection.requests)
+    redirection: Redirection;
 
     @Column()
     requestIp: string;

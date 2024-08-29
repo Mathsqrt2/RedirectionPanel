@@ -1,9 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, OneToMany, ManyToOne } from "typeorm";
-import { UsersEntity as User } from "../users/users.entity";
-import { RequestsEntity as Request } from "../requests/requests.entity";
+import { Users as User } from "../users/users.entity";
+import { Requests as Request } from "../requests/requests.entity";
 
 @Entity()
-export class RedirectionsEntity {
+export class Redirections {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -14,11 +14,11 @@ export class RedirectionsEntity {
     @Column()
     route: string;
 
-    @OneToMany(() => Request, request => request.id)
+    @OneToMany(() => Request, request => request.redirection)
     requests: Request[];
 
-    @ManyToOne(() => User, user => user.id)
-    userId: User;
+    @ManyToOne(() => User, user => user.redirections)
+    user: User;
 
     @Generated()
     creationTime: Timestamp;

@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated } from "typeorm";
 
 @Entity()
-export class SecretsEntity {
+export class Secrets {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -10,9 +10,9 @@ export class SecretsEntity {
     decryptionKey: string;
 
     @Generated()
-    creationTime: string;
+    creationTime: Timestamp;
 
     @Column()
-    expirationTime: Timestamp;
+    expirationTime: number;
 
 }
