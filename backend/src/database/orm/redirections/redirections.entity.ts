@@ -1,8 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, OneToMany, ManyToOne } from "typeorm";
-import { Users as User } from "../users/users.entity";
-import { Requests as Request } from "../requests/requests.entity";
+import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, OneToMany, ManyToOne, Unique } from "typeorm";
 
 @Entity()
+@Unique([`route`])
 export class Redirections {
 
     @PrimaryGeneratedColumn()
@@ -11,14 +10,11 @@ export class Redirections {
     @Column()
     targetUrl: string;
 
-    @Column()
+    @Column({ unique: true })
     route: string;
 
-    @OneToMany(() => Request, request => request.redirection)
-    requests: Request[];
-
-    @ManyToOne(() => User, user => user.redirections)
-    user: User;
+    @Column()
+    userId: number;
 
     @Generated()
     creationTime: Timestamp;

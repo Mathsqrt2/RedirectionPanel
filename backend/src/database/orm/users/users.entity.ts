@@ -1,20 +1,17 @@
-import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, OneToMany } from "typeorm";
-import { Redirections as Redirection } from "../redirections/redirections.entity";
+import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, OneToMany, Unique } from "typeorm";
 
 @Entity()
+@Unique(['login'])
 export class Users {
 
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({ unique: true })
     login: string;
 
     @Column()
     password: string;
-
-    @OneToMany(() => Redirection, redirection => redirection.user)
-    redirections: Redirection[];
 
     @Column({ default: false })
     canDelete: boolean;
