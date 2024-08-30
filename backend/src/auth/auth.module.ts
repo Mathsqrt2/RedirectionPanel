@@ -9,13 +9,12 @@ import config from "src/config";
     imports: [
         DatabaseModule,
         JwtModule.register({
-            global: true,
             secret: config.secret,
-            signOptions: { expiresIn: '14d' },
+            global: true,
+            signOptions: { expiresIn: '7d' },
         }),
     ],
     providers: [
-        JwtService,
         AuthService,
     ],
     controllers: [AuthController],

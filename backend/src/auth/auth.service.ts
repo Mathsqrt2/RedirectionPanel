@@ -109,7 +109,9 @@ export class AuthService {
         }
 
         const payload = { sub: user.id, username: user.login };
-        return { accessToken: await this.jwtService.signAsync(payload) }
+        const accessToken = await this.jwtService.signAsync(payload);
+        return { accessToken };
+
     }
 
     logoutUser = async ({ login, accessToken }: logoutUser): Promise<any> => {
@@ -129,7 +131,6 @@ export class AuthService {
         } else {
             throw new UnauthorizedException(`Access denied.`);
         }
-
     }
 
 }

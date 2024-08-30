@@ -1,10 +1,12 @@
-import { BadRequestException, Body, Controller, Delete, HttpStatus, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, HttpStatus, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
 import { LoginUserResponse, logoutUserResponse, RegisterUserResponse, RemoveUserResponse } from './auth.types';
 import { LogoutUserDto } from './dtos/logoutUser.dto';
 import { RemoveUserDto } from './dtos/removeUser.dto';
+import { Response } from 'express';
+import { ReturnDocument } from 'typeorm';
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -15,9 +17,12 @@ export class AuthController {
     @Post(`register`)
     async registerUser(
         @Body() body: RegisterUserDto,
+        @Res({ passthrough: true }) response: Response,
     ): Promise<RegisterUserResponse> {
         try {
-            return await this.authService.registerUser(body);
+            const accessToken = await this.authService.registerUser(body);
+            response.cookie('jwt', accessToken, { httpOnly: true });
+            return accessToken;
         } catch (err) {
             console.log(`registerUser`, err);
             return {
@@ -30,32 +35,22 @@ export class AuthController {
     @Post(`login`)
     async loginUser(
         @Body() body: LoginUserDto,
+        @Res({ passthrough: true }) response: Response,
     ): Promise<LoginUserResponse> {
         try {
             if (!body.login || !body.password) {
                 throw new BadRequestException();
             }
-            return await this.authService.loginUser(body);
+
+            const accessToken = await this.authService.loginUser(body)
+            response.cookie('jwt', accessToken, { httpOnly: true });
+            return accessToken;
+
         } catch (err) {
             console.log(`loginUser`, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Couldn't login. ${err}`,
-            }
-        }
-    }
-
-    @Post(`logout`)
-    async logoutUser(
-        @Body() body: LogoutUserDto,
-    ): Promise<logoutUserResponse> {
-        try {
-            return await this.authService.logoutUser(body);
-        } catch (err) {
-            console.log(`logoutUser`, err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't logout.`,
             }
         }
     }
