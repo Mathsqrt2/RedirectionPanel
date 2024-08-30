@@ -114,10 +114,6 @@ export class AuthService {
 
     }
 
-    logoutUser = async ({ login, accessToken }: logoutUser): Promise<any> => {
-        return
-    }
-
     removeUser = async ({ login, password }: RemoveUserProps): Promise<any> => {
 
         const user = await this.users.findOneBy({ login });

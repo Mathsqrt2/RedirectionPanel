@@ -40,16 +40,40 @@ export class AuthGuard implements CanActivate {
             user.username = payload.username;
             request['user'] = payload;
 
-            const userPermissions = this.users.findOneBy({ id: user.id });
+            const userPermissions = await this.users.findOneBy({ id: user.id });
+            const method = request.route.methods;
 
-        } catch {
+            if (method?.post && !userPermissions.canCreate) {
+                throw new UnauthorizedException(`Couldn't create. Insufficient permissions`);
+            }
+
+            else if (method?.delete && !userPermissions.canDelete) {
+                throw new UnauthorizedException(`Couldn't delete. Insufficient permissions`);
+            }
+
+            else if ((method?.patch || method.put) && !userPermissions.canUpdate) {
+                throw new UnauthorizedException(`Couldn't update. insufficient permissions`);
+            }
+
+            if (request.params.endpoint === 'users' && !userPermissions.canManage) {
+                throw new UnauthorizedException(`Couldn't manage users. Insufficient permissions`);
+            }
+
+        } catch (err) {
+            console.log(err);
+            await this.logs.save({
+                label: `Failed to authorize in service. ${err}`,
+                description: `User "${user.username}" with id: "${user.id}". Request "${JSON.stringify(request.route.methods)}" Time: ${new Date()}`,
+                status: "failed",
+                duration: Math.floor(Date.now() - startTime),
+            })
             throw new UnauthorizedException();
         }
 
         await this.logs.save({
-            label: "User has successfully authorized in service.",
-            description: `User ${user.username} with id: ${user.id}. Time: ${new Date()}`,
-            status: "completed",
+            label: `${user.username} has successfully authorized in service.`,
+            description: `User ${user.username} with id: ${user.id}. Request ${JSON.stringify(request.route.methods)} Time: ${new Date()}`,
+            status: "success",
             duration: Math.floor(Date.now() - startTime),
         })
 

@@ -2,11 +2,9 @@ import { BadRequestException, Body, Controller, Delete, HttpStatus, Post, Res } 
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
-import { LoginUserResponse, logoutUserResponse, RegisterUserResponse, RemoveUserResponse } from './auth.types';
-import { LogoutUserDto } from './dtos/logoutUser.dto';
+import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Response } from 'express';
-import { ReturnDocument } from 'typeorm';
 
 @Controller(`api/auth`)
 export class AuthController {
