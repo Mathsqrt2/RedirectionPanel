@@ -15,9 +15,9 @@ type ErrorResponse = {
     message: string;
 }
 
+export type DatabaseOutput = ErrorResponse | { status: HttpStatus, content?: CRUDTypes};
 export type DTOs = LogsDto | RedirectionsDto | RequestsDto | SecretsDto | UsersDto;
 export type CRUDTypes = Logs | Redirections | Requests | Secrets | Users | any;
-export type DatabaseOutput = ErrorResponse | any;
 export type CRUDResponse = ErrorResponse | DatabaseOutput;
 
 export type getMultipleElementsProps = {

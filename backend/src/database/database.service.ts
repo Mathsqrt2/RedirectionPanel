@@ -1,6 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { Repository } from 'typeorm';
-import { SHA256 } from 'crypto-js'
 import { HttpStatus } from "@nestjs/common";
 import {
     createSingleElementProps, CRUDTypes, createMultipleElementsProps,
@@ -45,20 +44,20 @@ export class DatabaseService {
         if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
         try {
-            const response = await model.find({});
+            const response = await model.find();
 
             if (maxCount) {
                 response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
             }
 
             this.logs.save({
-                label: `${Response.length} elements found successfully on "${endpoint}"`,
+                label: `${response.length} elements found successfully on "${endpoint}"`,
                 description: `Search on "${endpoint}", endpoint: ${endpoint}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
             })
 
-            return response;
+            return { status: HttpStatus.FOUND, content: response };
 
         } catch (err) {
 
@@ -86,7 +85,16 @@ export class DatabaseService {
 
         try {
 
-            return await model.findOneBy({ id });
+            const response = await model.findOneBy({ id });
+
+            this.logs.save({
+                label: `Item found successfully on "${endpoint}"`,
+                description: `Search on "${endpoint}", endpoint: ${endpoint}, id: ${id}. ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
+
+            return response
 
         } catch (err) {
 
@@ -106,7 +114,7 @@ export class DatabaseService {
         }
     }
 
-    getMultipleElementsByParam = async ({ endpoint, param, value, maxCount, offset }: getMultipleElementsByParamProps): Promise<DatabaseOutput> => {
+    getMultipleElementsByParam = async ({ endpoint, param, value, maxCount, offset = 0 }: getMultipleElementsByParamProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -114,15 +122,23 @@ export class DatabaseService {
         if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
         try {
+
             const query = {}
             query[param] = value;
-            const response = await model.find(query);
+            const response = await model.findBy(query);
 
             if (maxCount) {
                 response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
             }
 
-            return response;
+            this.logs.save({
+                label: `${response.length} item found successfully on "${endpoint}"`,
+                description: `Search on "${endpoint}", query: {${param}:${value}}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
+
+            return { status: HttpStatus.FOUND, content: response };
 
         } catch (err) {
 
@@ -151,13 +167,21 @@ export class DatabaseService {
         if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
         try {
-            const confirmation = [];
+
+            const response = [];
             for (let item of dataArray) {
                 const content = await model.save({ ...item });
-                confirmation.push(content);
+                response.push(content);
             }
 
-            return confirmation;
+            this.logs.save({
+                label: `${dataArray.length} items created successfully on "${endpoint}"`,
+                description: `endpoint: ${endpoint}. ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
+
+            return { status: HttpStatus.CREATED, content: response };
 
         } catch (err) {
 
@@ -184,11 +208,19 @@ export class DatabaseService {
         const model = this.recognizeModel(endpoint);
 
         if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
-        const response = await model.save(data);
 
         try {
 
-            return response;
+            const response = await model.save(data);
+
+            this.logs.save({
+                label: `Single item created successfully on "${endpoint}"`,
+                description: `endpoint: ${endpoint}. ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
+
+            return { status: HttpStatus.CREATED, content: response };
 
         } catch (err) {
 
@@ -218,8 +250,16 @@ export class DatabaseService {
         try {
 
             const instance = await model.findOneBy({ id });
-            return await model.save({ ...instance, ...data });
+            const response = await model.save({ ...instance, ...data });
 
+            this.logs.save({
+                label: `Item with id: ${id} updated successfully on "${endpoint}"`,
+                description: `endpoint: ${endpoint}, element id: ${id}, new data: ${data}. ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
+
+            return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
@@ -250,8 +290,16 @@ export class DatabaseService {
         try {
 
             const instance = await model.findOneBy({ id });
-            return await model.save({ ...instance, ...data });
+            const response = await model.save({ ...instance, ...data });
 
+            this.logs.save({
+                label: `Item with id: "${id}" patched successfully on "${endpoint}"`,
+                description: `endpoint: ${endpoint}, id: ${id}, new data: ${data}. ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
+
+            return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
@@ -279,10 +327,23 @@ export class DatabaseService {
         if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
         try {
+            const response = [];
+            const query = {};
+            query[param] = value;
+            const instances = await model.findBy(query);
+            for (let instance of instances) {
+                const item = await model.save({ ...instance, ...data });
+                response.push(item);
+            }
 
-            const instance = await model.findOneBy({ param: value });
-            return await model.save({ ...instance, ...data });
+            this.logs.save({
+                label: `${response.length} items patched successfully on "${endpoint}"`,
+                description: `endpoint: ${endpoint}, items: ${response.length}, query: {${param}:${value}}. New data: ${data}. ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
 
+            return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
@@ -311,7 +372,18 @@ export class DatabaseService {
 
         try {
 
-            const instance = await model.findOneBy({ id });
+            const item = await model.findOneBy({ id });
+            const status = await model.delete({ id });
+            const response = { ...status, raw: { ...item } };
+
+            this.logs.save({
+                label: `Items with ID: ${id} deleted successfully on "${endpoint}"`,
+                description: `endpoint: ${endpoint}, item: ${JSON.stringify(response)}, id: "${id}". ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
+
+            return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
@@ -340,6 +412,21 @@ export class DatabaseService {
 
         try {
 
+            const query = {};
+            query[param] = value;
+
+            const item = await model.findBy(query);
+            const status = await model.delete(query);
+            const response = { ...status, raw: [...item] };
+
+            this.logs.save({
+                label: `${response?.raw?.length} items deleted successfully on "${endpoint}"`,
+                description: `endpoint: ${endpoint}, items: ${JSON.stringify(response)}, query: {${param}:${value}}. ${new Date()}`,
+                status: `success`,
+                duration: Date.now() - startTime,
+            })
+
+            return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
