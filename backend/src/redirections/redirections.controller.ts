@@ -54,12 +54,12 @@ export class RedirectionsController {
 
             this.logs.save({
                 label: `User redirected successfully`,
-                description: `Client redirected from "${redirection}" to "${url?.targetUrl}", ${new Date()}`,
+                description: `Client redirected by "${redirection}" to "${url?.targetUrl}", ${new Date()}`,
                 status: `completed`,
                 duration: Date.now() - startTime,
             });
 
-            return { url: 'https://instagram.com', status: 302 }
+            return { url: url?.targetUrl, status: 302 }
         }
 
         if (!this.loggedRequests.includes(requestId) && redirection !== 'not-found') {

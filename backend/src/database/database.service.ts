@@ -37,36 +37,73 @@ export class DatabaseService {
         }
     }
 
-    getMultipleElements = async ({ endpoint, maxCount, offset }: getMultipleElementsProps): Promise<DatabaseOutput> => {
+    getMultipleElements = async ({ endpoint, maxCount, offset = 0 }: getMultipleElementsProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
         try {
-            const response = '';
+            const response = await model.find({});
+
+            if (maxCount) {
+                response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
+            }
+
             this.logs.save({
-                label: `Successfully found`,
-                description: ` "${endpoint}", ${new Date()}`,
+                label: `${Response.length} elements found successfully on "${endpoint}"`,
+                description: `Search on "${endpoint}", endpoint: ${endpoint}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
             })
+
             return response;
 
         } catch (err) {
-            console.log(`getMultipleElementsByParam error:`, err);
+
+            console.log(`getMultipleElements error: `, err);
             this.logs.save({
-                label: `Error while geting multiple elements`,
-                description: `Couldn't get elements on: "${endpoint}", ${new Date()}`,
+                label: `Error while trying to get multiple elements`,
+                description: `Couldn't get elements on: "${endpoint}", maxCount: ${maxCount}, offset: ${offset}. getMultipleElements error: ${err} ${new Date()}`,
                 status: `failed`,
                 duration: Date.now() - startTime,
             })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't get elements on: "${endpoint}"`,
+            }
         }
-        return
     }
 
     getSingleElementById = async ({ endpoint, id }: getSingleElementByIdProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
-        return
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+        try {
+
+            return await model.findOneBy({ id });
+
+        } catch (err) {
+
+            console.log(`getSingleElementById error: `, err);
+            this.logs.save({
+                label: `Error while trying to get single element`,
+                description: `Couldn't get element with id: "${id}" on: "${endpoint}". getSingleElementById error: ${err}. ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't get element with id: "${id}" on: "${endpoint}"`,
+            }
+
+        }
     }
 
     getMultipleElementsByParam = async ({ endpoint, param, value, maxCount, offset }: getMultipleElementsByParamProps): Promise<DatabaseOutput> => {
@@ -79,18 +116,66 @@ export class DatabaseService {
         try {
             const query = {}
             query[param] = value;
-            const response = model.find(query);
+            const response = await model.find(query);
+
+            if (maxCount) {
+                response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
+            }
 
             return response;
+
         } catch (err) {
-            console.log(`getMultipleElementsByParam error:`, err);
+
+            console.log(`getMultipleElementsByParam error: `, err);
+            this.logs.save({
+                label: `Error while geting multiple elements by param`,
+                description: `Couldn't get multiple elements by {${param}:${value}} on: "${endpoint}",
+                    maxCount: ${maxCount}, offset: ${offset}, getMultipleElementsByParam error: ${err} ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't get elements {${param}:${value}} on: "${endpoint}"`,
+            }
+
         }
     }
 
     createMultipleElements = async ({ endpoint, dataArray }: createMultipleElementsProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
-        return
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+        try {
+            const confirmation = [];
+            for (let item of dataArray) {
+                const content = await model.save({ ...item });
+                confirmation.push(content);
+            }
+
+            return confirmation;
+
+        } catch (err) {
+
+            console.log(`createMultipleElements error: `, err);
+            this.logs.save({
+                label: `Error while trying to create multiple elements`,
+                description: `Couldn't create ${dataArray.length} elements on "${endpoint}". createMultipleElements error: ${err} ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't create ${dataArray.length} elements on "${endpoint}"`,
+            }
+
+        }
+
     }
 
     createSingleElement = async ({ endpoint, data }: createSingleElementProps): Promise<DatabaseOutput> => {
@@ -99,38 +184,179 @@ export class DatabaseService {
         const model = this.recognizeModel(endpoint);
 
         if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
-        const content = await model.save(data);
+        const response = await model.save(data);
 
-        return content;
+        try {
+
+            return response;
+
+        } catch (err) {
+
+            console.log(`createSingleElement error: `, err);
+            this.logs.save({
+                label: `Error while trying to create single element`,
+                description: `Couldn't create single element on "${endpoint}". createSingleElement error: ${err} ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't create single element on "${endpoint}"`,
+            }
+
+        }
     }
 
     updateSingleElement = async ({ endpoint, id, data }: updateSingleElementProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
-        return
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+        try {
+
+            const instance = await model.findOneBy({ id });
+            return await model.save({ ...instance, ...data });
+
+
+        } catch (err) {
+
+            console.log(`updateSingleElement error: `, err);
+            this.logs.save({
+                label: `Error while trying to update single element`,
+                description: `Couldn't update single element with id: "${id}" on "${endpoint}". updateSingleElement error: ${err} ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't update single element with id: "${id}" on "${endpoint}"`,
+            }
+
+        }
+
     }
 
     patchSingleElement = async ({ endpoint, id, data }: patchSingleElementProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
-        return
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+        try {
+
+            const instance = await model.findOneBy({ id });
+            return await model.save({ ...instance, ...data });
+
+
+        } catch (err) {
+
+            console.log(`patchSingleElement error: `, err);
+            this.logs.save({
+                label: `Error while trying to patch single element`,
+                description: `Couldn't patch single element with id: "${id}" on "${endpoint}". patchSingleElement error: ${err} ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't patch single element with id: "${id}" on "${endpoint}"`,
+            }
+
+        }
     }
 
     patchMultipleElementsByParam = async ({ endpoint, param, value, data }: patchMultipleElementsByParamProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
-        return
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+        try {
+
+            const instance = await model.findOneBy({ param: value });
+            return await model.save({ ...instance, ...data });
+
+
+        } catch (err) {
+
+            console.log(`patchMultipleElementsByParam error: `, err);
+            this.logs.save({
+                label: `Error while trying to patch multiple elements`,
+                description: `Couldn't patch ${data.length} elements found by: {${param}:${value}} on "${endpoint}". patchMultipleElementsByParam error: ${err} ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't patch multiple elements found by: {${param}:${value}} on "${endpoint}"`,
+            }
+
+        }
     }
 
     deleteSingleElementById = async ({ endpoint, id }: deleteSingleElementByIdProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
-        return
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+        try {
+
+            const instance = await model.findOneBy({ id });
+
+        } catch (err) {
+
+            console.log(`deleteSingleElementById error: `, err);
+            this.logs.save({
+                label: `Error while trying to delete single element`,
+                description: `Couldn't delete single element with id: "${id}" on "${endpoint}". deleteSingleElementById error: ${err} ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't delete single element with id: "${id}" on "${endpoint}"`,
+            }
+
+        }
     }
 
     deleteMultipleElementsByParam = async ({ endpoint, param, value }: deleteMultipleElementsByParamProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
-        return
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+        try {
+
+
+        } catch (err) {
+
+            console.log(`deleteMultipleElementsByParam error: `, err);
+            this.logs.save({
+                label: `Error while trying to delete multiple element`,
+                description: `Couldn't delete multiple elements found by: {${param}:${value}} on "${endpoint}". deleteMultipleElementsByParam error: ${err} ${new Date()}`,
+                status: `failed`,
+                duration: Date.now() - startTime,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't delete multiple elements found by {${param}:${value}} on "${endpoint}"`,
+            }
+
+        }
+
     }
 }
