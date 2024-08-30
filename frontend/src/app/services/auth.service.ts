@@ -1,6 +1,8 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable, OnInit } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
+import { UsersService } from "./users.service";
+import { Router } from "@angular/router";
 
 @Injectable()
 
@@ -8,20 +10,27 @@ export class AuthService {
 
     constructor(
         private readonly http: HttpClient,
+        private readonly router: Router,
+        private usersService: UsersService,
     ) {
 
         if (localStorage.getItem(`accessToken`)) {
             const response = JSON.parse(localStorage.getItem(`accessToken`));
-            console.log(response.expireDate);
-            console.log(Date.now())
             if (Date.now() > response.expireDate) {
                 localStorage.removeItem(`accessToken`);
             } else {
+                this.usersService.registerUser({ 
+                    username: response.login, 
+                    permissions: response.permissions,
+                    accessToken: response.accessToken,
+                });
                 this.setStatus(response.accessToken);
+                const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7);
+                localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+                this.router.navigate(['/admin'])
             }
         }
     }
-
 
     private baseUrl: string = `http://localhost:3000/api`;
     private isLoggedIn: Boolean = false;
@@ -84,7 +93,7 @@ export class AuthService {
     }
 }
 
-type Permissions = {
+export type Permissions = {
     canDelete: boolean,
     canUpdate: boolean,
     canCreate: boolean,

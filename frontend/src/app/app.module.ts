@@ -18,6 +18,8 @@ import { ManageUsersComponent } from './admin/manage-users/manage-users.componen
 import { ManageRedirectionsComponent } from './admin/manage-redirections/manage-redirections.component';
 import { DisplayStatsComponent } from './admin/display-stats/display-stats.component';
 import { AdminService } from './services/admin.service';
+import { UsersService } from './services/users.service';
+import { RedirectionsService } from './services/redirections.service';
 
 @NgModule({
   declarations: [
@@ -43,6 +45,8 @@ import { AdminService } from './services/admin.service';
     AuthGuard,
     AuthService,
     AdminService,
+    UsersService,
+    RedirectionsService,
   ],
   bootstrap: [
     AppComponent
