@@ -18,9 +18,9 @@ export class AuthController {
         @Res({ passthrough: true }) response: Response,
     ): Promise<RegisterUserResponse> {
         try {
-            const accessToken = await this.authService.registerUser(body);
-            response.cookie('jwt', accessToken, { httpOnly: true });
-            return accessToken;
+            const newUser = await this.authService.registerUser(body);
+            response.cookie('jwt', newUser.status, { httpOnly: true });
+            return newUser;
         } catch (err) {
             console.log(`registerUser`, err);
             return {

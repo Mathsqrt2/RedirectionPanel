@@ -9,6 +9,8 @@ export type RegisterUser = {
 export type RegisterUserResponse = {
     status: HttpStatus.ACCEPTED | HttpStatus.OK,
     accessToken: string,
+    login: string,
+    permissions: Permissions,
 } | ErrorResponse;
 
 type ErrorResponse = {
@@ -21,8 +23,18 @@ export type LoginUser = {
     password: string,
 }
 
+type Permissions = {
+    canDelete: boolean,
+    canUpdate: boolean,
+    canCreate: boolean,
+    canManage: boolean,
+}
+
 export type LoginUserResponse = {
+    status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
     accessToken: string,
+    login: string,
+    permissions: Permissions
 } | ErrorResponse;
 
 export type logoutUser = {

@@ -30,7 +30,6 @@ export class AuthService {
 
     registerUser = async ({ login, password, confirmPassword }: RegisterUser): Promise<RegisterUserResponse> => {
 
-        const startTime = Date.now();
         const user = await this.users.findOneBy({ login });
 
         if (user) {
@@ -50,20 +49,22 @@ export class AuthService {
             canManage: false,
         })
 
+        const { canDelete, canUpdate, canCreate, canManage } = newUser;
         const payload = { sub: newUser.id, username: newUser?.login };
 
         return {
             status: HttpStatus.ACCEPTED,
             accessToken: await this.jwtService.signAsync(payload),
+            login: newUser.login,
+            permissions: { canDelete, canUpdate, canCreate, canManage }
         };
 
     }
 
     loginUser = async ({ login, password }: LoginUser): Promise<LoginUserResponse> => {
 
-        const startTime = Date.now();
         const user = await this.users.findOneBy({ login });
-
+        const { canDelete, canUpdate, canCreate, canManage } = user;
         if (!user) {
             throw new UnauthorizedException(`Login or password incorrect`);
         }
@@ -74,13 +75,17 @@ export class AuthService {
 
         const payload = { sub: user.id, username: user.login };
         const accessToken = await this.jwtService.signAsync(payload);
-        return { accessToken };
+        return {
+            status: HttpStatus.OK,
+            accessToken,
+            login: user.login,
+            permissions: { canDelete, canUpdate, canCreate, canManage }
+        };
 
     }
 
     removeUser = async ({ login, password }: RemoveUserProps): Promise<RemoveUserResponse> => {
 
-        const startTime = Date.now();
         const user = await this.users.findOneBy({ login });
 
         if (!user) {
