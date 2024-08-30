@@ -14,7 +14,7 @@ export class Secrets {
     creationTime: Timestamp;
 
     @Column()
-    expirationTime: Number;
+    expirationTime: number;
 
     @Column()
     status: string;

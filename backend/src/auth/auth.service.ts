@@ -11,13 +11,12 @@ export type User = any;
 @Injectable()
 
 export class AuthService {
-
     constructor(
         @Inject(`USERS`) private readonly users: Repository<Users>,
         @Inject(`SECRETS`) private readonly secrets: Repository<Secrets>,
         private readonly jwtService: JwtService,
-    ) {
-    }
+    ) { }
+
     private assignRequestID = (requestSubject: string): string => {
         return SHA256(`${requestSubject}.${Date.now()}`).toString();
     }
@@ -35,11 +34,22 @@ export class AuthService {
         return false
     }
 
-    private async getKey(): Promise<string> {
+    private getKey = async (): Promise<string> => {
 
         const secret = await this.secrets.findOneBy({ status: 'active' });
+        if (!secret) {
+            const oneMonth = 1000 * 60 * 60 * 24 * 30;
+            const data = {
+                decryptionKey: this.assignRequestID((Date.now()).toString()),
+                expirationTime: Date.now() + oneMonth,
+                status: 'active',
+            };
 
-        if (secret.expirationTime === Date.now()) {
+            await this.secrets.save(data);
+            return data.decryptionKey;
+        }
+
+        if (secret.expirationTime < Date.now()) {
             await this.secrets.save({ ...secret, status: 'inactive' });
 
             const oneMonth = 1000 * 60 * 60 * 24 * 30;
@@ -95,15 +105,15 @@ export class AuthService {
             throw new NotFoundException(`User not found.`);
         }
 
-        if (user?.password !== password) {
+        if (!this.comparePasswords(password, user.password)) {
             throw new UnauthorizedException(`Access denied.`);
         }
 
         const { ...result } = user;
 
-        //const payload = { sub: user.userId, username: user.username };
+        const payload = { sub: user.id, username: user.login };
         return {
-            accessToken: await this.jwtService.signAsync('payload'),
+            accessToken: await this.jwtService.signAsync(payload),
             refreshToken: '',
         }
     }

@@ -7,9 +7,14 @@ export type RegisterUser = {
 }
 
 export type RegisterUserResponse = {
-    status: HttpStatus.ACCEPTED | HttpStatus.CONFLICT | HttpStatus.BAD_REQUEST,
+    status: HttpStatus.ACCEPTED | HttpStatus.OK,
     accessToken: string,
     refreshToken: string,
+} | ErrorResponse;
+
+type ErrorResponse = {
+    status: HttpStatus.CONFLICT | HttpStatus.BAD_REQUEST | HttpStatus.INTERNAL_SERVER_ERROR | HttpStatus.UNAUTHORIZED,
+    message?: string;
 }
 
 export type LoginUser = {
@@ -20,7 +25,7 @@ export type LoginUser = {
 export type LoginUserResponse = {
     accessToken: string,
     refreshToken: string,
-}
+} | ErrorResponse;
 
 export type logoutUser = {
     login: string,
@@ -29,7 +34,7 @@ export type logoutUser = {
 
 export type logoutUserResponse = {
     status: HttpStatus.ACCEPTED | HttpStatus.UNAUTHORIZED,
-}
+} | ErrorResponse;
 
 export type RemoveUserProps = {
     login: string,
@@ -39,5 +44,5 @@ export type RemoveUserProps = {
 
 export type RemoveUserResponse = {
     status: HttpStatus.ACCEPTED | HttpStatus.UNAUTHORIZED,
-}
+} | ErrorResponse;
 

@@ -1,6 +1,5 @@
-import { BadRequestException, Body, Controller, Delete, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { JwtService } from '@nestjs/jwt';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
 import { LoginUserResponse, logoutUserResponse, RegisterUserResponse, RemoveUserResponse } from './auth.types';
@@ -20,7 +19,11 @@ export class AuthController {
         try {
             return await this.authService.registerUser(body);
         } catch (err) {
-            console.log(err);
+            console.log(`registerUser`, err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't register new user.`,
+            }
         }
     }
 
@@ -34,8 +37,11 @@ export class AuthController {
             }
             return await this.authService.loginUser(body);
         } catch (err) {
-            console.log(err);
-            return err;
+            console.log(`loginUser`, err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't login.`,
+            }
         }
     }
 
@@ -46,7 +52,11 @@ export class AuthController {
         try {
             return await this.authService.logoutUser(body);
         } catch (err) {
-            console.log(err);
+            console.log(`logoutUser`, err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't logout.`,
+            }
         }
     }
 
@@ -57,7 +67,11 @@ export class AuthController {
         try {
             return await this.authService.removeUser(body);
         } catch (err) {
-            console.log(err);
+            console.log(`removeUser`, err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't removeUser.`,
+            }
         }
     }
 

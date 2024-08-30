@@ -1,12 +1,18 @@
 import { Module } from "@nestjs/common";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
-import { JwtService } from "@nestjs/jwt";
+import { JwtModule, JwtService } from "@nestjs/jwt";
 import { DatabaseModule } from "src/database/database.module";
+import config from "src/config";
 
 @Module({
     imports: [
-        DatabaseModule
+        DatabaseModule,
+        JwtModule.register({
+            global: true,
+            secret: config.secret,
+            signOptions: { expiresIn: '60s' },
+        }),
     ],
     controllers: [
         AuthController
@@ -15,6 +21,9 @@ import { DatabaseModule } from "src/database/database.module";
         AuthService,
         JwtService,
     ],
+    exports: [
+        AuthService
+    ]
 })
 
 export class AuthModule { }
