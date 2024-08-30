@@ -1,10 +1,10 @@
-import { BadRequestException, Body, Controller, Delete, HttpStatus, Post, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, HttpStatus, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
 import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -16,9 +16,10 @@ export class AuthController {
     async registerUser(
         @Body() body: RegisterUserDto,
         @Res({ passthrough: true }) response: Response,
+        @Req() req: Request,
     ): Promise<RegisterUserResponse> {
         try {
-            const newUser = await this.authService.registerUser(body);
+            const newUser = await this.authService.registerUser({ ...body, req });
             response.cookie('jwt', newUser.status, { httpOnly: true });
             return newUser;
         } catch (err) {
@@ -34,13 +35,15 @@ export class AuthController {
     async loginUser(
         @Body() body: LoginUserDto,
         @Res({ passthrough: true }) response: Response,
+        @Req() req: Request,
     ): Promise<LoginUserResponse> {
         try {
+
             if (!body.login || !body.password) {
                 throw new BadRequestException();
             }
 
-            const accessToken = await this.authService.loginUser(body)
+            const accessToken = await this.authService.loginUser({ ...body, req })
             response.cookie('jwt', accessToken, { httpOnly: true });
             return accessToken;
 

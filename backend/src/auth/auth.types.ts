@@ -1,9 +1,11 @@
 import { HttpStatus } from "@nestjs/common"
+import { Request } from "express";
 
 export type RegisterUser = {
     login: string,
     password: string,
     confirmPassword: string,
+    req?: Request,
 }
 
 export type RegisterUserResponse = {
@@ -21,6 +23,7 @@ type ErrorResponse = {
 export type LoginUser = {
     login: string,
     password: string,
+    req?: Request,
 }
 
 type Permissions = {

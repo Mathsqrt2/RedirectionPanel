@@ -36,7 +36,7 @@ export class AuthService {
         return false
     }
 
-    registerUser = async ({ login, password, confirmPassword }: RegisterUser): Promise<RegisterUserResponse> => {
+    registerUser = async ({ login, password, confirmPassword, req }: RegisterUser): Promise<RegisterUserResponse> => {
 
         const startTime = Date.now();
 
@@ -66,7 +66,7 @@ export class AuthService {
 
             await this.logs.save({
                 label: `User registered`,
-                description: `${login} registered, canManage: ${canManage}, canCreate: ${canCreate}, canUpdate: ${canUpdate}, canDelete: ${canDelete}`,
+                description: `${login} registered from ip: "${req?.ip}", canManage: ${canManage}, canCreate: ${canCreate}, canUpdate: ${canUpdate}, canDelete: ${canDelete}`,
                 status: `success`,
                 duration: Math.floor(Date.now() - startTime),
             })
@@ -82,7 +82,7 @@ export class AuthService {
 
             await this.logs.save({
                 label: `Error while trying to register user`,
-                description: `User couldn't be registered with login: "${login}", ${err}`,
+                description: `User couldn't be registered with login: "${login}" from ip: "${req?.ip}", ${err}`,
                 status: `failed`,
                 duration: Math.floor(Date.now() - startTime),
             })
@@ -92,7 +92,7 @@ export class AuthService {
         }
     }
 
-    loginUser = async ({ login, password }: LoginUser): Promise<LoginUserResponse> => {
+    loginUser = async ({ login, password, req }: LoginUser): Promise<LoginUserResponse> => {
 
         const startTime = Date.now();
 
@@ -112,10 +112,9 @@ export class AuthService {
             const accessToken = await this.jwtService.signAsync(payload);
 
             const { canDelete, canUpdate, canCreate, canManage } = user;
-
             await this.logs.save({
                 label: `Signed in`,
-                description: `User with login: "${login}" signed in, canManage: ${canManage}, canCreate: ${canCreate}, canUpdate: ${canUpdate}, canDelete: ${canDelete}. ${new Date()}`,
+                description: `User with login: "${login}" signed in from ip: "${req?.ip}", canManage: ${canManage}, canCreate: ${canCreate}, canUpdate: ${canUpdate}, canDelete: ${canDelete}. ${new Date()}`,
                 status: `success`,
                 duration: Math.floor(Date.now() - startTime),
             })
@@ -130,7 +129,7 @@ export class AuthService {
             console.log(err);
             await this.logs.save({
                 label: `error while trying to sign in`,
-                description: `User with login: "${login}" couldn't signed in. ${err}. ${new Date()}`,
+                description: `Someone tried to sign in: "${login}" from ip: "${req?.ip}" couldn't signed in. ${err}. ${new Date()}`,
                 status: `failed`,
                 duration: Math.floor(Date.now() - startTime),
             })
