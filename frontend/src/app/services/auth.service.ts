@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { Injectable, OnInit } from "@angular/core";
 import { Subject } from "rxjs";
 
 @Injectable()
@@ -8,11 +8,23 @@ export class AuthService {
 
     constructor(
         private readonly http: HttpClient,
-    ) { }
+    ) {
+
+        if (localStorage.getItem(`accessToken`)) {
+            const response = JSON.parse(localStorage.getItem(`accessToken`));
+            console.log(response.expireDate);
+            console.log(Date.now())
+            if (Date.now() > response.expireDate) {
+                localStorage.removeItem(`accessToken`);
+            } else {
+                this.setStatus(response.accessToken);
+            }
+        }
+    }
+
 
     private baseUrl: string = `http://localhost:3000/api`;
-    isLoggedIn: Boolean = true;
-
+    private isLoggedIn: Boolean = false;
     private accessToken: string | null = null;
     public authSubject = new Subject<boolean>();
 
@@ -28,18 +40,14 @@ export class AuthService {
         }
     }
 
-    async isAuthenticated() {
+    isAuthenticated = () => {
         return new Promise((resolve) => {
-            if (localStorage?.accessToken) {
-                const token = JSON.parse(localStorage.accessToken);
-                resolve(token.userAllowed && (Date.now() <= token.expireDate));
-            } else {
-                resolve(false);
+            if (this.isLoggedIn) {
+                resolve(true);
             }
-        }
-        )
+            resolve(false);
+        })
     }
-
 
     login = async (loginForm: { userLogin: string, userPassword: string }): Promise<boolean> => {
 
@@ -52,7 +60,9 @@ export class AuthService {
                         this.setStatus(response?.accessToken);
 
                         if (response.accessToken) {
-                            localStorage.setItem('accessToken', response.accessToken);
+
+                            const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+                            localStorage.accessToken = JSON.stringify({ ...response, expireDate });
                             resolve(true)
                         }
 
@@ -63,12 +73,9 @@ export class AuthService {
                         this.setStatus(response.accessToken);
                         reject(false);
                     },
-
                 })
             }
-
         })
-
     }
 
     logout() {
