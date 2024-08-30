@@ -63,24 +63,35 @@ export class AuthService {
 
     loginUser = async ({ login, password }: LoginUser): Promise<LoginUserResponse> => {
 
-        const user = await this.users.findOneBy({ login });
-        const { canDelete, canUpdate, canCreate, canManage } = user;
-        if (!user) {
-            throw new UnauthorizedException(`Login or password incorrect`);
-        }
+        try {
 
-        if (!this.comparePasswords(password, user.password)) {
-            throw new UnauthorizedException(`Login or password incorrect`);
-        }
+            const user = await this.users.findOneBy({ login });
 
-        const payload = { sub: user.id, username: user.login };
-        const accessToken = await this.jwtService.signAsync(payload);
-        return {
-            status: HttpStatus.OK,
-            accessToken,
-            login: user.login,
-            permissions: { canDelete, canUpdate, canCreate, canManage }
-        };
+            if (!user) {
+                throw new UnauthorizedException(`Login or password incorrect`);
+            }
+
+            if (!this.comparePasswords(password, user.password)) {
+                throw new UnauthorizedException(`Login or password incorrect`);
+            }
+
+            const payload = { sub: user.id, username: user.login };
+            const accessToken = await this.jwtService.signAsync(payload);
+
+            const { canDelete, canUpdate, canCreate, canManage } = user;
+
+            return {
+                status: HttpStatus.OK,
+                accessToken,
+                login: user.login,
+                permissions: { canDelete, canUpdate, canCreate, canManage }
+            };
+        } catch (err) {
+            console.log(err);
+            return {
+                status: HttpStatus.BAD_REQUEST
+            }
+        }
 
     }
 

@@ -9,9 +9,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   app.use(cookieParser())
   app.enableCors({
-    origin: config.origin,
+    origin: [config.origin1, config.origin2],
     credentials: true,
-     });
+  });
 
   await app.listen(config.port, () => {
     console.log(`Server is currently running on port ${config.port}. Relaunch date: ${new Date()}`)

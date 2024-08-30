@@ -49,7 +49,7 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `${response.length} elements found.`,
-                description: `Search on "${endpoint}", endpoint: ${endpoint}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
+                description: `endpoint: ${endpoint}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
             })
@@ -86,7 +86,7 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Single element found`,
-                description: `Search on "${endpoint}", endpoint: ${endpoint}, id: ${id}. ${new Date()}`,
+                description: `endpoint: ${endpoint}, id: ${id}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
             })

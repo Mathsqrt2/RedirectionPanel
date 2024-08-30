@@ -25,7 +25,7 @@ export class AuthController {
             console.log(`registerUser`, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't register new user. ${err}`,
+                message: `Couldn't register new user.`,
             }
         }
     }
@@ -48,7 +48,7 @@ export class AuthController {
             console.log(`loginUser`, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't login. ${err}`,
+                message: `Couldn't login.`,
             }
         }
     }

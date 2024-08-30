@@ -1,7 +1,7 @@
-import { HttpClient } from "@angular/common/http";
+import { Router } from "@angular/router";
 import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { SHA512 } from "crypto-js";
+import { AuthService } from "../../services/auth.service";
 
 @Component({
     selector: 'login',
@@ -12,29 +12,28 @@ import { SHA512 } from "crypto-js";
 
 export class LoginComponent implements OnInit {
 
-    constructor(private http: HttpClient) { }
+    constructor(
+        private readonly authService: AuthService,
+        private readonly router: Router,
+    ) { }
 
     accountDoesntExist: boolean = false;
     loginForm: FormGroup;
-    accounts: User[] = [
-        { login: 'qwerty', isAuthenticated: false }
-    ];
-
-
 
     ngOnInit(): void {
         this.loginForm = new FormGroup({
-            'login': new FormControl(null, [Validators.required]),
-            'password': new FormControl(null, [Validators.required]),
+            login: new FormControl(null, [Validators.required]),
+            password: new FormControl(null, [Validators.required]),
         })
     };
 
-    onSubmit(): void {
-        console.log(this.loginForm);
-        console.log("hash", SHA512(this.loginForm.value.password).toString())
-
-        if(this.loginForm.status === 'VALID'){
-            this.loginForm.reset();
+    async onSubmit(): Promise<void> {
+        if (this.loginForm.status === 'VALID') {
+            const request = await this.authService.login(this.loginForm.value);
+            if (request) {
+                this.loginForm.reset();
+                this.router.navigate(['/admin']);
+            }
         }
     };
 }
@@ -45,3 +44,4 @@ export type User = {
     refreshToken?: string,
     isAuthenticated: boolean,
 }
+
