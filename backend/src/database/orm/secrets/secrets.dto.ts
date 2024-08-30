@@ -8,4 +8,7 @@ export class SecretsDto {
     @IsDate()
     expirationTime: Date;
 
+    @IsString()
+    status: string;
+
 }

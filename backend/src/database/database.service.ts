@@ -9,7 +9,6 @@ import {
     patchSingleElementProps, updateSingleElementProps
 } from "./database.types";
 import { Users } from "./orm/users/users.entity";
-import { Secrets } from "./orm/secrets/secrets.entity";
 import { Requests } from "./orm/requests/requests.entity";
 import { Redirections } from "./orm/redirections/redirections.entity";
 import { Logs } from "./orm/logs/logs.entity";
@@ -21,7 +20,6 @@ export class DatabaseService {
         @Inject(`LOGS`) private logs: Repository<Logs>,
         @Inject(`REDIRECTIONS`) private redirections: Repository<Redirections>,
         @Inject(`REQUESTS`) private requests: Repository<Requests>,
-        @Inject(`SECRETS`) private secrets: Repository<Secrets>,
         @Inject(`USERS`) private users: Repository<Users>,
     ) { }
 
@@ -30,7 +28,6 @@ export class DatabaseService {
             case 'logs': return this.logs;
             case 'redirections': return this.redirections;
             case 'requests': return this.requests;
-            case 'secrets': return this.secrets;
             case 'users': return this.users;
             default: throw new Error(`Endpoint: "${endpoint}" doesn't exist.`);
         }

@@ -11,7 +11,6 @@ import { RemoveUserDto } from './dtos/removeUser.dto';
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
-        private readonly jwtService: JwtService,
     ) { }
 
     @Post(`register`)
