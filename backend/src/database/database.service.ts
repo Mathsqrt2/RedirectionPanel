@@ -48,7 +48,7 @@ export class DatabaseService {
             }
 
             this.logs.save({
-                label: `${response.length} elements found successfully on "${endpoint}"`,
+                label: `${response.length} elements found.`,
                 description: `Search on "${endpoint}", endpoint: ${endpoint}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -85,7 +85,7 @@ export class DatabaseService {
             const response = await model.findOneBy({ id });
 
             this.logs.save({
-                label: `Item found successfully on "${endpoint}"`,
+                label: `Single element found`,
                 description: `Search on "${endpoint}", endpoint: ${endpoint}, id: ${id}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -129,7 +129,7 @@ export class DatabaseService {
             }
 
             this.logs.save({
-                label: `${response.length} item found successfully on "${endpoint}"`,
+                label: `${response.length} items found`,
                 description: `Search on "${endpoint}", query: {${param}:${value}}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -172,7 +172,7 @@ export class DatabaseService {
             }
 
             this.logs.save({
-                label: `${dataArray.length} items created successfully on "${endpoint}"`,
+                label: `${dataArray.length} items created`,
                 description: `endpoint: ${endpoint}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -211,7 +211,7 @@ export class DatabaseService {
             const response = await model.save(data);
 
             this.logs.save({
-                label: `Single item created successfully on "${endpoint}"`,
+                label: `Single item created`,
                 description: `endpoint: ${endpoint}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -250,7 +250,7 @@ export class DatabaseService {
             const response = await model.save({ ...instance, ...data });
 
             this.logs.save({
-                label: `Item with id: ${id} updated successfully on "${endpoint}"`,
+                label: `Item with id: ${id} updated`,
                 description: `endpoint: ${endpoint}, element id: ${id}, new data: ${data}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -290,7 +290,7 @@ export class DatabaseService {
             const response = await model.save({ ...instance, ...data });
 
             this.logs.save({
-                label: `Item with id: "${id}" patched successfully on "${endpoint}"`,
+                label: `Item with id: "${id}" patched`,
                 description: `endpoint: ${endpoint}, id: ${id}, new data: ${data}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -334,7 +334,7 @@ export class DatabaseService {
             }
 
             this.logs.save({
-                label: `${response.length} items patched successfully on "${endpoint}"`,
+                label: `${response.length} items patched`,
                 description: `endpoint: ${endpoint}, items: ${response.length}, query: {${param}:${value}}. New data: ${data}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -374,7 +374,7 @@ export class DatabaseService {
             const response = { ...status, raw: { ...item } };
 
             this.logs.save({
-                label: `Items with ID: ${id} deleted successfully on "${endpoint}"`,
+                label: `Item with ID: ${id} deleted`,
                 description: `endpoint: ${endpoint}, item: ${JSON.stringify(response)}, id: "${id}". ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,
@@ -417,7 +417,7 @@ export class DatabaseService {
             const response = { ...status, raw: [...item] };
 
             this.logs.save({
-                label: `${response?.raw?.length} items deleted successfully on "${endpoint}"`,
+                label: `${response?.raw?.length} items deleted`,
                 description: `endpoint: ${endpoint}, items: ${JSON.stringify(response)}, query: {${param}:${value}}. ${new Date()}`,
                 status: `success`,
                 duration: Date.now() - startTime,

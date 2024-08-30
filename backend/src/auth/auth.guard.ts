@@ -62,8 +62,8 @@ export class AuthGuard implements CanActivate {
         } catch (err) {
             console.log(err);
             await this.logs.save({
-                label: `Failed to authorize in service. ${err}`,
-                description: `User "${user.username}" with id: "${user.id}". Request "${JSON.stringify(request.route.methods)}" Time: ${new Date()}`,
+                label: `Failed to authorize in service.`,
+                description: `User "${user.username}" with id: "${user.id}". Request "${JSON.stringify(request.route.methods)}", ${err} Time: ${new Date()}`,
                 status: "failed",
                 duration: Math.floor(Date.now() - startTime),
             })
@@ -71,7 +71,7 @@ export class AuthGuard implements CanActivate {
         }
 
         await this.logs.save({
-            label: `${user.username} has successfully authorized in service.`,
+            label: `Authorized in service.`,
             description: `User ${user.username} with id: ${user.id}. Request ${JSON.stringify(request.route.methods)} Time: ${new Date()}`,
             status: "success",
             duration: Math.floor(Date.now() - startTime),

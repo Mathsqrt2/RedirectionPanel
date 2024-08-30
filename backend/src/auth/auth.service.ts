@@ -1,9 +1,8 @@
 import { ConflictException, HttpStatus, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { LoginUser, LoginUserResponse, logoutUser, RegisterUser, RegisterUserResponse, RemoveUserProps } from './auth.types';
+import { LoginUser, LoginUserResponse, logoutUser, RegisterUser, RegisterUserResponse, RemoveUserProps, RemoveUserResponse } from './auth.types';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { Users } from 'src/database/orm/users/users.entity';
-import { Secrets } from 'src/database/orm/secrets/secrets.entity';
 import { SHA256 } from 'crypto-js';
 
 @Injectable()
@@ -12,12 +11,7 @@ export class AuthService {
     constructor(
         private jwtService: JwtService,
         @Inject(`USERS`) private readonly users: Repository<Users>,
-        @Inject(`SECRETS`) private readonly secrets: Repository<Secrets>,
     ) { }
-
-    private assignRequestID = (requestSubject: string): string => {
-        return SHA256(`${requestSubject}.${Date.now()}`).toString();
-    }
 
     private securePassword = (password: string): string => {
         const salt = SHA256(Date.now()).toString();
@@ -34,40 +28,9 @@ export class AuthService {
         return false
     }
 
-    private getKey = async (): Promise<string> => {
-
-        const secret = await this.secrets.findOneBy({ status: 'active' });
-        if (!secret) {
-            const oneMonth = 1000 * 60 * 60 * 24 * 30;
-            const data = {
-                decryptionKey: this.assignRequestID((Date.now()).toString()),
-                expirationTime: Date.now() + oneMonth,
-                status: 'active',
-            };
-
-            await this.secrets.save(data);
-            return data.decryptionKey;
-        }
-
-        if (secret.expirationTime < Date.now()) {
-            await this.secrets.save({ ...secret, status: 'inactive' });
-
-            const oneMonth = 1000 * 60 * 60 * 24 * 30;
-            const data = {
-                decryptionKey: this.assignRequestID((Date.now()).toString()),
-                expirationTime: Date.now() + oneMonth,
-                status: 'active',
-            };
-
-            await this.secrets.save(data);
-            return data.decryptionKey;
-        }
-
-        return secret.decryptionKey;
-    }
-
     registerUser = async ({ login, password, confirmPassword }: RegisterUser): Promise<RegisterUserResponse> => {
 
+        const startTime = Date.now();
         const user = await this.users.findOneBy({ login });
 
         if (user) {
@@ -98,6 +61,7 @@ export class AuthService {
 
     loginUser = async ({ login, password }: LoginUser): Promise<LoginUserResponse> => {
 
+        const startTime = Date.now();
         const user = await this.users.findOneBy({ login });
 
         if (!user) {
@@ -114,8 +78,9 @@ export class AuthService {
 
     }
 
-    removeUser = async ({ login, password }: RemoveUserProps): Promise<any> => {
+    removeUser = async ({ login, password }: RemoveUserProps): Promise<RemoveUserResponse> => {
 
+        const startTime = Date.now();
         const user = await this.users.findOneBy({ login });
 
         if (!user) {
@@ -127,6 +92,9 @@ export class AuthService {
         } else {
             throw new UnauthorizedException(`Access denied.`);
         }
+
+        return { status: HttpStatus.ACCEPTED }
+
     }
 
 }
