@@ -9,8 +9,8 @@ This repository is dedicated to my project for a panel used to manage URL redire
 ### Tech Stack
 
 - Angular 17
-- RxJS
 - NestJS
 - Express
-- MongoDB
-- mongoose
+- TypeOrm
+- MySql
+- JWT
