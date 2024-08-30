@@ -9,7 +9,6 @@ export type RegisterUser = {
 export type RegisterUserResponse = {
     status: HttpStatus.ACCEPTED | HttpStatus.OK,
     accessToken: string,
-    refreshToken: string,
 } | ErrorResponse;
 
 type ErrorResponse = {
@@ -24,7 +23,6 @@ export type LoginUser = {
 
 export type LoginUserResponse = {
     accessToken: string,
-    refreshToken: string,
 } | ErrorResponse;
 
 export type logoutUser = {
@@ -39,7 +37,6 @@ export type logoutUserResponse = {
 export type RemoveUserProps = {
     login: string,
     password: string,
-    accessToken: string,
 }
 
 export type RemoveUserResponse = {

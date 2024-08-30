@@ -25,12 +25,6 @@ export class Users {
     @Column({ default: false })
     canManage: boolean;
 
-    @Column()
-    accessToken: string;
-
-    @Column()
-    refreshToken: string;
-
     @Generated()
     creationTime: Timestamp;
 

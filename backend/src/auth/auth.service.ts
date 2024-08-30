@@ -6,15 +6,13 @@ import { Users } from 'src/database/orm/users/users.entity';
 import { Secrets } from 'src/database/orm/secrets/secrets.entity';
 import { SHA256 } from 'crypto-js';
 
-export type User = any;
-
 @Injectable()
 
 export class AuthService {
     constructor(
+        private jwtService: JwtService,
         @Inject(`USERS`) private readonly users: Repository<Users>,
         @Inject(`SECRETS`) private readonly secrets: Repository<Secrets>,
-        private readonly jwtService: JwtService,
     ) { }
 
     private assignRequestID = (requestSubject: string): string => {
@@ -28,9 +26,11 @@ export class AuthService {
 
     private comparePasswords = (password: string, saltedHash: string): boolean => {
         const parts = saltedHash.split('$');
-        if (SHA256(`${password}$${parts[0]}`) === parts[1]) {
+
+        if (SHA256(`${password}$${parts[0]}`).toString() === parts[1]) {
             return true;
         }
+
         return false
     }
 
@@ -71,11 +71,11 @@ export class AuthService {
         const user = await this.users.findOneBy({ login });
 
         if (user) {
-            throw new ConflictException(`User with this login already exist.`);
+            throw new ConflictException(`User already exists`);
         }
 
         if (password !== confirmPassword) {
-            throw new ConflictException(`Passwords must match.`);
+            throw new ConflictException(`Confirm password mismatch`);
         }
 
         const newUser = await this.users.save({
@@ -83,16 +83,15 @@ export class AuthService {
             password: this.securePassword(password),
             canDelete: true,
             canUpdate: true,
-            canCreate: true,
-            canManage: true,
-            accessToken: '',
-            refreshToken: ''
+            canCreate: false,
+            canManage: false,
         })
+
+        const payload = { sub: newUser.id, username: newUser?.login };
 
         return {
             status: HttpStatus.ACCEPTED,
-            accessToken: newUser.accessToken,
-            refreshToken: newUser.refreshToken
+            accessToken: await this.jwtService.signAsync(payload),
         };
 
     }
@@ -102,30 +101,35 @@ export class AuthService {
         const user = await this.users.findOneBy({ login });
 
         if (!user) {
-            throw new NotFoundException(`User not found.`);
+            throw new UnauthorizedException(`Login or password incorrect`);
         }
 
         if (!this.comparePasswords(password, user.password)) {
-            throw new UnauthorizedException(`Access denied.`);
+            throw new UnauthorizedException(`Login or password incorrect`);
         }
-
-        const { ...result } = user;
 
         const payload = { sub: user.id, username: user.login };
-        return {
-            accessToken: await this.jwtService.signAsync(payload),
-            refreshToken: '',
-        }
+        return { accessToken: await this.jwtService.signAsync(payload) }
     }
 
     logoutUser = async ({ login, accessToken }: logoutUser): Promise<any> => {
         return
     }
 
-    removeUser = async ({ login, password, accessToken }: RemoveUserProps): Promise<any> => {
+    removeUser = async ({ login, password }: RemoveUserProps): Promise<any> => {
 
+        const user = await this.users.findOneBy({ login });
 
-        await this.users.delete({ login, password, accessToken });
+        if (!user) {
+            throw new NotFoundException(`Login or password incorrect`)
+        }
+
+        if (this.comparePasswords(password, user.password)) {
+            await this.users.delete({ login, password });
+        } else {
+            throw new UnauthorizedException(`Access denied.`);
+        }
+
     }
 
 }

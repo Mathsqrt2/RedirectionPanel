@@ -22,7 +22,7 @@ export class AuthController {
             console.log(`registerUser`, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't register new user.`,
+                message: `Couldn't register new user. ${err}`,
             }
         }
     }
@@ -30,7 +30,7 @@ export class AuthController {
     @Post(`login`)
     async loginUser(
         @Body() body: LoginUserDto,
-    ): Promise<LoginUserResponse | string> {
+    ): Promise<LoginUserResponse> {
         try {
             if (!body.login || !body.password) {
                 throw new BadRequestException();
@@ -40,7 +40,7 @@ export class AuthController {
             console.log(`loginUser`, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't login.`,
+                message: `Couldn't login. ${err}`,
             }
         }
     }

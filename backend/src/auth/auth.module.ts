@@ -11,19 +11,15 @@ import config from "src/config";
         JwtModule.register({
             global: true,
             secret: config.secret,
-            signOptions: { expiresIn: '60s' },
+            signOptions: { expiresIn: '14d' },
         }),
     ],
-    controllers: [
-        AuthController
-    ],
     providers: [
-        AuthService,
         JwtService,
+        AuthService,
     ],
-    exports: [
-        AuthService
-    ]
+    controllers: [AuthController],
+    exports: [AuthService]
 })
 
 export class AuthModule { }

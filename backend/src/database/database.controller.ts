@@ -1,6 +1,7 @@
-import { Controller, Post, Param, Body, Get, Query, Put, Patch, Delete, HttpStatus } from "@nestjs/common";
+import { Controller, Post, Param, Body, Get, Query, Put, Patch, Delete, HttpStatus, UseGuards } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
 import { DTOs, CRUDResponse } from "./database.types";
+import { AuthGuard } from "src/auth/auth.guard";
 
 @Controller(`api`)
 export class DatabaseController {
@@ -9,6 +10,7 @@ export class DatabaseController {
         private readonly database: DatabaseService,
     ) { }
 
+    @UseGuards(AuthGuard)
     @Get(`/:endpoint`)
     async getMultipleElements(
         @Param(`endpoint`) endpoint: string,
@@ -26,6 +28,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Get(`/:endpoint/:id`)
     async getSingleElementById(
         @Param(`endpoint`) endpoint: string,
@@ -42,6 +45,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Get(`/:endpoint/:param/:value`)
     async getMultipleElementsByParam(
         @Param(`endpoint`) endpoint: string,
@@ -61,6 +65,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Post(`multiple/:endpoint`)
     async createMultipleElements(
         @Param(`endpoint`) endpoint: string,
@@ -77,6 +82,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Post(`/:endpoint`)
     async createSingleElement(
         @Param(`endpoint`) endpoint: string,
@@ -93,6 +99,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Put(`/:endpoint/:id`)
     async updateSingleElement(
         @Param(`endpoint`) endpoint: string,
@@ -110,6 +117,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Patch(`/:endpoint/:id`)
     async patchSingleElementById(
         @Param(`endpoint`) endpoint: string,
@@ -127,6 +135,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Patch(`/:endpoint/:param/:value`)
     async patchMultipleElementsByParam(
         @Param(`endpoint`) endpoint: string,
@@ -145,6 +154,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Delete(`/:endpoint/:id`)
     async deleteSingleElementById(
         @Param(`endpoint`) endpoint: string,
@@ -161,6 +171,7 @@ export class DatabaseController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Delete(`/:endpoint/:param/:value`)
     async deleteMultipleElementsByParam(
         @Param(`endpoint`) endpoint: string,
