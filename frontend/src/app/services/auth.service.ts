@@ -19,8 +19,8 @@ export class AuthService {
             if (Date.now() > response.expireDate) {
                 localStorage.removeItem(`accessToken`);
             } else {
-                this.usersService.registerUser({ 
-                    username: response.login, 
+                this.usersService.registerUser({
+                    username: response.login,
                     permissions: response.permissions,
                     accessToken: response.accessToken,
                 });
@@ -35,6 +35,20 @@ export class AuthService {
     private baseUrl: string = `http://localhost:3000/api`;
     private isLoggedIn: Boolean = false;
     private accessToken: string | null = null;
+
+    private setCookie = (name, value, expirationDays) => {
+        const date: Date = new Date((Date.now() + (1000 * 60 * 60 * 24 * expirationDays)));
+        document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)};expires=${date.toUTCString()}`;
+    }
+    private deleteCookie = (name) => {
+        document.cookie = `${decodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+    }
+    private getCookie = (name) => {
+        const cookieValue = document.cookie.split('; ')
+            .find(row => row.startsWith(`${encodeURIComponent(name)}`))?.split('=')[1];
+        return decodeURIComponent(cookieValue) || '';
+    }
+
     public authSubject = new Subject<boolean>();
 
     private setStatus = (token?: string): void => {
@@ -72,6 +86,7 @@ export class AuthService {
 
                             const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
                             localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+                            this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
                             resolve(true)
                         }
 
@@ -89,6 +104,7 @@ export class AuthService {
 
     logout() {
         this.setStatus();
+        this.deleteCookie("jwt");
         localStorage.removeItem('accessToken');
     }
 }

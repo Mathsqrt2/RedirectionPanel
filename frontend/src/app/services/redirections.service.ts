@@ -1,4 +1,4 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { UsersService } from "./users.service";
 
@@ -6,7 +6,7 @@ import { UsersService } from "./users.service";
 
 export class RedirectionsService {
 
-    baseUrl: string = `http://localhost/3000/api`;
+    baseUrl: string = `http://localhost:3000/api`;
     redirections: any[] = [];
 
     constructor(
@@ -14,11 +14,7 @@ export class RedirectionsService {
         private usersService: UsersService,
     ) {
 
-        const reqHeaders = new HttpHeaders({
-            'Content-Type': 'application/json',
-            
-        });
-        this.http.get(`${this.baseUrl}/redirections`, { headers: reqHeaders }).subscribe({
+        this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true }).subscribe({
             next: (response) => {
                 console.log(`next`, response);
             },
@@ -26,10 +22,7 @@ export class RedirectionsService {
                 console.log(`error`, response);
             },
         })
-
     }
-
-
 
     getRedirections(): any {
         return this.redirections;
