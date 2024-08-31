@@ -6,8 +6,9 @@ import { HttpClient } from "@angular/common/http";
 
 export class UsersService {
 
-    private accessToken: string | null = null;
-    private username: string | null = null;
+    private userId: number;
+    private accessToken: string;
+    private username: string;
     private permissions: Permissions = {
         canDelete: false,
         canUpdate: false,
@@ -20,14 +21,21 @@ export class UsersService {
     ) {
 
     }
-    getToken(): string {
+
+
+    getCurrentUserToken(): string {
         return this.accessToken;
     }
 
-    registerUser({ username, permissions, accessToken }: RegisterUser) {
+    getCurrentUserId(): number {
+        return this.userId;
+    }
+
+    registerUser({ username, permissions, accessToken, userId }: RegisterUser) {
         this.username = username;
         this.permissions = permissions;
         this.accessToken = accessToken;
+        this.userId = userId;
     }
 }
 
@@ -35,4 +43,5 @@ type RegisterUser = {
     username: string,
     permissions: Permissions,
     accessToken?: string,
+    userId: number,
 }

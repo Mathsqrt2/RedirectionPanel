@@ -1,6 +1,5 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Subject } from "rxjs";
 import { UsersService } from "./users.service";
 import { Router } from "@angular/router";
 
@@ -23,6 +22,7 @@ export class AuthService {
                     username: response.login,
                     permissions: response.permissions,
                     accessToken: response.accessToken,
+                    userId: response.userId,
                 });
                 this.setStatus(response.accessToken);
                 const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7);
@@ -43,23 +43,14 @@ export class AuthService {
     private deleteCookie = (name) => {
         document.cookie = `${decodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
     }
-    private getCookie = (name) => {
-        const cookieValue = document.cookie.split('; ')
-            .find(row => row.startsWith(`${encodeURIComponent(name)}`))?.split('=')[1];
-        return decodeURIComponent(cookieValue) || '';
-    }
-
-    public authSubject = new Subject<boolean>();
 
     private setStatus = (token?: string): void => {
         if (token) {
             this.accessToken = token;
             this.isLoggedIn = true;
-            this.authSubject.next(true);
         } else {
             this.accessToken = null;
             this.isLoggedIn = false;
-            this.authSubject.next(false);
         }
     }
 
@@ -87,6 +78,12 @@ export class AuthService {
                             const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
                             localStorage.accessToken = JSON.stringify({ ...response, expireDate });
                             this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+                            this.usersService.registerUser({
+                                username: response.login,
+                                permissions: response.permissions,
+                                accessToken: response.accessToken,
+                                userId: response.userId,
+                            });
                             resolve(true)
                         }
 
@@ -120,5 +117,6 @@ type LoginResponse = {
     status: number,
     permissions?: Permissions,
     login?: string,
+    userId: number,
     accessToken?: string,
 }

@@ -124,6 +124,7 @@ export class AuthService {
                 status: HttpStatus.OK,
                 accessToken,
                 login: user.login,
+                userId: user.id,
                 permissions: { canDelete, canUpdate, canCreate, canManage }
             };
         } catch (err) {

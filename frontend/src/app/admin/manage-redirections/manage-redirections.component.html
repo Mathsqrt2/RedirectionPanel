@@ -1,31 +1,31 @@
 <div class="redirection-management-field">
 
-    <form class="form-field">
+    <form class="form-field" [formGroup]="newRedirection" (ngSubmit)="onCreate()">
 
-        <h3>UTWÓRZ PRZEKIEROWANIE</h3>
+        <h3>CREATE REDIRECTION</h3>
 
         <div class="inputs-field">
             <div class="form-control-group">
                 <label for="path">path</label>
-                <input type="text" id="path" name="path" placeholder="przekierowanie">
+                <input type="text" id="path" name="path" placeholder="redirection" formControlName="route">
             </div>
             <div class="form-control-group">
                 <label for="url">url</label>
-                <input type="text" id="url" name="url" placeholder="gdzie prowadzi">
+                <input type="text" id="url" name="url" placeholder="where to redirect" formControlName="targetUrl">
             </div>
             <div class="form-control-group">
                 <label for="tags">tags</label>
-                <input type="text" id="tags" name="tags" placeholder="tagi">
+                <input type="text" id="tags" name="tags" placeholder="tags" formControlName="tags">
             </div>
         </div>
 
-        <input type="button" value="stwórz" class="confirm-button">
+        <input type="submit" value="CREATE" class="confirm-button">
 
     </form>
 
-    <hr />
+    <hr *ngIf="this.redirections.length" />
 
-    <table class="table-field">
+    <table class="table-field" *ngIf="this.redirections.length">
         <tr>
             <th class="narrow-col">id</th>
             <th class="wide-col">url</th>
@@ -37,12 +37,16 @@
         <tr *ngFor="let redirection of redirections; index as i;">
 
             <td>{{i+1}}</td>
-            <td>path</td>
-            <td>url</td>
-            <td>2137</td>
-            <td>42069</td>
-            <td>edytuj</td>
-            <td>X</td>
+            <td>/{{redirection.route}}</td>
+            <td>{{redirection.targetUrl}}</td>
+            <td>0</td>
+            <td>0</td>
+            <td (click)="onEdit(redirection.id)">
+                <input class="instance-button edit" type="button" value="edit">
+            </td>
+            <td (click)="onDelete(redirection.id)">
+                <input class="instance-button delete" type="button" value="X">
+            </td>
 
         </tr>
     </table>

@@ -37,6 +37,7 @@ export type LoginUserResponse = {
     status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
     accessToken: string,
     login: string,
+    userId: number,
     permissions: Permissions
 } | ErrorResponse;
 
