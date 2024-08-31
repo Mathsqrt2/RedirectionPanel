@@ -6,15 +6,15 @@
 
         <div class="inputs-field">
             <div class="form-control-group">
-                <label for="path">path</label>
+                <label for="path">Route</label>
                 <input type="text" id="path" name="path" placeholder="redirection" formControlName="route">
             </div>
             <div class="form-control-group">
-                <label for="url">url</label>
+                <label for="url">Target url</label>
                 <input type="text" id="url" name="url" placeholder="where to redirect" formControlName="targetUrl">
             </div>
             <div class="form-control-group">
-                <label for="tags">tags</label>
+                <label for="tags">Tags</label>
                 <input type="text" id="tags" name="tags" placeholder="tags" formControlName="tags">
             </div>
         </div>
@@ -28,26 +28,16 @@
     <table class="table-field" *ngIf="this.redirections.length">
         <tr>
             <th class="narrow-col">id</th>
-            <th class="wide-col">url</th>
+            <th class="wide-col">
+                <span>url</span>
+                 <input type="button" (click)="onToggleSensitiveDataDisplay(toggler)" value={{togglerText}} #toggler /></th>
             <th class="wide-col">path</th>
             <th class="narrow-col">clicks<br />(30d)</th>
             <th class="narrow-col">clicks <br /> (total)</th>
             <th colspan="2"></th>
         </tr>
-        <tr *ngFor="let redirection of redirections; index as i;">
-
-            <td>{{i+1}}</td>
-            <td>/{{redirection.route}}</td>
-            <td>{{redirection.targetUrl}}</td>
-            <td>0</td>
-            <td>0</td>
-            <td (click)="onEdit(redirection.id)">
-                <input class="instance-button edit" type="button" value="edit">
-            </td>
-            <td (click)="onDelete(redirection.id)">
-                <input class="instance-button delete" type="button" value="X">
-            </td>
-
+        <tr *ngFor="let redirection of redirections; index as i;" redirectionBar [instance]="redirection" [index]="i"
+            [secret]="showSensitiveData">
         </tr>
     </table>
 </div>

@@ -91,6 +91,20 @@ hr {
     border-radius: 3px;
 }
 
+a {
+    color: white;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+
+    &:visited {
+        color: white;
+    }
+
+    &:hover {
+        color: #ccc;
+    }
+}
+
 @media (max-width: 996px) {
 
     .redirection-management-field {

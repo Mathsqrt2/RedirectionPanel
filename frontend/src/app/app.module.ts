@@ -20,6 +20,7 @@ import { DisplayStatsComponent } from './admin/display-stats/display-stats.compo
 import { AdminService } from './services/admin.service';
 import { UsersService } from './services/users.service';
 import { RedirectionsService } from './services/redirections.service';
+import { RedirectionBarComponent } from './admin/manage-redirections/redirection-bar/redirection-bar.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { RedirectionsService } from './services/redirections.service';
     ManageUsersComponent,
     ManageRedirectionsComponent,
     DisplayStatsComponent,
+    RedirectionBarComponent,
   ],
   imports: [
     BrowserModule,

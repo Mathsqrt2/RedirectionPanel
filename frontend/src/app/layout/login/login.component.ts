@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
             const request = await this.authService.login(this.loginForm.value);
             if (request) {
                 this.loginForm.reset();
-                this.router.navigate(['/admin']);
+                this.router.navigate(['/admin/redirections']);
             }
         }
     };
