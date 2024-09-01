@@ -30,7 +30,9 @@ export class RedirectionsService implements OnInit {
     }
 
     editRedirection(redirection: Redirection) {
-
+        this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, {withCredentials: true}).subscribe((resp)=>{
+            console.log('happened', resp)
+        })
     }
 
     createRedirection(body: Redirection) {
@@ -55,4 +57,5 @@ export type Redirection = {
     targetUrl: string,
     route: string,
     userId: number,
+    category?: string,
 }

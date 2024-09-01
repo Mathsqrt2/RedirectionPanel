@@ -7,15 +7,18 @@
         <div class="inputs-field">
             <div class="form-control-group">
                 <label for="path">Route</label>
-                <input type="text" id="path" name="path" placeholder="redirection" formControlName="route">
+                <input class="new-data-input" type="text" id="path" name="path" placeholder="redirection"
+                    formControlName="route">
             </div>
             <div class="form-control-group">
                 <label for="url">Target url</label>
-                <input type="text" id="url" name="url" placeholder="where to redirect" formControlName="targetUrl">
+                <input class="new-data-input" type="text" id="url" name="url" placeholder="where to redirect"
+                    formControlName="targetUrl">
             </div>
             <div class="form-control-group">
-                <label for="tags">Tags</label>
-                <input type="text" id="tags" name="tags" placeholder="tags" formControlName="tags">
+                <label for="category">Category</label>
+                <input class="new-data-input" type="text" id="category" name="category" placeholder="category"
+                    formControlName="category">
             </div>
         </div>
 
@@ -37,7 +40,7 @@
             <th class="narrow-col">category</th>
             <th class="narrow-col">clicks<br />(30d)</th>
             <th class="narrow-col">clicks <br /> (total)</th>
-            <th colspan="2"></th>
+            <th class="narrow-col" colspan="2"></th>
         </tr>
         <tr *ngFor="let redirection of redirections; index as i;" redirectionBar [instance]="redirection" [index]="i"
             [secret]="showSensitiveData">

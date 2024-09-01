@@ -2,18 +2,24 @@
 </td>
 <td>
     <a *ngIf="!editMode" href={{redirection.targetUrl}}>{{displayData ? redirection.route : '***** ***'}}</a>
-    <input *ngIf="editMode" type="text" value={{redirection.route}} class="edit-input">
+    <input *ngIf="editMode" type="text" value={{redirection.route}} class="edit-input" [(ngModel)]="redirectionInput">
 </td>
 <td>
-    <span *ngIf="!editMode">{{displayData ? redirection.targetUrl : '***** ***'}}</span>
-    <input *ngIf="editMode" type="text" value={{redirection.targetUrl}} class="edit-input">
+    <span *ngIf="!editMode" class="copy-link">{{displayData ? redirection.targetUrl : '***** ***'}}</span>
+    <input *ngIf="editMode" type="text" value={{redirection.targetUrl}} class="edit-input"
+        [(ngModel)]="targetPathInput">
 </td>
-<td>[ ]</td>
+<td>
+    <span *ngIf="!editMode">{{redirection.category}}</span>
+    <input *ngIf="editMode" type="text" value={{redirection.category}} class="edit-input" />
+</td>
 <td>0</td>
 <td>0</td>
-<td *ngIf="editMode" class="edit-box">
-    <input class="instance-button edit confirm-button" type="button" value="confirm" (click)="confirmEdit()" />
-    <input class="instance-button edit" type="button" value="reject" (click)="rejectEdit()" />
+<td *ngIf="editMode">
+    <div class="edit-box">
+        <input class="instance-button edit" type="button" value="confirm" (click)="confirmEdit()" />
+        <input class="instance-button edit" type="button" value="reject" (click)="rejectEdit()" />
+    </div>
 </td>
 <td (click)="onEdit()" *ngIf="!editMode">
     <input class="instance-button edit" type="button" value="edit">

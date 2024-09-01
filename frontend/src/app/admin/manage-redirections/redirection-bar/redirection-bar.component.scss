@@ -1,17 +1,26 @@
 @import url("../manage-redirections.component.scss");
 @import "../../../../styleset.scss";
 
-.edit-input{
+.edit-input {
     width: 100%;
     background-color: #222;
     color: #ccc;
-    padding: 4px 10px;
     border: 2px solid $accent;
 }
 
-.instance-button{
+.edit-box {
+    display: flex;
+    gap: 6px
+}
+
+.confirm-button {
+    margin-right: 5px;
+}
+
+.instance-button {
     padding: 1px 12px;
     transition: all 0.25s ease-in-out;
+    cursor: pointer;
 
     background-color: $accent;
     color: white;
@@ -22,17 +31,28 @@
     border-radius: 4px;
 
     &.delete {
-        &:hover{
+        &:hover {
             background-color: red;
         }
     }
 
-    &:hover{
+    &:hover {
         transform: scale(0.94);
         background-color: $accent-hover;
     }
 }
 
-.confirm-button{
- margin-right: 5px;   
+.copy-link {
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+
+    &:visited {
+        color: white;
+    }
+
+    &:hover {
+        color: #ccc;
+    }
 }

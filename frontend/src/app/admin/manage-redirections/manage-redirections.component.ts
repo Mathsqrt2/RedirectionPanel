@@ -14,7 +14,7 @@ export class ManageRedirectionsComponent implements OnInit {
   newRedirection: FormGroup;
   redirections: any[] = [];
   showSensitiveData: boolean = true;
-  togglerText = this.showSensitiveData ? 'show' : 'hide';
+  togglerText = !this.showSensitiveData ? 'show' : 'hide';
 
   constructor(
     private redirectionsService: RedirectionsService,
@@ -26,6 +26,7 @@ export class ManageRedirectionsComponent implements OnInit {
     if (localStorage.getItem(`visibilitySettings`)) {
       const data = JSON.parse(localStorage.getItem(`visibilitySettings`));
       this.showSensitiveData = data.showSensitiveData;
+      this.togglerText = !this.showSensitiveData ? 'show' : 'hide';
     }
 
     this.redirectionsService.redirections.subscribe(
@@ -36,7 +37,7 @@ export class ManageRedirectionsComponent implements OnInit {
     this.newRedirection = new FormGroup({
       route: new FormControl(null, [Validators.required]),
       targetUrl: new FormControl(null, [Validators.required]),
-      tags: new FormControl(null),
+      category: new FormControl(null),
     })
   }
 
@@ -53,7 +54,7 @@ export class ManageRedirectionsComponent implements OnInit {
 
   onToggleSensitiveDataDisplay(ref: HTMLInputElement) {
     this.showSensitiveData = !this.showSensitiveData;
-    ref.value = this.showSensitiveData ? 'show' : 'hide';
+    ref.value = !this.showSensitiveData ? 'show' : 'hide';
     localStorage.visibilitySettings = JSON.stringify({ showSensitiveData: this.showSensitiveData })
   }
 

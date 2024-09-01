@@ -16,6 +16,10 @@
     transition: all $duration ease-in-out;
 }
 
+label {
+    margin-bottom: 10px;
+}
+
 .form-field {
     display: flex;
     flex-direction: column;
@@ -30,6 +34,25 @@
     gap: 16px;
 }
 
+.new-data-input {
+    background-color: rgb(51, 51, 51);
+    border: none;
+    padding: 8px 12px;
+    outline: none;
+    border-bottom: 3px solid $accent;
+    transition: all 0.3s ease-in-out;
+    color: white;
+
+    &:focus {
+        box-shadow: 0 0 24px $accent-focus;
+        border-bottom: 3px solid rgb(39, 230, 71);
+    }
+
+    &:hover {
+        box-shadow: 0 0 24px $accent-focus;
+    }
+}
+
 .form-control-group {
     display: flex;
     flex-direction: column;
@@ -39,6 +62,7 @@
 
 h3 {
     margin: unset;
+    margin-bottom: 12px;
 }
 
 table,
@@ -66,15 +90,16 @@ td {
     transition: all 0.4s ease-in-out;
     background-color: $accent-dark;
     color: #ccc;
+    cursor: pointer;
 
-    &:hover{
+    &:hover {
         transform: scale(0.95);
         background-color: $accent;
-        box-shadow: 0 0 12px rgba(0,0,0,0.5);
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
     }
 }
 
-.super-wide-col{
+.super-wide-col {
     width: 360px;
     overflow: hidden;
 }
@@ -87,15 +112,18 @@ th {
 td {
     text-align: center;
     overflow: hidden;
-    padding: 6px 12px;
+    padding: 8px 8px;
 }
 
 .confirm-button {
+    cursor: pointer;
     border: none;
     border-radius: 8px;
     padding: 6px 16px;
+    margin-top: 18px;
     background-color: $accent;
     color: $text-default;
+    transition: all 0.3s ease-in-out;
 
     &:hover {
         transform: scale(0.97);
@@ -130,23 +158,23 @@ a {
 @media (max-width: 996px) {
 
     .redirection-management-field {
-        padding: 24px 12px; 
+        padding: 24px 12px;
         gap: 10px;
     }
 
-    *{
-        font-size:x-small;
+    * {
+        font-size: x-small;
     }
 
     th {
         padding: 4px 26px;
     }
 
-    td{
+    td {
         padding: 3px 6px;
     }
 
-    .wide-col{
+    .wide-col {
         min-width: 60px;
     }
 
@@ -154,7 +182,7 @@ a {
         padding: 2px 3px;
     }
 
-    .inputs-field{
+    .inputs-field {
         flex-direction: column;
     }
 }

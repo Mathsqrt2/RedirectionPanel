@@ -11,7 +11,7 @@ import { AuthGuard } from './services/auth-guard.service';
 import { AuthService } from './services/auth.service';
 import { MainSectionComponent } from './admin/main-section/main-section.component';
 import { ShowRedirectionsComponent } from './admin/show-redirections/show-redirections.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from "@angular/common/http";
 import { RegisterComponent } from './layout/register/register.component';
 import { ManageUsersComponent } from './admin/manage-users/manage-users.component';
@@ -42,6 +42,7 @@ import { RedirectionBarComponent } from './admin/manage-redirections/redirection
     AppRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
+    FormsModule,
   ],
   providers: [
     AuthGuard,

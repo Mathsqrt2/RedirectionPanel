@@ -9,12 +9,13 @@ import { Redirection, RedirectionsService } from '../../../services/redirections
 
 export class RedirectionBarComponent implements OnChanges {
 
-    
+
     @Input('instance') redirection: Redirection;
     @Input('index') index: number;
     @Input('secret') secret: boolean = false;
     redirectionInput: string;
     targetPathInput: string;
+    categoryInput: string;
     displayData: boolean = this.secret;
     editMode = false;
 
@@ -39,6 +40,8 @@ export class RedirectionBarComponent implements OnChanges {
     }
 
     onEdit() {
+        this.redirectionInput = this.redirection.route;
+        this.targetPathInput = this.redirection.targetUrl;
         this.editMode = true;
     }
 
@@ -46,6 +49,7 @@ export class RedirectionBarComponent implements OnChanges {
         this.editMode = false;
         this.redirection.route = this.redirectionInput;
         this.redirection.targetUrl = this.targetPathInput;
+        this.redirection.category = this.categoryInput;
         this.redirectionsService.editRedirection(this.redirection);
     }
 
