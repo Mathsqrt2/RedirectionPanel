@@ -1,21 +1,19 @@
 <td>{{index+1}}
 </td>
 <td>
-    <a *ngIf="!editMode" href={{redirection.targetUrl}}>{{displayData ? redirection.route : '***** ***'}}</a>
+    <span *ngIf="!editMode" (click)="onRedirectTo()" class="copy-link">{{displayData ? redirection.route : '***** ***'}}</span>
     <input *ngIf="editMode" type="text" value={{redirection.route}} class="edit-input" [(ngModel)]="redirectionInput">
 </td>
 <td>
-    <span *ngIf="!editMode" class="copy-link">{{displayData ? redirection.targetUrl : '***** ***'}}</span>
+    <span *ngIf="!editMode" (click)="onCopyToClipboard()" class="copy-link">{{displayData ? redirection.targetUrl : '***** ***'}}</span>
     <input *ngIf="editMode" type="text" value={{redirection.targetUrl}} class="edit-input"
         [(ngModel)]="targetPathInput">
 </td>
 <td>
     <span *ngIf="!editMode">{{redirection.category}}</span>
-    <input *ngIf="editMode" type="text" value={{redirection.category}} class="edit-input"
-        [(ngModel)]="categoryInput" />
+    <input *ngIf="editMode" type="text" value={{redirection.category}} class="edit-input" [(ngModel)]="categoryInput" />
 </td>
-<td>0</td>
-<td>0</td>
+<td>{{ redirection.clicksTotal ? redirection.clicksTotal : '0' }}</td>
 <td *ngIf="editMode">
     <div class="edit-box">
         <input class="instance-button confirm" type="button" value="confirm" (click)="confirmEdit()" />

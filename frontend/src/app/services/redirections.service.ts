@@ -1,11 +1,10 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable, OnInit } from "@angular/core";
-import { UsersService } from "./users.service";
-import { BehaviorSubject, Subject } from "rxjs";
+import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 
 @Injectable()
 
-export class RedirectionsService implements OnInit {
+export class RedirectionsService {
 
     baseUrl: string = `http://localhost:3000/api`;
     public redirections = new BehaviorSubject<Redirection[]>([]);
@@ -13,20 +12,58 @@ export class RedirectionsService implements OnInit {
     constructor(
         private http: HttpClient,
     ) {
-
-        this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true }).subscribe(
-            (response: RedirectionsResponse) => {
-                this.redirections.next(response.content);
-            })
-
-        this.http.get(`${this.baseUrl}/requests`, { withCredentials: true }).subscribe(
-            (response: RequestResponse) => {
-                console.log(response);
-            })
+        this.fetchData();
     }
 
-    ngOnInit(): void {
-        console.log
+    private getRedirections = async (): Promise<boolean> => {
+        return new Promise(resolve => {
+            this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true }).subscribe(
+                (response: RedirectionsResponse) => {
+                    this.redirections.next(response.content);
+                    resolve(true)
+                })
+        })
+    }
+
+    private getRequests = async (): Promise<boolean> => {
+        return new Promise(resolve => {
+            this.http.get(`${this.baseUrl}/requests`, { withCredentials: true }).subscribe(
+                (response: RequestResponse) => {
+                    this.requests.next(response.content);
+                    console.log(response);
+                    resolve(true);
+                })
+        })
+    }
+
+    private fetchData = async (): Promise<void> => {
+        await this.getRedirections();
+        await this.getRequests();
+        this.assignValues();
+    }
+
+    private assignValues = (): void => {
+        const localRedsirections = this.redirections.getValue();
+        const localRequests = this.requests.getValue();
+        const newRedirections: Redirection[] = [];
+
+        for (let redirection of localRedsirections) {
+            let clicks30d = 0;
+            let clicksTotal = 0;
+            for (let request of localRequests) {
+                if(request.redirectionId === redirection.id){
+                    clicksTotal++;
+                    if(request.requestTime){
+                        clicks30d++
+                    }
+                }
+            }
+            redirection.clicks30d = clicks30d;
+            redirection.clicksTotal = clicksTotal;
+            newRedirections.push(redirection);
+
+        }
+        console.log(newRedirections);
     }
 
     deleteRedirection(index: number) {
@@ -47,10 +84,6 @@ export class RedirectionsService implements OnInit {
                 this.redirections.next([...this.redirections.getValue(), response.content])
             });
     }
-
-    getRedirections(): any {
-        return this.redirections;
-    }
 }
 
 type RedirectionsResponse = {
@@ -64,6 +97,8 @@ export type Redirection = {
     route: string,
     userId: number,
     category?: string,
+    clicksTotal?: number,
+    clicks30d?: number,
 }
 
 type RequestResponse = {
@@ -75,5 +110,5 @@ type RequestData = {
     id: number,
     requestIp: string,
     redirectionId: number,
-    requestTime: number,
+    requestTime: any,
 }

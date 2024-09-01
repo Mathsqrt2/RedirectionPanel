@@ -1,5 +1,6 @@
 import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Redirection, RedirectionsService } from '../../../services/redirections.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: '[redirectionBar]',
@@ -8,7 +9,6 @@ import { Redirection, RedirectionsService } from '../../../services/redirections
 })
 
 export class RedirectionBarComponent implements OnChanges {
-
 
     @Input('instance') redirection: Redirection;
     @Input('index') index: number;
@@ -32,8 +32,17 @@ export class RedirectionBarComponent implements OnChanges {
 
     constructor(
         private redirectionsService: RedirectionsService,
+        private router: Router,
     ) { }
 
+
+    onCopyToClipboard = () => {
+        navigator.clipboard.writeText(this.redirection.targetUrl);
+    }
+
+    onRedirectTo = () => {
+        window.location.href = `${this.redirection.targetUrl}`;
+    }
 
     onDelete() {
         this.redirectionsService.deleteRedirection(this.redirection.id);
