@@ -65,12 +65,20 @@ h3 {
     border: none;
 
     color: white;
-    background-color: $accent;
+
     transition: all 0.3s ease-in-out;
 
-    &:hover {
-        transform: scale(0.95);
-        background-color: $accent-hover;
+    &:enabled {
+        background-color: $accent;
+
+        &:hover {
+            cursor: pointer;
+            transform: scale(0.95);
+        }
+    }
+
+    &:disabled {
+        background-color: rgb(36, 42, 46);
     }
 }
 

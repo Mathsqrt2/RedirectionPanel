@@ -36,11 +36,11 @@ export class AuthService {
     private isLoggedIn: Boolean = false;
     private accessToken: string | null = null;
 
-    private setCookie = (name, value, expirationDays) => {
+    private setCookie = (name: string, value: string | number, expirationDays: number): void => {
         const date: Date = new Date((Date.now() + (1000 * 60 * 60 * 24 * expirationDays)));
         document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)};expires=${date.toUTCString()}`;
     }
-    private deleteCookie = (name) => {
+    private deleteCookie = (name): void => {
         document.cookie = `${decodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
     }
 
@@ -90,9 +90,8 @@ export class AuthService {
                         resolve(false);
                     },
 
-                    error: (response: LoginResponse) => {
-                        this.setStatus(response.accessToken);
-                        reject(false);
+                    error: () => {
+                        resolve(false);
                     },
                 })
             }

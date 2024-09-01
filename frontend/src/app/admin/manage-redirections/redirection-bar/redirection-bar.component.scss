@@ -12,9 +12,11 @@
     display: flex;
     gap: 6px
 }
-
 .confirm-button {
     margin-right: 5px;
+    &:hover {
+        background-color: green;
+    }
 }
 
 .instance-button {

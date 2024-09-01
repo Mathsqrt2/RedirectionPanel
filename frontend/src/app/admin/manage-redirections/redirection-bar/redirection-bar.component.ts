@@ -42,6 +42,7 @@ export class RedirectionBarComponent implements OnChanges {
     onEdit() {
         this.redirectionInput = this.redirection.route;
         this.targetPathInput = this.redirection.targetUrl;
+        this.categoryInput = this.redirection.category;
         this.editMode = true;
     }
 

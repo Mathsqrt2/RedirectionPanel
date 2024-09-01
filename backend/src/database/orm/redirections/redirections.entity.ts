@@ -16,6 +16,9 @@ export class Redirections {
     @Column()
     userId: number;
 
+    @Column()
+    category: string;
+
     @Generated()
     creationTime: Timestamp;
 

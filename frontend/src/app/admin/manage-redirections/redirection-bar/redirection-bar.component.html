@@ -11,14 +11,15 @@
 </td>
 <td>
     <span *ngIf="!editMode">{{redirection.category}}</span>
-    <input *ngIf="editMode" type="text" value={{redirection.category}} class="edit-input" />
+    <input *ngIf="editMode" type="text" value={{redirection.category}} class="edit-input"
+        [(ngModel)]="categoryInput" />
 </td>
 <td>0</td>
 <td>0</td>
 <td *ngIf="editMode">
     <div class="edit-box">
-        <input class="instance-button edit" type="button" value="confirm" (click)="confirmEdit()" />
-        <input class="instance-button edit" type="button" value="reject" (click)="rejectEdit()" />
+        <input class="instance-button confirm" type="button" value="confirm" (click)="confirmEdit()" />
+        <input class="instance-button delete" type="button" value="reject" (click)="rejectEdit()" />
     </div>
 </td>
 <td (click)="onEdit()" *ngIf="!editMode">

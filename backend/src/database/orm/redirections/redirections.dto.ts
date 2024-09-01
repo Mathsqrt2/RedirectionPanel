@@ -8,6 +8,9 @@ export class RedirectionsDto {
     @IsString()
     route: string;
 
+    @IsString()
+    category: string;
+
     @IsNumber()
     user: number;
 

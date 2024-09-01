@@ -17,7 +17,7 @@ export class LoginComponent implements OnInit {
         private readonly router: Router,
     ) { }
 
-    accountDoesntExist: boolean = false;
+    accessDenied: boolean = false;
     loginForm: FormGroup;
 
     ngOnInit(): void {
@@ -30,9 +30,11 @@ export class LoginComponent implements OnInit {
     async onSubmit(): Promise<void> {
         if (this.loginForm.status === 'VALID') {
             const request = await this.authService.login(this.loginForm.value);
+            this.loginForm.reset();
             if (request) {
-                this.loginForm.reset();
                 this.router.navigate(['/admin/redirections']);
+            } else {
+                this.accessDenied = true;
             }
         }
     };

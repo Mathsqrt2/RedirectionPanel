@@ -9,6 +9,7 @@ export class RedirectionsService implements OnInit {
 
     baseUrl: string = `http://localhost:3000/api`;
     public redirections = new BehaviorSubject<Redirection[]>([]);
+    public requests = new BehaviorSubject<RequestData[]>([]);
     constructor(
         private http: HttpClient,
     ) {
@@ -16,6 +17,11 @@ export class RedirectionsService implements OnInit {
         this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true }).subscribe(
             (response: RedirectionsResponse) => {
                 this.redirections.next(response.content);
+            })
+
+        this.http.get(`${this.baseUrl}/requests`, { withCredentials: true }).subscribe(
+            (response: RequestResponse) => {
+                console.log(response);
             })
     }
 
@@ -30,7 +36,7 @@ export class RedirectionsService implements OnInit {
     }
 
     editRedirection(redirection: Redirection) {
-        this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, {withCredentials: true}).subscribe((resp)=>{
+        this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true }).subscribe((resp) => {
             console.log('happened', resp)
         })
     }
@@ -58,4 +64,16 @@ export type Redirection = {
     route: string,
     userId: number,
     category?: string,
+}
+
+type RequestResponse = {
+    status: number,
+    content: RequestData[]
+}
+
+type RequestData = {
+    id: number,
+    requestIp: string,
+    redirectionId: number,
+    requestTime: number,
 }

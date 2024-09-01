@@ -45,6 +45,7 @@ export class ManageRedirectionsComponent implements OnInit {
     const body = {
       targetUrl: this.newRedirection.value.targetUrl,
       route: this.newRedirection.value.route,
+      category: this.newRedirection.value.category,
       userId: this.userService.getCurrentUserId(),
     }
 
