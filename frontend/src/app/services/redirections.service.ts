@@ -6,7 +6,8 @@ import { BehaviorSubject } from "rxjs";
 
 export class RedirectionsService {
 
-    baseUrl: string = `http://localhost:3000/api`;
+    public domain: string = `http://localhost:3000`;
+    public baseUrl: string = `${this.domain}/api`;
     public redirections = new BehaviorSubject<Redirection[]>([]);
     public requests = new BehaviorSubject<RequestData[]>([]);
     constructor(

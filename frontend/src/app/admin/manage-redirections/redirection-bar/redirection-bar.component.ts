@@ -1,6 +1,5 @@
 import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Redirection, RedirectionsService } from '../../../services/redirections.service';
-import { Router } from '@angular/router';
 
 @Component({
     selector: '[redirectionBar]',
@@ -32,7 +31,6 @@ export class RedirectionBarComponent implements OnChanges {
 
     constructor(
         private redirectionsService: RedirectionsService,
-        private router: Router,
     ) { }
 
 
@@ -41,7 +39,7 @@ export class RedirectionBarComponent implements OnChanges {
     }
 
     onRedirectTo = () => {
-        window.location.href = `${this.redirection.targetUrl}`;
+        window.location.href = `${this.redirectionsService.domain}/${this.redirection.route}`;
     }
 
     onDelete() {
