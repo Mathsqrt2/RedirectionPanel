@@ -28,6 +28,29 @@
 
     <hr *ngIf="this.redirections.length" />
 
+    <div class="search-query-field">
+
+        <div class="numbers-wrapper">
+            <div class="counter max-clicks-count">
+                <label for="max-elements">max clicks</label>
+                <input type="number" min="0" id="max-elements" />
+            </div>
+
+            <div class="counter min-clicks-count">
+                <label for="min-elements">min clicks</label>
+                <input type="number" min="0" id="min-elements" />
+            </div>
+        </div>
+
+        <div class="category">
+            <label *ngFor="let category of categories">
+                <input type="radio" name="category" (click)="onFilterResults(category)" />
+                {{category}}
+            </label>
+        </div>
+
+    </div>
+
     <table class="table-field" *ngIf="this.redirections.length">
         <tr>
             <th class="narrow-col">id</th>

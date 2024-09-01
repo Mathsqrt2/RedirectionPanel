@@ -12,9 +12,11 @@ import { UsersService } from '../../services/users.service';
 export class ManageRedirectionsComponent implements OnInit {
 
   newRedirection: FormGroup;
-  redirections: any[] = [];
+  redirections: Redirection[] = [];
   showSensitiveData: boolean = true;
   togglerText = !this.showSensitiveData ? 'show' : 'hide';
+
+  categories: string[] = [];
 
   constructor(
     private redirectionsService: RedirectionsService,
@@ -39,6 +41,18 @@ export class ManageRedirectionsComponent implements OnInit {
       targetUrl: new FormControl(null, [Validators.required]),
       category: new FormControl(null),
     })
+
+    this.redirectionsService.categories.subscribe((data) => {
+      this.categories = data;
+    })
+  }
+
+  onFilterResults(category: string) {
+    this.redirections = this.redirectionsService.redirections.getValue();
+    if (category !== 'all') {
+      this.redirections = this.redirections.filter(
+        (item: Redirection) => item.category === category);
+    }
   }
 
   onCreate() {

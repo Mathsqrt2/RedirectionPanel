@@ -6,40 +6,48 @@ import { HttpClient } from "@angular/common/http";
 
 export class UsersService {
 
-    private userId: number;
-    private accessToken: string;
-    private username: string;
-    private permissions: Permissions = {
-        canDelete: false,
-        canUpdate: false,
-        canCreate: false,
-        canManage: false,
+    private currentUser: User;
+    private users: User[] = [];
+
+    private fetchData = async () => {
+        await this.getUsersList();
+    }
+
+    private getUsersList = async () => {
+        return new Promise(resolve => {
+            
+            resolve(true)// temporary
+        })
     }
 
     constructor(
-        private http: HttpClient,
-    ) {
 
+    ) {
+        this.fetchData();
     }
 
-
     getCurrentUserToken(): string {
-        return this.accessToken;
+        return this.currentUser.accessToken;
+    }
+
+    getCurrentUserName = (): string => {
+        return this.currentUser.username;
+    }
+
+    getCurrentUserPermissions = () => {
+        return this.currentUser.permissions;
     }
 
     getCurrentUserId(): number {
-        return this.userId;
+        return this.currentUser.userId;
     }
 
-    registerUser({ username, permissions, accessToken, userId }: RegisterUser) {
-        this.username = username;
-        this.permissions = permissions;
-        this.accessToken = accessToken;
-        this.userId = userId;
+    registerUser(newUser: User) {
+        this.currentUser = newUser;
     }
 }
 
-type RegisterUser = {
+export type User = {
     username: string,
     permissions: Permissions,
     accessToken?: string,

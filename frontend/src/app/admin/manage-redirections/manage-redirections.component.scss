@@ -186,3 +186,30 @@ a {
         flex-direction: column;
     }
 }
+
+.search-query-field {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+}
+
+.numbers-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+}
+
+.counter{
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.counter {
+    &>label {
+        margin-right: 8px;
+
+    }
+}

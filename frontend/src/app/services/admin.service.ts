@@ -3,9 +3,9 @@ import { RouteModel } from "../models/route.model";
 export class AdminService {
 
     private routes: RouteModel[] = [
-        new RouteModel({ title: "Przekierowania", route: 'redirections' }),
-        new RouteModel({ title: 'Użytkownicy', route: 'users' }),
-        new RouteModel({ title: 'Statystyki', route: 'stats' }),
+        new RouteModel({ title: "Redirections", route: 'redirections' }),
+        new RouteModel({ title: 'Users', route: 'users' }),
+        new RouteModel({ title: 'Logs', route: 'stats' }),
     ]
 
     addRoute(route: RouteModel): void {

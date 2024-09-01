@@ -6,17 +6,19 @@ import { BehaviorSubject } from "rxjs";
 
 export class RedirectionsService {
 
-    public domain: string = `http://localhost:3000`;
-    public baseUrl: string = `${this.domain}/api`;
     public redirections = new BehaviorSubject<Redirection[]>([]);
     public requests = new BehaviorSubject<RequestData[]>([]);
+    public categories = new BehaviorSubject<string[]>([]);
+    public domain: string = `http://localhost:3000`;
+    private baseUrl: string = `${this.domain}/api`;
+
     constructor(
         private http: HttpClient,
     ) {
         this.fetchData();
     }
 
-    private getRedirections = async (): Promise<boolean> => {
+    private fetchRedirections = async (): Promise<boolean> => {
         return new Promise(resolve => {
             this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true }).subscribe(
                 (response: RedirectionsResponse) => {
@@ -26,60 +28,66 @@ export class RedirectionsService {
         })
     }
 
-    private getRequests = async (): Promise<boolean> => {
+    private fetchRequests = async (): Promise<boolean> => {
         return new Promise(resolve => {
             this.http.get(`${this.baseUrl}/requests`, { withCredentials: true }).subscribe(
                 (response: RequestResponse) => {
                     this.requests.next(response.content);
-                    console.log(response);
                     resolve(true);
                 })
         })
     }
 
-    private fetchData = async (): Promise<void> => {
-        await this.getRedirections();
-        await this.getRequests();
-        this.assignValues();
-    }
-
     private assignValues = (): void => {
         const localRedsirections = this.redirections.getValue();
         const localRequests = this.requests.getValue();
-        const newRedirections: Redirection[] = [];
 
         for (let redirection of localRedsirections) {
-            let clicks30d = 0;
             let clicksTotal = 0;
             for (let request of localRequests) {
-                if(request.redirectionId === redirection.id){
+                if (request.redirectionId === redirection.id) {
                     clicksTotal++;
-                    if(request.requestTime){
-                        clicks30d++
-                    }
                 }
             }
-            redirection.clicks30d = clicks30d;
             redirection.clicksTotal = clicksTotal;
-            newRedirections.push(redirection);
-
         }
-        console.log(newRedirections);
     }
 
-    deleteRedirection(index: number) {
+    private findCategories = (redirections: Redirection[]): void => {
+        const newCategories = ['all'];
+        for (let redirection of redirections) {
+            if (!newCategories.includes(redirection.category)) {
+                newCategories.push(redirection.category);
+            }
+        }
+        this.categories.next(newCategories);
+    }
+
+    private fetchData = async (): Promise<void> => {
+        await this.fetchRedirections();
+        await this.fetchRequests();
+        this.assignValues();
+        this.findCategories(this.redirections.getValue());
+    }
+
+    public getCategories = (): string[] => {
+        return this.categories.getValue();
+    }
+
+    public deleteRedirection(index: number) {
         this.http.delete(`${this.baseUrl}/redirections/${index}`, { withCredentials: true }).subscribe(() => {
             this.redirections.next([...this.redirections.getValue().filter(redirection => redirection.id !== index)]);
         });
     }
 
-    editRedirection(redirection: Redirection) {
-        this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true }).subscribe((resp) => {
-            console.log('happened', resp)
-        })
+    public editRedirection(redirection: Redirection) {
+        this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true }).subscribe(
+            () => {
+                this.findCategories(this.redirections.getValue())
+            })
     }
 
-    createRedirection(body: Redirection) {
+    public createRedirection(body: Redirection) {
         this.http.post(`${this.baseUrl}/redirections`, body, { withCredentials: true }).subscribe(
             (response: { status: number, content: Redirection }) => {
                 this.redirections.next([...this.redirections.getValue(), response.content])
