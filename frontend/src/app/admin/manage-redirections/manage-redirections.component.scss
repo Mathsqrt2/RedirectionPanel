@@ -7,7 +7,7 @@
     justify-content: center;
     gap: 32px;
 
-    padding: 32px 58px;
+    padding: 42px 64px;
     border-radius: 24px;
     background-color: $menu-background;
     box-shadow: 0 0 32px $shadowColor;
@@ -54,7 +54,29 @@ td {
 }
 
 .wide-col {
-    min-width: 120px;
+    min-width: 180px;
+}
+
+#toggler {
+    margin-left: 10px;
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    padding: 4px 12px;
+    transition: all 0.4s ease-in-out;
+    background-color: $accent-dark;
+    color: #ccc;
+
+    &:hover{
+        transform: scale(0.95);
+        background-color: $accent;
+        box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    }
+}
+
+.super-wide-col{
+    width: 360px;
+    overflow: hidden;
 }
 
 th {

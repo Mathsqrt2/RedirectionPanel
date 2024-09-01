@@ -28,10 +28,13 @@
     <table class="table-field" *ngIf="this.redirections.length">
         <tr>
             <th class="narrow-col">id</th>
-            <th class="wide-col">
+            <th class="wide-col" #urlCol>
                 <span>url</span>
-                 <input type="button" (click)="onToggleSensitiveDataDisplay(toggler)" value={{togglerText}} #toggler /></th>
-            <th class="wide-col">path</th>
+                <input type="button" (click)="onToggleSensitiveDataDisplay(toggler)" value={{togglerText}} #toggler
+                    id="toggler" />
+            </th>
+            <th class="super-wide-col" #routeCol>route</th>
+            <th class="narrow-col">category</th>
             <th class="narrow-col">clicks<br />(30d)</th>
             <th class="narrow-col">clicks <br /> (total)</th>
             <th colspan="2"></th>

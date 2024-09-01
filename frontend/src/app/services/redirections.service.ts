@@ -29,7 +29,7 @@ export class RedirectionsService implements OnInit {
         });
     }
 
-    editRedirection(index: number) {
+    editRedirection(redirection: Redirection) {
 
     }
 

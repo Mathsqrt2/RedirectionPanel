@@ -27,7 +27,7 @@ export class AuthService {
                 this.setStatus(response.accessToken);
                 const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7);
                 localStorage.accessToken = JSON.stringify({ ...response, expireDate });
-                this.router.navigate(['/admin'])
+                this.router.navigate(['/admin/redirections'])
             }
         }
     }

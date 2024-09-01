@@ -1,24 +1,23 @@
 <td>{{index+1}}
 </td>
 <td>
-    <a *ngIf="!editMode" href={{redirection.targetUrl}}>{{!secret ? redirection.route : '***** ***'}}</a>
-    <input *ngIf="editMode" #newRoute{{redirection.id}} type="text" value={{redirection.route}}>
+    <a *ngIf="!editMode" href={{redirection.targetUrl}}>{{displayData ? redirection.route : '***** ***'}}</a>
+    <input *ngIf="editMode" type="text" value={{redirection.route}} class="edit-input">
 </td>
 <td>
-    <span *ngIf="!editMode">{{!secret ? redirection.targetUrl : '***** ***'}}</span>
-    <input *ngIf="editMode" #newTarget{{redirection.id}} type="text" value={{redirection.targetUrl}}>
+    <span *ngIf="!editMode">{{displayData ? redirection.targetUrl : '***** ***'}}</span>
+    <input *ngIf="editMode" type="text" value={{redirection.targetUrl}} class="edit-input">
 </td>
+<td>[ ]</td>
 <td>0</td>
 <td>0</td>
-<td *ngIf="editMode">
-    <input class="instance-button edit" type="button" value="confirm"
-        (click)="confirmEdit(redirection.id)" />
-    <input class="instance-button edit" type="button" value="reject"
-        (click)="rejectEdit(redirection.id)" />
+<td *ngIf="editMode" class="edit-box">
+    <input class="instance-button edit confirm-button" type="button" value="confirm" (click)="confirmEdit()" />
+    <input class="instance-button edit" type="button" value="reject" (click)="rejectEdit()" />
 </td>
 <td (click)="onEdit()" *ngIf="!editMode">
     <input class="instance-button edit" type="button" value="edit">
 </td>
-<td (click)="onDelete(redirection.id)">
+<td (click)="onDelete()">
     <input class="instance-button delete" type="button" value="X">
 </td>

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Redirection, RedirectionsService } from '../../../services/redirections.service';
 
 @Component({
@@ -7,34 +7,49 @@ import { Redirection, RedirectionsService } from '../../../services/redirections
     styleUrl: './redirection-bar.component.scss'
 })
 
-export class RedirectionBarComponent {
+export class RedirectionBarComponent implements OnChanges {
 
+    
     @Input('instance') redirection: Redirection;
     @Input('index') index: number;
-    @Input('secret') secret: boolean = false; 
+    @Input('secret') secret: boolean = false;
+    redirectionInput: string;
+    targetPathInput: string;
+    displayData: boolean = this.secret;
+    editMode = false;
+
+    @HostListener('mouseover') show = () => {
+        this.displayData = true;
+    }
+    @HostListener(`mouseleave`) hide = () => {
+        this.displayData = this.secret ? true : false;
+    }
+
+    ngOnChanges(changes: SimpleChanges): void {
+        this.displayData = this.secret;
+    }
 
     constructor(
         private redirectionsService: RedirectionsService,
     ) { }
 
-    editMode = false;
 
-
-
-    onDelete(id: number) {
-        this.redirectionsService.deleteRedirection(id);
+    onDelete() {
+        this.redirectionsService.deleteRedirection(this.redirection.id);
     }
 
     onEdit() {
         this.editMode = true;
     }
 
-    confirmEdit(id: number) {
+    confirmEdit() {
         this.editMode = false;
-        this.redirectionsService.editRedirection(id);
+        this.redirection.route = this.redirectionInput;
+        this.redirection.targetUrl = this.targetPathInput;
+        this.redirectionsService.editRedirection(this.redirection);
     }
 
-    rejctEdit(id: number) {
+    rejectEdit() {
         this.editMode = false
     }
 }
