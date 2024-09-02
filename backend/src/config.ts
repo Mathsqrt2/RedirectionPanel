@@ -6,6 +6,14 @@ export default {
     secret: process.env.SECRET,
     origin1: process.env.ORIGIN1,
     origin2: process.env.ORIGIN2,
+    mailer: {
+        service: process.env.SMTP_SERVICE,
+        secure: process.env.SMTP_SECURE,
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        pass: process.env.SMTP_PASS,
+        user: process.env.STMP_USER,
+    },
     database: {
         host: process.env.DBHOST,
         username: process.env.DBUSERNAME,

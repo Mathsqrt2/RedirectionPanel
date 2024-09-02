@@ -6,6 +6,7 @@ import { usersProviders } from "./orm/users/users.providers";
 import { logsProviders } from "./orm/logs/logs.providers";
 import { redirectionsProviders } from "./orm/redirections/redirections.providers";
 import { requestsProviders } from "./orm/requests/requests.providers";
+import { verifyProviders } from "src/auth/orm/verifyEmail.providers";
 
 const providers = [
     DatabaseService,
@@ -14,6 +15,7 @@ const providers = [
     ...redirectionsProviders,
     ...requestsProviders,
     ...usersProviders,
+    ...verifyProviders,
 ];
 
 @Module({

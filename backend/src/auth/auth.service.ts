@@ -2,15 +2,20 @@ import {
     ConflictException, HttpStatus, Inject, Injectable,
     NotFoundException, UnauthorizedException
 } from '@nestjs/common';
+import * as nodemailer from 'nodemailer';
 import {
     LoginUser, LoginUserResponse, RegisterUser,
-    RegisterUserResponse, RemoveUserProps, RemoveUserResponse
+    RegisterUserResponse, RemoveUserProps, RemoveUserResponse,
+    VerifyEmailResponse,
 } from './auth.types';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { Users } from 'src/database/orm/users/users.entity';
 import { SHA256 } from 'crypto-js';
 import { Logs } from 'src/database/orm/logs/logs.entity';
+import { VerifyEmailDto } from './dtos/verifyEmail.dto';
+import config from 'src/config';
+import { VerifyEmail } from './orm/verifyEmail.entity';
 
 @Injectable()
 
@@ -19,6 +24,7 @@ export class AuthService {
         private jwtService: JwtService,
         @Inject(`USERS`) private readonly users: Repository<Users>,
         @Inject(`LOGS`) private readonly logs: Repository<Logs>,
+        @Inject(`VERIFY`) private readonly verify: Repository<VerifyEmail>
     ) { }
 
     private securePassword = (password: string): string => {
@@ -36,7 +42,7 @@ export class AuthService {
         return false
     }
 
-    registerUser = async ({ login, password, confirmPassword, req }: RegisterUser): Promise<RegisterUserResponse> => {
+    public registerUser = async ({ login, password, confirmPassword, req }: RegisterUser): Promise<RegisterUserResponse> => {
 
         const startTime = Date.now();
 
@@ -96,7 +102,7 @@ export class AuthService {
         }
     }
 
-    loginUser = async ({ login, password, req }: LoginUser): Promise<LoginUserResponse> => {
+    public loginUser = async ({ login, password, req }: LoginUser): Promise<LoginUserResponse> => {
 
         const startTime = Date.now();
 
@@ -146,7 +152,7 @@ export class AuthService {
 
     }
 
-    removeUser = async ({ login, password }: RemoveUserProps): Promise<RemoveUserResponse> => {
+    public removeUser = async ({ login, password }: RemoveUserProps): Promise<RemoveUserResponse> => {
 
         const startTime = Date.now();
 
@@ -186,4 +192,102 @@ export class AuthService {
 
     }
 
+    private isEmailValid = (email: string): boolean => {
+        const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        return pattern.test(email);
+    }
+
+    private randomNumber = (min, max): Number => {
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    public sendVerificationEmail = async ({ email, userId }: VerifyEmailDto): Promise<VerifyEmailResponse> => {
+
+        const startTime = Date.now();
+
+        if (!email) {
+            throw new ConflictException(`Email is required`);
+        }
+
+        if (!this.isEmailValid(email)) {
+            throw new ConflictException(`incorrect email`);
+        }
+
+        if (!userId) {
+            throw new ConflictException(`User id is required`);
+        }
+
+        const user = this.users.findOneBy({ id: userId });
+
+        if (!user) {
+            throw new NotFoundException(`User with id${userId} not found`);
+        }
+
+        try {
+            const options: nodemailer.TransportOptions & transportDataType = {
+                service: config.mailer.service,
+                host: config.mailer.host,
+                port: config.mailer.port,
+                secure: false,
+                auth: {
+                    user: config.mailer.user,
+                    pass: config.mailer.pass,
+                }
+            };
+
+            const transport = nodemailer.createTransport(options)
+
+            let code = "";
+
+            for (let i = 0; i < 9; i++) {
+                code += this.randomNumber(0, 9);
+            }
+            const creationTime = new Date();
+            const expireTime = creationTime.getDate() + 1;
+
+            const text = `Your verification code is: ${code}. It is active for one day, and expires: ${new Date().setDate(expireTime)}`
+            let html = `<h1>You're welcome</h1>
+                <p>${text}</p>`;
+
+
+            await transport.sendMail({
+                from: config.mailer.user,
+                to: email,
+                subject: 'Verification code',
+                text: html,
+                html: html,
+            })
+
+            return ({
+                status: HttpStatus.OK,
+            })
+        } catch (err) {
+            return ({
+                status: HttpStatus.BAD_REQUEST,
+            });
+        }
+
+
+
+    };
+
+    public recieveVerificationCode = async (): Promise<any> =>{
+        
+    }
+
+}
+
+
+
+type transportDataType = {
+    service: string,
+    host: string,
+    port: string,
+    secure: boolean,
+    auth: smtpAuth,
+}
+
+type smtpAuth = {
+    user: string,
+    pass: string,
 }

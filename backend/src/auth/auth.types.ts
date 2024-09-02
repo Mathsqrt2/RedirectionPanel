@@ -16,6 +16,10 @@ export type RegisterUserResponse = {
     userId?: number,
 } | ErrorResponse;
 
+export type VerifyEmailResponse = {
+    status: HttpStatus.OK | HttpStatus.BAD_REQUEST,
+}
+
 type ErrorResponse = {
     status: HttpStatus.CONFLICT | HttpStatus.BAD_REQUEST | HttpStatus.INTERNAL_SERVER_ERROR | HttpStatus.UNAUTHORIZED,
     message?: string;

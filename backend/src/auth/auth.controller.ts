@@ -1,10 +1,11 @@
-import { BadRequestException, Body, Controller, Delete, HttpStatus, Post, Req, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
 import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
+import { VerifyEmailDto } from './dtos/verifyEmail.dto';
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -67,6 +68,36 @@ export class AuthController {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Couldn't removeUser.`,
+            }
+        }
+    }
+
+    @Post(`sendVerificationEmail`)
+    async sendVerificationEmail(
+        @Body() body: VerifyEmailDto,
+    ) {
+        try {
+            return await this.authService.sendVerificationEmail(body);
+        } catch (err) {
+            console.log('verifyEmail', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't handle verification`,
+            }
+        }
+    }
+
+    @Get(`verifyEmail/:id`)
+    async verifyEmail(
+        @Param(`id`) id: string
+    ) {
+        try {
+            return await this.verifyEmail(id);
+        } catch (err) {
+            console.log('verifyEmail', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't verify url ${id}`,
             }
         }
     }
