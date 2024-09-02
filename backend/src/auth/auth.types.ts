@@ -13,6 +13,7 @@ export type RegisterUserResponse = {
     accessToken: string,
     login: string,
     permissions: Permissions,
+    userId?: number,
 } | ErrorResponse;
 
 type ErrorResponse = {

@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { UsersService } from "./users.service";
 import { Router } from "@angular/router";
-
+import { RegisterUserResponse } from "../../../../backend/src/auth/auth.types";
 @Injectable()
 
 export class AuthService {
@@ -32,7 +32,8 @@ export class AuthService {
         }
     }
 
-    private baseUrl: string = `http://localhost:3000/api`;
+    private domain: string = `http://localhost:3000`;
+    private baseUrl: string = `${this.domain}/api`;
     private isLoggedIn: Boolean = false;
     private accessToken: string | null = null;
 
@@ -43,7 +44,6 @@ export class AuthService {
     private deleteCookie = (name): void => {
         document.cookie = `${decodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
     }
-
     private setStatus = (token?: string): void => {
         if (token) {
             this.accessToken = token;
@@ -54,7 +54,7 @@ export class AuthService {
         }
     }
 
-    isAuthenticated = () => {
+    public isAuthenticated = () => {
         return new Promise((resolve) => {
             if (this.isLoggedIn) {
                 resolve(true);
@@ -63,9 +63,9 @@ export class AuthService {
         })
     }
 
-    login = async (loginForm: { userLogin: string, userPassword: string }): Promise<boolean> => {
+    public login = async (loginForm: { userLogin: string, userPassword: string }): Promise<boolean> => {
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
 
             if (!this.accessToken) {
                 this.http.post(`${this.baseUrl}/auth/login`, loginForm).subscribe({
@@ -84,6 +84,7 @@ export class AuthService {
                                 accessToken: response.accessToken,
                                 userId: response.userId,
                             });
+
                             resolve(true)
                         }
 
@@ -98,10 +99,36 @@ export class AuthService {
         })
     }
 
-    logout() {
+    public logout() {
         this.setStatus();
         this.deleteCookie("jwt");
         localStorage.removeItem('accessToken');
+    }
+
+    public registerNewUser = async (body: RegisterProps): Promise<boolean> => {
+        return new Promise((resolve) => {
+            this.http.post(`${this.baseUrl}/auth/register`, body, { withCredentials: true }).subscribe(
+                (response: RegisterUserResponse) => {
+                    if (response.status === 202) {
+                        this.setStatus(response?.accessToken);
+
+                        const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+                        localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+
+                        this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+                        this.usersService.registerUser({
+                            username: response.login,
+                            permissions: response.permissions,
+                            accessToken: response.accessToken,
+                            userId: response.userId,
+                        });
+
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                });
+        })
     }
 }
 
@@ -118,4 +145,8 @@ type LoginResponse = {
     login?: string,
     userId: number,
     accessToken?: string,
+}
+
+type RegisterProps = {
+
 }

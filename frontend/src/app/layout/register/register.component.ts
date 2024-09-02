@@ -1,7 +1,7 @@
-import { HttpClient } from "@angular/common/http";
 import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { SHA512 } from "crypto-js";
+import { AuthService } from "../../services/auth.service";
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-register',
@@ -10,41 +10,46 @@ import { SHA512 } from "crypto-js";
 })
 export class RegisterComponent implements OnInit {
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) { }
 
-  accountDoesntExist: boolean = false;
-  loginForm: FormGroup;
-  accounts: User[] = [
-    { login: 'qwerty', isAuthenticated: false }
-  ];
+  accountAlreadyExist: boolean = false;
+  registerForm: FormGroup;
 
   areEquals(control: FormControl): { [s: string]: boolean } {
-    console.log("checked");
-    if (control?.value !== this.loginForm?.value?.password) {
+    if (control?.value !== this.registerForm?.value?.password) {
       return { 'passwordMustMatch': true };
     }
     return null;
   }
 
   ngOnInit(): void {
-    this.loginForm = new FormGroup({
+    this.registerForm = new FormGroup({
       'login': new FormControl(null, [Validators.required, Validators.minLength(3)]),
       'password': new FormControl(null, [Validators.required, Validators.minLength(3)]),
       'password-confirm': new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
   };
 
+  async onSubmit(): Promise<void> {
+    const body = {
+      login: this.registerForm.value.login,
+      password: this.registerForm.value.login,
+      confirmPassword: this.registerForm.value.login,
+    }
 
-  onSubmit(): void {
-    console.log(this.loginForm.value);
-    console.log("hash", SHA512(this.loginForm.value.password).toString());
-    this.loginForm.reset();
+    if (this.registerForm.status === "VALID") {
+      const request = await this.authService.registerNewUser(body)
+      this.registerForm.reset();
+      if (request) {
+        this.router.navigate(['/admin/redirections'])
+      } else {
+        this.accountAlreadyExist = true;
+      }
+    }
+
   };
-}
 
-export type User = {
-  login: string,
-  token?: string,
-  refreshToken?: string,
-  isAuthenticated: boolean,
 }

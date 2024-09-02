@@ -33,9 +33,10 @@
         <div class="numbers-wrapper">
 
             <div class="counter">
-                <label for="sortBy">Sort by</label>
-                <select class="new-data-input" [(ngModel)]="currentSortMode" (change)="sortBy()">
-                    <option *ngFor="let option of sortByOptions" name="sortBy">{{option}}</option>
+                <label for="sort-by">Sort by</label>
+                <select class="new-data-input" [(ngModel)]="currentSortMode" name="sort-by" id="sort-by"
+                    (change)="sortBy()">
+                    <option *ngFor="let option of sortByOptions">{{option}}</option>
                 </select>
             </div>
 

@@ -6,7 +6,7 @@
         <input type="text" name="login" id="login" class="form-input" formControlName="login">
 
         <div *ngIf="loginForm.get('login').touched && !loginForm.get('login').valid">
-            <span class="error-code"> The login is required</span>
+            <span class="error-code">The login is required</span>
         </div>
 
     </div>
@@ -16,7 +16,7 @@
         <input type="password" name="password" id="password" class="form-input" formControlName="password">
 
         <div *ngIf="loginForm.get('password').touched && !loginForm.get('password').valid">
-            <span class="error-code"> The password is required</span>
+            <span class="error-code">The password is required</span>
         </div>
     </div>
 
@@ -25,7 +25,7 @@
     </div>
 
     <div class="buttons-field">
-        <input type="submit" class="form-button" id="form-submit" value="sign in" [disabled]="!loginForm.valid ">
+        <input type="submit" class="form-button" id="form-submit" value="sign in" [disabled]="!loginForm.valid">
         <label for="register-href" class="reg-label">Haven't account yet?</label>
         <input type="button" class="form-button" id="register-href" value="register" routerLink="/register">
     </div>

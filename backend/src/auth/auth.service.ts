@@ -52,7 +52,7 @@ export class AuthService {
                 throw new ConflictException(`Confirm password mismatch`);
             }
 
-            const newUser = await this.users.save({
+            const newUser = await this.users.save<any>({
                 login,
                 password: this.securePassword(password),
                 canDelete: true,
@@ -60,6 +60,8 @@ export class AuthService {
                 canCreate: false,
                 canManage: false,
             })
+
+            const userId = (await this.users.findOneBy({ login })).id;
 
             const { canDelete, canUpdate, canCreate, canManage } = newUser;
             const payload = { sub: newUser.id, username: newUser?.login };
@@ -75,7 +77,8 @@ export class AuthService {
                 status: HttpStatus.ACCEPTED,
                 accessToken: await this.jwtService.signAsync(payload),
                 login: newUser.login,
-                permissions: { canDelete, canUpdate, canCreate, canManage }
+                permissions: { canDelete, canUpdate, canCreate, canManage },
+                userId,
             };
         } catch (err) {
             console.log(`registerUser`, err);
@@ -86,6 +89,7 @@ export class AuthService {
                 status: `failed`,
                 duration: Math.floor(Date.now() - startTime),
             })
+
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
             }
