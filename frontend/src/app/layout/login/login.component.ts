@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
             const request = await this.authService.login(this.loginForm.value);
             this.loginForm.reset();
             if (request) {
-                this.router.navigate(['/admin/redirections']);
+                this.router.navigate(['/admin']);
             } else {
                 this.accessDenied = true;
             }

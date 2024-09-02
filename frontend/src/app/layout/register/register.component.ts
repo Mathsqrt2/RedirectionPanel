@@ -44,12 +44,11 @@ export class RegisterComponent implements OnInit {
       const request = await this.authService.registerNewUser(body)
       this.registerForm.reset();
       if (request) {
-        this.router.navigate(['/admin/redirections'])
+        this.router.navigate(['/admin'])
       } else {
         this.accountAlreadyExist = true;
       }
     }
-
   };
 
 }

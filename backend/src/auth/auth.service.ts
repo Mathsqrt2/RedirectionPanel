@@ -22,7 +22,7 @@ export class AuthService {
     ) { }
 
     private securePassword = (password: string): string => {
-        const salt = SHA256(Date.now()).toString();
+        const salt = SHA256(new Date()).toString();
         return `${salt}$${SHA256(`${password}$${salt}`).toString()}`;
     }
 
@@ -55,8 +55,8 @@ export class AuthService {
             const newUser = await this.users.save<any>({
                 login,
                 password: this.securePassword(password),
-                canDelete: true,
-                canUpdate: true,
+                canDelete: false,
+                canUpdate: false,
                 canCreate: false,
                 canManage: false,
             })

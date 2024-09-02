@@ -28,6 +28,7 @@
         <div *ngIf="registerForm.get('password-confirm').touched && !registerForm.get('password-confirm').dirty">
             <span class="error-code">The password is required</span>
         </div>
+        
         <div *ngIf="registerForm.get('password-confirm').touched 
             && !registerForm.get('password-confirm').valid 
             && registerForm.get('password-confirm').errors['passwordMustMatch']">
@@ -36,7 +37,8 @@
     </div>
 
     <div class="buttons-field">
-        <input type="submit" class="form-button" id="register-href" value="create account" [disabled]="!registerForm.valid">
+        <input type="submit" class="form-button" id="register-href" value="create account"
+            [disabled]="!registerForm.valid">
         <label for="login-href" class="reg-label">Already have account?</label>
         <input type="button" class="form-button" id="login-href" value="sign in" routerLink="/">
     </div>

@@ -41,7 +41,7 @@ export class AuthService {
         const date: Date = new Date((Date.now() + (1000 * 60 * 60 * 24 * expirationDays)));
         document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)};expires=${date.toUTCString()}`;
     }
-    private deleteCookie = (name): void => {
+    private deleteCookie = (name: string): void => {
         document.cookie = `${decodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
     }
     private setStatus = (token?: string): void => {
@@ -77,6 +77,7 @@ export class AuthService {
 
                             const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
                             localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+
                             this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
                             this.usersService.registerUser({
                                 username: response.login,
@@ -107,8 +108,9 @@ export class AuthService {
 
     public registerNewUser = async (body: RegisterProps): Promise<boolean> => {
         return new Promise((resolve) => {
-            this.http.post(`${this.baseUrl}/auth/register`, body, { withCredentials: true }).subscribe(
-                (response: RegisterUserResponse) => {
+            this.http.post(`${this.baseUrl}/auth/register`, body).subscribe({
+                next: (response: RegisterUserResponse) => {
+
                     if (response.status === 202) {
                         this.setStatus(response?.accessToken);
 
@@ -127,7 +129,11 @@ export class AuthService {
                     } else {
                         resolve(false);
                     }
-                });
+                },
+                error: () => {
+                    resolve(false);
+                }
+            });
         })
     }
 }
