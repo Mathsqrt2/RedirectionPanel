@@ -15,6 +15,9 @@ export class ManageRedirectionsComponent implements OnInit {
   redirections: Redirection[] = [];
   categories: string[] = [];
 
+  sortByOptions: string[] = ['id (asc)', 'id (desc)', 'clicks (asc)', 'clicks (desc)', 'route (asc)', 'route (desc)'];
+  currentSortMode: string = this.sortByOptions[0];
+
   showSensitiveData: boolean = true;
   currentCategory: string = 'all';
   togglerText = !this.showSensitiveData ? 'show' : 'hide';
@@ -37,6 +40,7 @@ export class ManageRedirectionsComponent implements OnInit {
     this.redirectionsService.redirections.subscribe(
       (response: Redirection[]) => {
         this.redirections = response;
+        this.sortBy();
       });
 
     this.newRedirection = new FormGroup({
@@ -48,6 +52,23 @@ export class ManageRedirectionsComponent implements OnInit {
     this.redirectionsService.categories.subscribe((data) => {
       this.categories = data;
     })
+  }
+
+  sortBy() {
+    const mode = this.currentSortMode.split(" ");
+    const direction = mode[1] === "(asc)" ? 1 : -1;
+    if (mode[0] === 'id') {
+      this.redirections = this.redirections.sort((a: Redirection, b: Redirection) => direction * (a.id - b.id));
+    }
+
+    else if (mode[0] === 'clicks') {
+      this.redirections = this.redirections.sort((a: Redirection, b: Redirection) => direction * (a.clicksTotal - b.clicksTotal));
+    }
+
+    else if (mode[0] === 'route') {
+      this.redirections = this.redirections.sort((a: Redirection, b: Redirection) => direction * a.route.localeCompare(b.route));
+    }
+
   }
 
   onMaxReset() {
@@ -77,6 +98,7 @@ export class ManageRedirectionsComponent implements OnInit {
       this.redirections = this.redirections.filter(
         (item: Redirection) => item.category === this.currentCategory);
     }
+
   }
 
   onCreate() {
