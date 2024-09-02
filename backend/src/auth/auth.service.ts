@@ -112,7 +112,7 @@ export class AuthService {
             const accessToken = await this.jwtService.signAsync(payload);
 
             const { canDelete, canUpdate, canCreate, canManage } = user;
-            
+
             await this.logs.save({
                 label: `Signed in`,
                 description: `User with login: "${login}" signed in from ip: "${req?.ip}", canManage: ${canManage}, canCreate: ${canCreate}, canUpdate: ${canUpdate}, canDelete: ${canDelete}. ${new Date()}`,

@@ -77,6 +77,7 @@ export class RedirectionsService {
     public deleteRedirection(index: number) {
         this.http.delete(`${this.baseUrl}/redirections/${index}`, { withCredentials: true }).subscribe(() => {
             this.redirections.next([...this.redirections.getValue().filter(redirection => redirection.id !== index)]);
+            this.findCategories(this.redirections.getValue());
         });
     }
 
@@ -91,6 +92,7 @@ export class RedirectionsService {
         this.http.post(`${this.baseUrl}/redirections`, body, { withCredentials: true }).subscribe(
             (response: { status: number, content: Redirection }) => {
                 this.redirections.next([...this.redirections.getValue(), response.content])
+                this.findCategories(this.redirections.getValue());
             });
     }
 }

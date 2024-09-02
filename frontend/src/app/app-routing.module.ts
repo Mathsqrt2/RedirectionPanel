@@ -7,7 +7,7 @@ import { MainSectionComponent } from './admin/main-section/main-section.componen
 import { RegisterComponent } from './layout/register/register.component';
 import { ManageUsersComponent } from './admin/manage-users/manage-users.component';
 import { ManageRedirectionsComponent } from './admin/manage-redirections/manage-redirections.component';
-import { DisplayStatsComponent } from './admin/display-stats/display-stats.component';
+import { DisplayStatsComponent } from './admin/display-logs/display-logs.component';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },

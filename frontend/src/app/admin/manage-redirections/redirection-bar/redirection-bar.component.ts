@@ -40,7 +40,7 @@ export class RedirectionBarComponent implements OnChanges {
 
     onRedirectTo = () => {
         this.redirection.clicksTotal++;
-        window.open(`${this.redirectionsService.domain}/${this.redirection.route}`,'_blank');
+        window.open(`${this.redirectionsService.domain}/${this.redirection.route}`, '_blank');
     }
 
     onDelete() {

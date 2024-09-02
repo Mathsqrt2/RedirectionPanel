@@ -31,25 +31,30 @@
     <div class="search-query-field">
 
         <div class="numbers-wrapper">
+
             <div class="counter max-clicks-count">
-                <label for="max-elements">max clicks</label>
-                <input type="number" min="0" id="max-elements" />
+                <label for="max-elements" (click)="onMaxReset()">max clicks</label>
+                <input type="number" min="0" id="max-elements" class="new-data-input" [(ngModel)]="maxValue"
+                    (change)="onFilterResults()" />
             </div>
 
             <div class="counter min-clicks-count">
-                <label for="min-elements">min clicks</label>
-                <input type="number" min="0" id="min-elements" />
+                <label for="min-elements" (click)="onMinReset()">min clicks</label>
+                <input type="number" min="0" id="min-elements" class="new-data-input" [(ngModel)]="minValue"
+                    (change)="onFilterResults()" />
+            </div>
+
+            <div class="counter" *ngIf="categories.length > 2">
+                <label for="category">category</label>
+                <select class="new-data-input" [(ngModel)]="currentCategory" (change)="onFilterResults()">
+                    <option *ngFor="let category of categories" name="category">{{category}}</option>
+                </select>
             </div>
         </div>
 
-        <div class="category">
-            <label *ngFor="let category of categories">
-                <input type="radio" name="category" (click)="onFilterResults(category)" />
-                {{category}}
-            </label>
-        </div>
-
     </div>
+
+    <hr *ngIf="this.redirections.length" />
 
     <table class="table-field" *ngIf="this.redirections.length">
         <tr>

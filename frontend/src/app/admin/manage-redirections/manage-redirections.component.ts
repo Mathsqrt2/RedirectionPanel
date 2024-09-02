@@ -13,10 +13,13 @@ export class ManageRedirectionsComponent implements OnInit {
 
   newRedirection: FormGroup;
   redirections: Redirection[] = [];
-  showSensitiveData: boolean = true;
-  togglerText = !this.showSensitiveData ? 'show' : 'hide';
-
   categories: string[] = [];
+
+  showSensitiveData: boolean = true;
+  currentCategory: string = 'all';
+  togglerText = !this.showSensitiveData ? 'show' : 'hide';
+  minValue: number | null = null;
+  maxValue: number | null = null;
 
   constructor(
     private redirectionsService: RedirectionsService,
@@ -47,11 +50,32 @@ export class ManageRedirectionsComponent implements OnInit {
     })
   }
 
-  onFilterResults(category: string) {
+  onMaxReset() {
+    this.maxValue = null;
+  }
+
+  onMinReset() {
+    this.minValue = null;
+  }
+
+  onCategoryReset() {
+    this.currentCategory = 'all';
+  }
+
+  onFilterResults() {
     this.redirections = this.redirectionsService.redirections.getValue();
-    if (category !== 'all') {
+
+    if (this.minValue) {
+      this.redirections = this.redirections.filter((i: Redirection) => i.clicksTotal >= this.minValue);
+    }
+
+    if (this.maxValue) {
+      this.redirections = this.redirections.filter((i: Redirection) => i.clicksTotal <= this.maxValue);
+    }
+
+    if (this.currentCategory !== 'all') {
       this.redirections = this.redirections.filter(
-        (item: Redirection) => item.category === category);
+        (item: Redirection) => item.category === this.currentCategory);
     }
   }
 
