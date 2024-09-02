@@ -7,7 +7,8 @@ import { MainSectionComponent } from './admin/main-section/main-section.componen
 import { RegisterComponent } from './layout/register/register.component';
 import { ManageUsersComponent } from './admin/manage-users/manage-users.component';
 import { ManageRedirectionsComponent } from './admin/manage-redirections/manage-redirections.component';
-import { DisplayStatsComponent } from './admin/display-logs/display-logs.component';
+import { DisplayLogsComponent } from './admin/display-logs/display-logs.component';
+import { UserProfileComponent } from './admin/user-profile/user-profile.component';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },
@@ -15,14 +16,15 @@ const routes: Routes = [
     path: "admin", canActivate: [AuthGuard], component: MainSectionComponent, children: [
       { path: "users", canActivate: [AuthGuard], component: ManageUsersComponent },
       { path: "redirections", canActivate: [AuthGuard], component: ManageRedirectionsComponent },
-      { path: "stats", canActivate: [AuthGuard], component: DisplayStatsComponent },
+      { path: "logs", canActivate: [AuthGuard], component: DisplayLogsComponent },
+      { path: "profile", canActivate: [AuthGuard], component: UserProfileComponent },
     ],
   },
   { path: "register", component: RegisterComponent },
   { path: "login", component: LoginComponent },
 
   { path: "not-found", component: NotFoundPageComponent },
-  
+
   { path: "redirections", redirectTo: 'login' },
   { path: "", redirectTo: 'login', pathMatch: "full" },
   { path: "**", redirectTo: 'not-found' },

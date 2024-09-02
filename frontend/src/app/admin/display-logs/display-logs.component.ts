@@ -7,7 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './display-logs.component.scss'
 })
 
-export class DisplayStatsComponent {
+export class DisplayLogsComponent {
 
   private domain = `http://localhost:3000`;
   private baseUrl = `${this.domain}/api`;
