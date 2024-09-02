@@ -1,6 +1,6 @@
 <div class="redirection-management-field">
 
-    <form class="form-field" [formGroup]="newRedirection" (ngSubmit)="onCreate()">
+    <form class="form-field" [formGroup]="newRedirection" (ngSubmit)="onCreate()" *ngIf="permissions.canCreate">
 
         <h3>CREATE REDIRECTION</h3>
 
@@ -22,11 +22,11 @@
             </div>
         </div>
 
-        <input type="submit" value="CREATE" class="confirm-button">
+        <input type="submit" value="CREATE" class="confirm-button" [disabled]="!newRedirection.valid">
 
     </form>
 
-    <hr *ngIf="this.redirections.length" />
+    <hr *ngIf="this.redirections.length && this.permissions.canCreate" />
 
     <div class="search-query-field">
 
@@ -76,10 +76,15 @@
             <th class="super-wide-col" #routeCol>route</th>
             <th class="narrow-col">category</th>
             <th class="narrow-col">clicks</th>
-            <th class="narrow-col" colspan="2"></th>
+            <th class="narrow-col"*ngIf="colspan !== 0" 
+            [attr.colspan]="colspan" ></th>
         </tr>
-        <tr *ngFor="let redirection of redirections; index as i;" redirectionBar [instance]="redirection" [index]="i"
-            [secret]="showSensitiveData">
+        <tr *ngFor="let redirection of redirections; index as i;" 
+            redirectionBar 
+            [instance]="redirection" 
+            [index]="i"
+            [secret]="showSensitiveData"
+            [permissions]="permissions">
         </tr>
     </table>
 </div>

@@ -22,9 +22,9 @@
         <input class="instance-button delete" type="button" value="reject" (click)="rejectEdit()" />
     </div>
 </td>
-<td (click)="onEdit()" *ngIf="!editMode">
+<td (click)="onEdit()" *ngIf="!editMode && permissions.canUpdate">
     <input class="instance-button edit" type="button" value="edit">
 </td>
-<td (click)="onDelete()">
+<td (click)="onDelete()" *ngIf="permissions.canDelete">
     <input class="instance-button delete" type="button" value="X">
 </td>

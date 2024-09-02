@@ -1,13 +1,13 @@
 <div class="pages-menu">
     <div class="admin-menu">
-        <h3 routerLink="/admin">
+        <h3 routerLink="profile">
             <span>Hello <span class="username">{{admin}}</span>!</span>
             <span>Administration</span>
         </h3>
 
         <ul>
             <li *ngFor="let route of menuRoutes" class="panel-route" routerLinkActive="active"
-                routerLink={{route.getRoute()}}>
+                [routerLink]="route.getRoute()">
                 {{route.getTitle()}}
             </li>
         </ul>

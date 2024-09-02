@@ -116,19 +116,25 @@ td {
 }
 
 .confirm-button {
-    cursor: pointer;
+
     border: none;
     border-radius: 8px;
     padding: 6px 16px;
     margin-top: 18px;
-    background-color: $accent;
-    color: $text-default;
+    color: #ccc;
     transition: all 0.3s ease-in-out;
 
-    &:hover {
-        transform: scale(0.97);
-        background-color: $accent-hover;
+    &:enabled {
+        cursor: pointer;
+        color: $text-default;
+        background-color: $accent;
+
+        &:hover {
+            transform: scale(0.97);
+            background-color: $accent-hover;
+        }
     }
+
 }
 
 .table-field {
@@ -201,7 +207,7 @@ a {
     gap: 32px;
 }
 
-.counter{
+.counter {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -214,6 +220,6 @@ a {
     }
 }
 
-.category{
+.category {
     margin-top: 16px;
 }

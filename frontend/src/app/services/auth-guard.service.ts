@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, CanActivateChild } from "@angular/router";
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, CanActivateChild, Router } from "@angular/router";
 import { Observable } from "rxjs";
 import { AuthService, Permissions } from "./auth.service";
 import { UsersService } from "./users.service";
@@ -13,6 +13,7 @@ export class AuthGuard implements CanActivate, CanActivateChild {
     constructor(
         private authService: AuthService,
         private userService: UsersService,
+        private router: Router,
     ) {
     }
 
@@ -30,12 +31,12 @@ export class AuthGuard implements CanActivate, CanActivateChild {
             (authenticated: boolean) => {
                 if (authenticated) {
 
-                    if (route.routeConfig.path === 'logs' && !this.permissions.canManage) {
-                        return false;
+                    if (route.routeConfig.path === 'logs') {
+                        return this.permissions.canManage;
                     }
 
-                    if (route.routeConfig.path === 'users' && !this.permissions.canManage) {
-                        return false;
+                    if (route.routeConfig.path === 'users') {
+                        return this.permissions.canManage;
                     }
 
                     return true;

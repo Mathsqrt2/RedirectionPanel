@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Redirection, RedirectionsService } from '../../services/redirections.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../services/users.service';
+import { Permissions } from '../../services/auth.service';
 
 @Component({
   selector: 'app-manage-redirections',
@@ -11,12 +12,26 @@ import { UsersService } from '../../services/users.service';
 
 export class ManageRedirectionsComponent implements OnInit {
 
+  private refreshColspan = () => {
+    let colspan = 0;
+    if (this.permissions.canDelete) {
+      colspan++;
+    }
+
+    if (this.permissions.canUpdate) {
+      colspan++;
+    }
+    return colspan;
+  }
+
   newRedirection: FormGroup;
   redirections: Redirection[] = [];
   categories: string[] = [];
+  permissions: Permissions = this.userService.getCurrentUserPermissions();
 
   sortByOptions: string[] = ['id (asc)', 'id (desc)', 'clicks (asc)', 'clicks (desc)', 'route (asc)', 'route (desc)'];
   currentSortMode: string = this.sortByOptions[0];
+  colspan: number = this.refreshColspan();
 
   showSensitiveData: boolean = true;
   currentCategory: string = 'all';
@@ -27,7 +42,8 @@ export class ManageRedirectionsComponent implements OnInit {
   constructor(
     private redirectionsService: RedirectionsService,
     private userService: UsersService,
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
 
@@ -73,14 +89,17 @@ export class ManageRedirectionsComponent implements OnInit {
 
   onMaxReset() {
     this.maxValue = null;
+    this.onFilterResults();
   }
 
   onMinReset() {
     this.minValue = null;
+    this.onFilterResults();
   }
 
   onCategoryReset() {
     this.currentCategory = 'all';
+    this.onFilterResults();
   }
 
   onFilterResults() {
@@ -96,9 +115,13 @@ export class ManageRedirectionsComponent implements OnInit {
 
     if (this.currentCategory !== 'all') {
       this.redirections = this.redirections.filter(
-        (item: Redirection) => item.category === this.currentCategory);
+        (item: Redirection) => {
+          if (this.currentCategory === '') {
+            return item.category === null || item.category === undefined;
+          }
+          return item.category === this.currentCategory
+        });
     }
-
   }
 
   onCreate() {

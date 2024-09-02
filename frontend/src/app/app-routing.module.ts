@@ -14,10 +14,10 @@ const routes: Routes = [
   { path: "login", component: LoginComponent },
   {
     path: "admin", canActivate: [AuthGuard], component: MainSectionComponent, children: [
+      { path: "profile", canActivate: [AuthGuard], component: UserProfileComponent },
       { path: "users", canActivate: [AuthGuard], component: ManageUsersComponent },
       { path: "redirections", canActivate: [AuthGuard], component: ManageRedirectionsComponent },
       { path: "logs", canActivate: [AuthGuard], component: DisplayLogsComponent },
-      { path: "profile", canActivate: [AuthGuard], component: UserProfileComponent },
     ],
   },
   { path: "register", component: RegisterComponent },

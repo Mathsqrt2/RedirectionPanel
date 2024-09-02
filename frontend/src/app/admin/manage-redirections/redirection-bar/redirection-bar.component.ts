@@ -1,5 +1,6 @@
 import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Redirection, RedirectionsService } from '../../../services/redirections.service';
+import { Permissions } from '../../../services/auth.service';
 
 @Component({
     selector: '[redirectionBar]',
@@ -12,6 +13,8 @@ export class RedirectionBarComponent implements OnChanges {
     @Input('instance') redirection: Redirection;
     @Input('index') index: number;
     @Input('secret') secret: boolean = false;
+    @Input('permissions') permissions: Permissions;
+
     redirectionInput: string;
     targetPathInput: string;
     categoryInput: string;
