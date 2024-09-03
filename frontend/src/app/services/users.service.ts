@@ -7,8 +7,8 @@ import { BehaviorSubject } from "rxjs";
 
 export class UsersService {
 
-    private currentUser = new BehaviorSubject<User>({} as User);
-    private users = new BehaviorSubject<User[]>([]);
+    private currentUser: BehaviorSubject<User> = new BehaviorSubject<User>({} as User);
+    private users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
     private hasBeenDataFetched: boolean = false;
     private domain: string = `http://localhost:3000`;
     private targetUrl: string = `${this.domain}/api`;
@@ -22,7 +22,6 @@ export class UsersService {
             this.http.get(`${this.targetUrl}/users`, { withCredentials: true }).subscribe(
                 (response: UsersResponse) => {
                     this.users.next(response.content);
-                    console.log(this.users.getValue())
                 }
             )
             resolve(true)
@@ -44,7 +43,11 @@ export class UsersService {
         })
     }
 
-    getCurrentUserToken(): string {
+    getCurrentUser = (): BehaviorSubject<User> => {
+        return this.currentUser;
+    }
+
+    getCurrentUserToken = (): string => {
         return this.currentUser.getValue().accessToken;
     }
 
@@ -56,11 +59,11 @@ export class UsersService {
         return this.currentUser.getValue().permissions;
     }
 
-    getCurrentUserId(): number {
+    getCurrentUserId = (): number => {
         return this.currentUser.getValue().userId;
     }
 
-    geCurrentUserEmail(): string {
+    geCurrentUserEmail = (): string => {
         return this.currentUser.getValue().email;
     }
 

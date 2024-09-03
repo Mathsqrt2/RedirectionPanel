@@ -1,1 +1,53 @@
-<p>user-profile works!</p>
+<div class="user-profile-field">
+    <h1>{{currentUser.username}} profile</h1>
+    <div class="sections-wrapper">
+
+        <div class="description">
+
+            <div class="permissions">
+                <h3>Permissions</h3>
+                <ul>
+                    <li *ngFor="let permission of permissions">
+                        <label [htmlFor]="permission.key" class="permission-field">
+                            <input type="checkbox" class="permission-value" [id]="permission.key"
+                                [name]="permission.key" [checked]="permission.value" />
+                            <span class="permission-label">{{permission.key}}</span>
+                        </label>
+                    </li>
+                </ul>
+            </div>
+            <div class="change-password">
+                <form>
+                    <h3>Change password</h3>
+
+                    <div class="form-group">
+                        <label>Current password</label>
+                        <input type="password" value="current password"/>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>New password</label>
+                        <input type="password" value="current password"/>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="">Confirm new password</label>
+                        <input type="password"  value="current password"/>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>
+
+        <div class="image">
+            <div class="img-placeholder">
+                <img src=""  />
+            </div>
+        </div>
+
+    </div>
+    <div class="confirmation-field">
+        <input type="button" value="save changes" class="confirm-button"/>
+    </div>
+</div>

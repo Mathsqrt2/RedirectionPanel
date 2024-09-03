@@ -1,0 +1,92 @@
+@import "./../../../styleset.scss";
+
+.user-profile-field {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    box-sizing: border-box;
+    gap: 32px;
+    min-width: 820px;
+    height: fit-content;
+    min-height: 740px;
+    color: white;
+
+    padding: 48px 0px;
+    border-radius: 24px;
+    background-color: $menu-background;
+    box-shadow: 0 0 32px $shadowColor;
+    border-top: 4px solid $accent;
+
+    transition: all $duration ease-in-out;
+}
+
+h1{
+    margin: 0;
+}
+
+.description{
+    display: flex;
+    flex-direction: column;
+}
+
+.img-placeholder {
+    width: 200px;
+    height: 200px;
+
+}
+
+.sections-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-around;
+    align-items: center;
+}
+
+ul {
+    all: unset;
+    list-style-type: none;
+}
+
+.permission-field {
+    padding: 10px;
+    transition: all $duration ease-in-out;
+
+    &:hover {
+        background-color: aqua;
+    }
+}
+
+.permission-value {
+    margin-right: 10px;
+}
+
+.form-group{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.confirm-button {
+
+    border: none;
+    border-radius: 8px;
+    font-size: medium;
+    padding: 14px 24px;
+    margin-top: 18px;
+    color: #ccc;
+    transition: all 0.3s ease-in-out;
+
+    &:enabled {
+        cursor: pointer;
+        color: $text-default;
+        background-color: $accent;
+
+        &:hover {
+            transform: scale(0.97);
+            background-color: $accent-hover;
+        }
+    }
+
+}
