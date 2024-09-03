@@ -1,6 +1,6 @@
 import { IsNumber, IsString } from "class-validator";
 
-export class VerifyEmailDto {
+export class CodesDto {
 
     @IsNumber()
     userId: number;

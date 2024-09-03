@@ -16,10 +16,6 @@ export type RegisterUserResponse = {
     userId?: number,
 } | ErrorResponse;
 
-export type VerifyEmailResponse = {
-    status: HttpStatus.OK | HttpStatus.BAD_REQUEST,
-}
-
 type ErrorResponse = {
     status: HttpStatus.CONFLICT | HttpStatus.BAD_REQUEST | HttpStatus.INTERNAL_SERVER_ERROR | HttpStatus.UNAUTHORIZED,
     message?: string;
@@ -64,3 +60,17 @@ export type RemoveUserResponse = {
     status: HttpStatus.ACCEPTED | HttpStatus.UNAUTHORIZED,
 } | ErrorResponse;
 
+export type SendVerificationCodeResponse = {
+    status: HttpStatus.OK | HttpStatus.BAD_REQUEST | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
+}
+
+export type VerifyEmailResponse = {
+    status: HttpStatus.OK | HttpStatus.BAD_REQUEST | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
+    content?: {
+        permissions: Permissions,
+        login: string,
+        userId: number,
+    },
+}

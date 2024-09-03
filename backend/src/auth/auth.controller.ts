@@ -1,11 +1,13 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Req, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Redirect, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
-import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse } from './auth.types';
+import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse, SendVerificationCodeResponse, VerifyEmailResponse } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
-import { VerifyEmailDto } from './dtos/verifyEmail.dto';
+import { CodesDto } from './dtos/codes.dto';
+import { AuthGuard } from './auth.guard';
+import config from 'src/config';
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -57,6 +59,7 @@ export class AuthController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Delete(`remove`)
     async removeUser(
         @Body() body: RemoveUserDto,
@@ -72,12 +75,13 @@ export class AuthController {
         }
     }
 
-    @Post(`sendVerificationEmail`)
+    @Post(`getVerificationEmail`)
     async sendVerificationEmail(
-        @Body() body: VerifyEmailDto,
-    ) {
+        @Body() body: CodesDto,
+        @Req() req: Request,
+    ): Promise<SendVerificationCodeResponse> {
         try {
-            return await this.authService.sendVerificationEmail(body);
+            return await this.authService.sendVerificationEmail(body, req);
         } catch (err) {
             console.log('verifyEmail', err);
             return {
@@ -87,17 +91,20 @@ export class AuthController {
         }
     }
 
-    @Get(`verifyEmail/:id`)
-    async verifyEmail(
-        @Param(`id`) id: string
-    ) {
+    @UseGuards(AuthGuard)
+    @Get(`verify/:code`)
+    @Redirect(`${config.frontend.domain}/verified`, 302)
+    async recieveVerificationCode(
+        @Param(`code`) code: string,
+        @Req() req: Request,
+    ): Promise<VerifyEmailResponse> {
         try {
-            return await this.verifyEmail(id);
+            return await this.authService.recieveVerificationCode(code, req);
         } catch (err) {
             console.log('verifyEmail', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't verify url ${id}`,
+                message: `Couldn't verify request with code: ${code}`,
             }
         }
     }

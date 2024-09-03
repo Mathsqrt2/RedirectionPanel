@@ -25,6 +25,9 @@ export class Users {
     @Column({ default: false })
     canManage: boolean;
 
+    @Column({ default: null })
+    email: string;
+
     @Generated()
     creationTime: Timestamp;
 

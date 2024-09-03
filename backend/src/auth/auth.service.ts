@@ -1,30 +1,34 @@
 import {
-    ConflictException, HttpStatus, Inject, Injectable,
-    NotFoundException, UnauthorizedException
+    ConflictException, HttpStatus, Inject,
+    Injectable, NotFoundException,
+    UnauthorizedException
 } from '@nestjs/common';
+
 import * as nodemailer from 'nodemailer';
 import {
     LoginUser, LoginUserResponse, RegisterUser,
     RegisterUserResponse, RemoveUserProps, RemoveUserResponse,
+    SendVerificationCodeResponse,
     VerifyEmailResponse,
 } from './auth.types';
+
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { Users } from 'src/database/orm/users/users.entity';
 import { SHA256 } from 'crypto-js';
 import { Logs } from 'src/database/orm/logs/logs.entity';
-import { VerifyEmailDto } from './dtos/verifyEmail.dto';
+import { CodesDto } from './dtos/codes.dto';
+import { Codes } from './orm/codes.entity';
+import { Request } from 'express';
 import config from 'src/config';
-import { VerifyEmail } from './orm/verifyEmail.entity';
 
 @Injectable()
-
 export class AuthService {
     constructor(
         private jwtService: JwtService,
         @Inject(`USERS`) private readonly users: Repository<Users>,
         @Inject(`LOGS`) private readonly logs: Repository<Logs>,
-        @Inject(`VERIFY`) private readonly verify: Repository<VerifyEmail>
+        @Inject(`CODES`) private readonly codes: Repository<Codes>
     ) { }
 
     private securePassword = (password: string): string => {
@@ -197,11 +201,11 @@ export class AuthService {
         return pattern.test(email);
     }
 
-    private randomNumber = (min, max): Number => {
+    private randomNumber = (min: number, max: number): Number => {
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    public sendVerificationEmail = async ({ email, userId }: VerifyEmailDto): Promise<VerifyEmailResponse> => {
+    public sendVerificationEmail = async ({ email, userId }: CodesDto, req: Request): Promise<SendVerificationCodeResponse> => {
 
         const startTime = Date.now();
 
@@ -213,66 +217,168 @@ export class AuthService {
             throw new ConflictException(`incorrect email`);
         }
 
+        if (await this.users.findOneBy({ email })) {
+            throw new ConflictException(`The email is already in use`);
+        }
+
         if (!userId) {
             throw new ConflictException(`User id is required`);
         }
 
-        const user = this.users.findOneBy({ id: userId });
+        const user = await this.users.findOneBy({ id: userId });
 
         if (!user) {
             throw new NotFoundException(`User with id${userId} not found`);
         }
 
+        if (user.email) {
+            throw new ConflictException(`The user is already verified`);
+        }
+
+        const options: nodemailer.TransportOptions & transportDataType = {
+            host: config.mailer.host,
+            port: config.mailer.port,
+            secure: false,
+            service: config.mailer.service,
+            auth: {
+                user: config.mailer.user,
+                pass: config.mailer.pass,
+            },
+        };
+
+        const transport = nodemailer.createTransport<transportDataType>(options)
+
+        let code = "";
+        for (let i = 0; i < 9; i++) {
+            code += this.randomNumber(0, 9);
+        }
+
         try {
-            const options: nodemailer.TransportOptions & transportDataType = {
-                service: config.mailer.service,
-                host: config.mailer.host,
-                port: config.mailer.port,
-                secure: false,
-                auth: {
-                    user: config.mailer.user,
-                    pass: config.mailer.pass,
-                }
-            };
-
-            const transport = nodemailer.createTransport(options)
-
-            let code = "";
-
-            for (let i = 0; i < 9; i++) {
-                code += this.randomNumber(0, 9);
-            }
             const creationTime = new Date();
-            const expireTime = creationTime.getDate() + 1;
+            const expireTime = new Date().setDate(creationTime.getDate() + 1);
 
-            const text = `Your verification code is: ${code}. It is active for one day, and expires: ${new Date().setDate(expireTime)}`
+            const text = `Your verification code is: ${code}. 
+            It is active for one day, and expires: ${(new Date(expireTime)).toLocaleDateString('pl-Pl')}.
+            You can paste it in your profile or click the link <a href=${config.backend.domain}/api/auth/verify/${code}>${config.backend.domain}/verify/${code}</a>`;
             let html = `<h1>You're welcome</h1>
                 <p>${text}</p>`;
 
+            const existingCode = await this.codes.findOneBy({ status: true });
+            if (existingCode) {
+                existingCode.status = false;
+                this.codes.save({ ...existingCode });
+            }
+
+            await this.codes.save({
+                code,
+                userId,
+                status: true,
+                email,
+                expireDate: expireTime
+            })
 
             await transport.sendMail({
                 from: config.mailer.user,
                 to: email,
-                subject: 'Verification code',
-                text: html,
+                subject: 'Verification code in Redirection Panel Service',
+                text: text,
                 html: html,
+            })
+
+            await this.logs.save({
+                label: `Email send`,
+                description: `User "${user.login}" requested for email from: "${req?.ip}" The email has been sent. ${new Date()}`,
+                status: `success`,
+                duration: Math.floor(Date.now() - startTime),
             })
 
             return ({
                 status: HttpStatus.OK,
+                message: `Check your email: ${email}`,
             })
+
         } catch (err) {
+            console.log(`Error while trying to send email.`, err);
+
+            await this.logs.save({
+                label: `Email couldn't be send`,
+                description: `User "${user.login}" requested for email from: "${req?.ip}" The email couldn't be sent. ${err}. ${new Date()}`,
+                status: `failed`,
+                duration: Math.floor(Date.now() - startTime),
+            })
+
             return ({
                 status: HttpStatus.BAD_REQUEST,
+                message: `Error while trying to send email. ${err}`,
             });
         }
-
-
-
     };
 
-    public recieveVerificationCode = async (): Promise<any> =>{
-        
+    public recieveVerificationCode = async (code: string, req: Request): Promise<VerifyEmailResponse> => {
+
+        const startTime = Date.now();
+
+        try {
+
+            const codeRead = await this.codes.findOneBy({ code });
+
+            if (!codeRead) {
+                throw new ConflictException(`Code doesn't exist`);
+            }
+
+            if (Date.now() > codeRead.expireDate) {
+                throw new ConflictException(`The code ${codeRead.code} has expired`);
+            }
+
+            const user = await this.users.findOneBy({ id: codeRead.userId });
+
+            if (!user) {
+                throw new ConflictException(`User assigned to this code doesn't exist now`);
+            }
+
+            user.email = codeRead.email;
+            user.canCreate = true;
+            user.canUpdate = true;
+
+            await this.users.save({ ...user });
+
+            const content = {
+                permissions: {
+                    canCreate: user.canCreate,
+                    canUpdate: user.canUpdate,
+                    canDelete: user.canDelete,
+                    canManage: user.canManage,
+                },
+                login: user.login,
+                userId: user.id,
+            }
+
+            await this.logs.save({
+                label: `User verified`,
+                description: `User ${user.login} has been verified with email: "${user.email}". ip: "${req?.ip}". ${new Date()}`,
+                status: `success`,
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+                message: `User ${user.login} verified successfully.`,
+                content
+            }
+
+        } catch (err) {
+            await this.logs.save({
+                label: `Couldn't verify user`,
+                description: `email verification request from: "${req?.ip}" couldn't be handled. ${err}. ${new Date()}`,
+                status: `failed`,
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't verify user`,
+            }
+        }
     }
 
 }

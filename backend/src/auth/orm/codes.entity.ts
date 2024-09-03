@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated } from "typeorm";
 
 @Entity()
-export class VerifyEmail {
+export class Codes {
 
     @PrimaryGeneratedColumn()
     id: number;
@@ -13,7 +13,13 @@ export class VerifyEmail {
     userId: number;
 
     @Column()
-    active: boolean;
+    status: boolean;
+
+    @Column()
+    expireDate: number;
+
+    @Column()
+    email: string;
 
     @Generated()
     timestamp: Timestamp;

@@ -12,12 +12,18 @@ export default {
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
         pass: process.env.SMTP_PASS,
-        user: process.env.STMP_USER,
+        user: process.env.SMTP_USER,
     },
     database: {
         host: process.env.DBHOST,
         username: process.env.DBUSERNAME,
         password: process.env.DBPASSWORD,
         database: process.env.DATABASE,
+    },
+    frontend: {
+        domain: process.env.ORIGIN2
+    },
+    backend: {
+        domain: process.env.ORIGIN1
     }
 }
