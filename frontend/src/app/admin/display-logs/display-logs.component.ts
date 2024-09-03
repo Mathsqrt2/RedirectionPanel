@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'display-logs',
@@ -11,7 +12,7 @@ export class DisplayLogsComponent {
 
   private domain = `http://localhost:3000`;
   private baseUrl = `${this.domain}/api`;
-  logs: Log[] = [];
+  public logs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
 
   constructor(
     private readonly http: HttpClient,
@@ -21,8 +22,7 @@ export class DisplayLogsComponent {
 
   fetchLogs = async (): Promise<void> => {
     this.http.get(this.baseUrl, { withCredentials: true }).subscribe((response: LogRequest) => {
-      console.log(response.content);
-      this.logs = response.content;
+      this.logs.next(response.content);
     })
   }
 
@@ -37,7 +37,7 @@ type LogRequest = {
   content: Log[],
 }
 
-type Log = {
+export type Log = {
   label: string,
   description: string,
   status: string,

@@ -116,19 +116,18 @@ td {
 }
 
 .confirm-button {
-
+    
     border: none;
     border-radius: 8px;
     padding: 6px 16px;
     margin-top: 18px;
     color: #ccc;
     transition: all 0.3s ease-in-out;
-
+    
     &:enabled {
         cursor: pointer;
         color: $text-default;
         background-color: $accent;
-
         &:hover {
             transform: scale(0.97);
             background-color: $accent-hover;
@@ -207,7 +206,7 @@ a {
     gap: 32px;
 }
 
-.counter {
+.counter{
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -220,6 +219,6 @@ a {
     }
 }
 
-.category {
+.category{
     margin-top: 16px;
 }

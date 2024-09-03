@@ -5,7 +5,7 @@ import { Permissions } from '../../../services/auth.service';
 @Component({
     selector: '[redirectionBar]',
     templateUrl: './redirection-bar.component.html',
-    styleUrl: './redirection-bar.component.scss'
+    styleUrls: ['./redirection-bar.component.scss', '../manage-redirections.component.scss'],
 })
 
 export class RedirectionBarComponent implements OnChanges {
