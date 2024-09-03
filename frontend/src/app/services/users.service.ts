@@ -1,13 +1,17 @@
 import { Injectable } from "@angular/core";
 import { Permissions } from "./auth.service";
 import { HttpClient } from "@angular/common/http";
+import { BehaviorSubject } from "rxjs";
 
 @Injectable()
 
 export class UsersService {
 
-    private currentUser: User;
-    private users: User[] = [];
+    private currentUser = new BehaviorSubject<User>({} as User);
+    private users = new BehaviorSubject<User[]>([]);
+    private hasBeenDataFetched: boolean = false;
+    private domain: string = `http://localhost:3000`;
+    private targetUrl: string = `${this.domain}/api`;
 
     private fetchData = async () => {
         await this.getUsersList();
@@ -15,36 +19,59 @@ export class UsersService {
 
     private getUsersList = async () => {
         return new Promise(resolve => {
-            
-            resolve(true)// temporary
+            this.http.get(`${this.targetUrl}/users`, { withCredentials: true }).subscribe(
+                (response: UsersResponse) => {
+                    this.users.next(response.content);
+                    console.log(this.users.getValue())
+                }
+            )
+            resolve(true)
         })
     }
 
     constructor(
-
+        private readonly http: HttpClient,
     ) {
-        this.fetchData();
+        this.currentUser.subscribe({
+            next: (newValue: User) => {
+                if (!this.hasBeenDataFetched) {
+                    if (newValue.userId) {
+                        this.hasBeenDataFetched = true;
+                        this.fetchData()
+                    }
+                }
+            }
+        })
     }
 
     getCurrentUserToken(): string {
-        return this.currentUser.accessToken;
+        return this.currentUser.getValue().accessToken;
     }
 
     getCurrentUserName = (): string => {
-        return this.currentUser.username;
+        return this.currentUser.getValue().username;
     }
 
     getCurrentUserPermissions = () => {
-        return this.currentUser.permissions;
+        return this.currentUser.getValue().permissions;
     }
 
     getCurrentUserId(): number {
-        return this.currentUser.userId;
+        return this.currentUser.getValue().userId;
+    }
+
+    geCurrentUserEmail(): string {
+        return this.currentUser.getValue().email;
     }
 
     registerUser(newUser: User) {
-        this.currentUser = newUser;
+        this.currentUser.next(newUser);
     }
+}
+
+type UsersResponse = {
+    status: number,
+    content: User[],
 }
 
 export type User = {
@@ -52,4 +79,5 @@ export type User = {
     permissions: Permissions,
     accessToken?: string,
     userId: number,
+    email?: string,
 }

@@ -50,8 +50,8 @@ import { UserProfileComponent } from './admin/user-profile/user-profile.componen
     AuthGuard,
     AuthService,
     AdminService,
-    UsersService,
     RedirectionsService,
+    UsersService,
   ],
   bootstrap: [
     AppComponent

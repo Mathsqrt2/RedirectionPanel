@@ -23,6 +23,7 @@ export class AuthService {
                     permissions: response.permissions,
                     accessToken: response.accessToken,
                     userId: response.userId,
+                    email: response.email,
                 });
                 this.setStatus(response.accessToken);
                 const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7);
@@ -84,6 +85,7 @@ export class AuthService {
                                 permissions: response.permissions,
                                 accessToken: response.accessToken,
                                 userId: response.userId,
+                                email: response.email,
                             });
 
                             resolve(true)
@@ -150,9 +152,12 @@ type LoginResponse = {
     permissions?: Permissions,
     login?: string,
     userId: number,
+    email?: string,
     accessToken?: string,
 }
 
 type RegisterProps = {
-
+    login: string,
+    password: string,
+    confirmPassword: string,
 }

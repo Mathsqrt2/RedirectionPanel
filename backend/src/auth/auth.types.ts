@@ -13,6 +13,7 @@ export type RegisterUserResponse = {
     accessToken: string,
     login: string,
     permissions: Permissions,
+    email?: string,
     userId?: number,
 } | ErrorResponse;
 
@@ -39,6 +40,7 @@ export type LoginUserResponse = {
     accessToken: string,
     login: string,
     userId: number,
+    email?: string,
     permissions: Permissions
 } | ErrorResponse;
 

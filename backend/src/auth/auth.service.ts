@@ -88,6 +88,7 @@ export class AuthService {
                 accessToken: await this.jwtService.signAsync(payload),
                 login: newUser.login,
                 permissions: { canDelete, canUpdate, canCreate, canManage },
+                email: user.email,
                 userId,
             };
         } catch (err) {
@@ -139,6 +140,7 @@ export class AuthService {
                 accessToken,
                 login: user.login,
                 userId: user.id,
+                email: user.email,
                 permissions: { canDelete, canUpdate, canCreate, canManage }
             };
         } catch (err) {
@@ -382,8 +384,6 @@ export class AuthService {
     }
 
 }
-
-
 
 type transportDataType = {
     service: string,
