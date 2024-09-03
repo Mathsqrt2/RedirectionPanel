@@ -1,12 +1,13 @@
 <td>
-    1
+    {{index+1}}
+</td>
+<td class="label-field">
+    <h3>{{log.label}}</h3>
+    <span *ngIf="isExpanded" class="description-content">{{log.description}}</span>
 </td>
 <td>
-    2
+    {{log.status}}
 </td>
 <td>
-3
-</td>
-<td>
-3
+    <input type="button" value="expand" class="confirm-button" (click)="toggleDetailsDisplay()">
 </td>

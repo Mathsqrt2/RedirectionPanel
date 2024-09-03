@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { Log } from '../display-logs.component';
 
 @Component({
   selector: '[logView]',
@@ -7,5 +8,18 @@ import { Component } from '@angular/core';
 })
 
 export class LogBarComponent {
+
+  @Input('instance') log: Log;
+  @Input('index') index: number;
+
+  isExpanded: boolean = false;
+
+  constructor() {
+
+  }
+
+  toggleDetailsDisplay() {
+    this.isExpanded = !this.isExpanded;
+  } 
 
 }

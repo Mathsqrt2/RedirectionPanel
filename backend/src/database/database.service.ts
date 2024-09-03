@@ -41,10 +41,10 @@ export class DatabaseService {
         if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
         try {
-            const response = await model.find();
+            let response = await model.find();
 
             if (maxCount) {
-                response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
+                response = response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
             }
 
             this.logs.save({
@@ -122,10 +122,10 @@ export class DatabaseService {
 
             const query = {}
             query[param] = value;
-            const response = await model.findBy(query);
+            let response = await model.findBy(query);
 
             if (maxCount) {
-                response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
+                response = response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
             }
 
             this.logs.save({

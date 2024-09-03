@@ -7,9 +7,8 @@
     justify-content: space-around;
     box-sizing: border-box;
     gap: 32px;
-    min-width: 820px;
-    height: fit-content;
-    min-height: 740px;
+    min-width: 920px;
+
     color: white;
 
     padding: 48px 0px;
@@ -89,4 +88,37 @@ ul {
         }
     }
 
+}
+
+@media (max-width: 996px) {
+
+    .redirection-management-field {
+        width: 95%;
+        padding: 24px 12px;
+        gap: 10px;
+    }
+
+    * {
+        font-size: x-small;
+    }
+
+    th {
+        padding: 4px 26px;
+    }
+
+    td {
+        padding: 3px 6px;
+    }
+
+    .wide-col {
+        min-width: 60px;
+    }
+
+    .narrow-col {
+        padding: 2px 3px;
+    }
+
+    .inputs-field {
+        flex-direction: column;
+    }
 }

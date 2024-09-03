@@ -14,15 +14,21 @@ export class DisplayLogsComponent {
   private baseUrl = `${this.domain}/api`;
   public logs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
 
+  private count: number = 25;
+  private offset: number = 0;
+
   constructor(
     private readonly http: HttpClient,
   ) {
-
+    this.fetchData();
   }
 
   fetchLogs = async (): Promise<void> => {
-    this.http.get(this.baseUrl, { withCredentials: true }).subscribe((response: LogRequest) => {
-      this.logs.next(response.content);
+    this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe((response: LogRequest) => {
+      this.offset += this.count;
+      const currentState = this.logs.getValue();
+      const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
+      this.logs.next(values)
     })
   }
 
@@ -38,6 +44,7 @@ type LogRequest = {
 }
 
 export type Log = {
+  id?: number,
   label: string,
   description: string,
   status: string,
