@@ -1,21 +1,22 @@
 <div class="logs-display-field">
     <div>
         <h1> Last logs</h1>
-        
+
         <div class="filter-wrapper">
             <div class="filter-item">
                 <label for="filter-by">Filter by</label>
-                <select class="filter-input" [(ngModel)]="currentFilter" name="filter-by" id="filter-by" (change)="onFilter()">
-                    <option  *ngFor="let filter of filters" [value]="filter">
+                <select class="filter-input" [(ngModel)]="currentFilter" name="filter-by" id="filter-by"
+                    (change)="onFilter()">
+                    <option *ngFor="let filter of filters" [value]="filter">
                         {{filter}}
                     </option>
                 </select>
             </div>
         </div>
 
-        <hr/>
+        <hr />
 
-        <div class="table-wrapper">
+        <div class="table-wrapper" (scroll)="onScroll()" #scrollContainer>
             <table>
                 <tr>
                     <th class="narrow-col">index</th>

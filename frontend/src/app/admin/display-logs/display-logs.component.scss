@@ -46,17 +46,17 @@ td {
     top: 0;
 }
 
-.logs-board {
-    height: 12px;
-    overflow: hidden;
-}
-
 .filter-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
     margin-bottom: 30px;
+}
+
+h1{
+    text-align: center;
+    margin: 12px 0px;
 }
 
 .filter-item{

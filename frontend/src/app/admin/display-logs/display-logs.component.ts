@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, HostListener } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({
@@ -10,12 +10,15 @@ import { BehaviorSubject } from 'rxjs';
 
 export class DisplayLogsComponent {
 
+  @ViewChild('scrollContainer', { static: true }) scrollContainer: ElementRef;
+
   private domain = `http://localhost:3000`;
   private baseUrl = `${this.domain}/api`;
   public allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
   public logs: Log[];
   public currentFilter: string = 'all';
   public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
+  private isDataLoading: boolean = true;
 
   private count: number = 25;
   private offset: number = 0;
@@ -30,12 +33,14 @@ export class DisplayLogsComponent {
   }
 
   fetchLogs = async (status?: string): Promise<void> => {
+
     if (status) {
       this.http.get(`${this.baseUrl}/logs/status/${status}?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe((response: LogRequest) => {
         this.offset += this.count;
         const currentState = this.allLogs.getValue();
         const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
         this.allLogs.next(values)
+        this.isDataLoading = false;
       })
     } else {
       this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe((response: LogRequest) => {
@@ -43,8 +48,10 @@ export class DisplayLogsComponent {
         const currentState = this.allLogs.getValue();
         const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
         this.allLogs.next(values)
+        this.isDataLoading = false;
       })
     }
+
   }
 
   async onFilter() {
@@ -55,6 +62,21 @@ export class DisplayLogsComponent {
     } else {
       await this.fetchLogs(this.currentFilter);
     }
+  }
+
+  onScroll(): void {
+    const element = this.scrollContainer.nativeElement;
+    const condition: boolean = element.scrollHeight - element.scrollTop === element.clientHeight
+
+    if (condition && !this.isDataLoading) {
+      this.isDataLoading = true;
+      if (this.currentFilter === 'all') {
+        this.fetchLogs();
+      } else {
+        this.fetchLogs(this.currentFilter);
+      }
+    }
+
   }
 
   fetchData = async (): Promise<void> => {
