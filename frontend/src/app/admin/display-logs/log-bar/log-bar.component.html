@@ -5,9 +5,9 @@
     <h3>{{log.label}}</h3>
     <span *ngIf="isExpanded" class="description-content">{{log.description}}</span>
 </td>
-<td>
+<td [ngClass]="{'error': log.status === 'failed', 'success': log.status === 'success'}">
     {{log.status}}
 </td>
-<td>
+<td class="narrow-col">
     <input type="button" value="expand" class="confirm-button" (click)="toggleDetailsDisplay()">
 </td>

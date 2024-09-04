@@ -22,7 +22,6 @@ import { UsersService } from './services/users.service';
 import { RedirectionsService } from './services/redirections.service';
 import { RedirectionBarComponent } from './admin/manage-redirections/redirection-bar/redirection-bar.component';
 import { UserProfileComponent } from './admin/user-profile/user-profile.component';
-import { LogsService } from './services/logs-service';
 import { LogBarComponent } from './admin/display-logs/log-bar/log-bar.component';
 
 @NgModule({
@@ -55,7 +54,6 @@ import { LogBarComponent } from './admin/display-logs/log-bar/log-bar.component'
     AdminService,
     RedirectionsService,
     UsersService,
-    LogsService,
   ],
   bootstrap: [
     AppComponent
