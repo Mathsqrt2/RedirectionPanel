@@ -16,18 +16,22 @@
 
         <hr />
 
-        <div class="table-wrapper" (scroll)="onScroll()" #scrollContainer>
-            <table>
-                <tr>
-                    <th class="narrow-col">index</th>
-                    <th class="wide-col">label</th>
-                    <th class="medium-col">status</th>
-                    <th class="narrow-col"></th>
-                </tr>
-                <tr *ngFor="let log of logs; index as i" logView [instance]="log" [index]="i">
-                </tr>
+        <div>
+            <div class="table-wrapper" (scroll)="onScroll()" #scrollContainer>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="narrow-col">index</th>
+                            <th class="wide-col">label</th>
+                            <th class="medium-col">status</th>
+                            <th class="narrow-col"></th>
+                        </tr>
+                    </thead>
+                    <tr *ngFor="let log of logs; index as i" logView [instance]="log" [index]="i">
+                    </tr>
 
-            </table>
+                </table>
+            </div>
         </div>
     </div>
 

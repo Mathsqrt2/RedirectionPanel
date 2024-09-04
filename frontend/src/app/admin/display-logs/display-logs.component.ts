@@ -57,9 +57,11 @@ export class DisplayLogsComponent {
   async onFilter() {
     this.allLogs.next([]);
     this.offset = 0;
-    if (this.currentFilter === 'all') {
+    if (this.currentFilter === 'all' && !this.isDataLoading) {
+      this.isDataLoading = true;
       await this.fetchLogs();
     } else {
+      this.isDataLoading = true;
       await this.fetchLogs(this.currentFilter);
     }
   }
