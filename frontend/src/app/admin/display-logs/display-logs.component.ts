@@ -19,6 +19,7 @@ export class DisplayLogsComponent {
   public currentFilter: string = 'all';
   public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
   private isDataLoading: boolean = true;
+  private request = 0;
 
   private count: number = 25;
   private offset: number = 0;
@@ -27,6 +28,7 @@ export class DisplayLogsComponent {
     private readonly http: HttpClient,
   ) {
     this.allLogs.subscribe((newState: Log[]) => {
+      console.log(this.allLogs.getValue());
       this.logs = newState;
     })
     this.fetchData();
@@ -34,22 +36,25 @@ export class DisplayLogsComponent {
 
   fetchLogs = async (status?: string): Promise<void> => {
 
+    this.request+=2;
     if (status) {
-      this.http.get(`${this.baseUrl}/logs/status/${status}?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe((response: LogRequest) => {
+      this.http.get(`${this.baseUrl}/logs/status/${status}?maxCount=${this.count}&offset=${this.offset+this.request}`, { withCredentials: true }).subscribe((response: LogRequest) => {
         this.offset += this.count;
         const currentState = this.allLogs.getValue();
         const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
         this.allLogs.next(values)
         this.isDataLoading = false;
       })
+
     } else {
-      this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe((response: LogRequest) => {
+      this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset+this.request}`, { withCredentials: true }).subscribe((response: LogRequest) => {
         this.offset += this.count;
         const currentState = this.allLogs.getValue();
         const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
         this.allLogs.next(values)
         this.isDataLoading = false;
       })
+
     }
 
   }
