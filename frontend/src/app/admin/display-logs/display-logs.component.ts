@@ -14,60 +14,85 @@ export class DisplayLogsComponent {
 
   private domain = `http://localhost:3000`;
   private baseUrl = `${this.domain}/api`;
-  public allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
-  public logs: Log[];
-  public currentFilter: string = 'all';
-  public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
+  private allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
   private isDataLoading: boolean = true;
+  private offset: number = 0;
+  private count: number = 25;
   private request = 0;
 
-  private count: number = 25;
-  private offset: number = 0;
+
+  public currentFilter: string = 'all';
+  public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
+  public logs: Log[];
+  public maxDateLock = new Date().toISOString().split('T')[0];
+
+  public minDate;
+  public maxDate;
 
   constructor(
     private readonly http: HttpClient,
   ) {
     this.allLogs.subscribe((newState: Log[]) => {
-      console.log(this.allLogs.getValue());
       this.logs = newState;
     })
-    this.fetchData();
+    this.onFetchLogs();
   }
 
-  fetchLogs = async (status?: string): Promise<void> => {
-
-    this.request+=2;
-    if (status) {
-      this.http.get(`${this.baseUrl}/logs/status/${status}?maxCount=${this.count}&offset=${this.offset+this.request}`, { withCredentials: true }).subscribe((response: LogRequest) => {
-        this.offset += this.count;
-        const currentState = this.allLogs.getValue();
-        const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
-        this.allLogs.next(values)
-        this.isDataLoading = false;
-      })
-
-    } else {
-      this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset+this.request}`, { withCredentials: true }).subscribe((response: LogRequest) => {
-        this.offset += this.count;
-        const currentState = this.allLogs.getValue();
-        const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
-        this.allLogs.next(values)
-        this.isDataLoading = false;
-      })
-
+  private filterLogsByDate = (logs: Log[]): Log[] => { 
+    if (this.minDate) {
+      logs = logs.filter((log: Log) => log?.jstimestamp > new Date(this.minDate).getTime());
     }
 
+    if (this.maxDate) {
+      logs = logs.filter((log: Log) => log?.jstimestamp < new Date(this.maxDate).getTime());
+    }
+    return logs
   }
 
-  async onFilter() {
+  onFetchLogs = async (status?: string): Promise<void> => {
+
+    if (status) {
+      this.http.get(`${this.baseUrl}/logs/status/${status}?maxCount=${this.count}&offset=${this.offset + this.request}`, { withCredentials: true }).subscribe((response: LogRequest) => {
+        this.offset += this.count;
+        const currentState = this.allLogs.getValue();
+        let values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
+
+        values = this.filterLogsByDate(values);
+
+        this.allLogs.next(values)
+        this.isDataLoading = false;
+      })
+    } else {
+      this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset + this.request}`, { withCredentials: true }).subscribe((response: LogRequest) => {
+        this.offset += this.count;
+        const currentState = this.allLogs.getValue();
+        let values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
+
+        if (this.minDate) {
+          values = values.filter((log: Log) => log?.jstimestamp > new Date(this.minDate).getTime());
+        }
+
+        if (this.maxDate) {
+          values = values.filter((log: Log) => log?.jstimestamp < new Date(this.maxDate).getTime());
+        }
+
+        this.allLogs.next(values)
+        this.isDataLoading = false;
+      })
+    }
+
+    this.request += 2;
+  }
+
+  onFilter = async () => {
     this.allLogs.next([]);
     this.offset = 0;
     if (this.currentFilter === 'all' && !this.isDataLoading) {
       this.isDataLoading = true;
-      await this.fetchLogs();
+      await this.onFetchLogs();
     } else {
       this.isDataLoading = true;
-      await this.fetchLogs(this.currentFilter);
+      await this.onFetchLogs(this.currentFilter);
     }
   }
 
@@ -78,16 +103,12 @@ export class DisplayLogsComponent {
     if (condition && !this.isDataLoading) {
       this.isDataLoading = true;
       if (this.currentFilter === 'all') {
-        this.fetchLogs();
+        this.onFetchLogs();
       } else {
-        this.fetchLogs(this.currentFilter);
+        this.onFetchLogs(this.currentFilter);
       }
     }
 
-  }
-
-  fetchData = async (): Promise<void> => {
-    await this.fetchLogs();
   }
 
   onDownload = (extension: string) => {
@@ -133,6 +154,7 @@ export type Log = {
   description: string,
   status: string,
   duration: string,
+  jstimestamp?: number,
 }
 
 type Filters = 'all' | 'success' | 'failed' | 'completed';

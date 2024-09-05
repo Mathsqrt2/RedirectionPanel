@@ -5,7 +5,19 @@
         <div class="items-wrapper">
 
             <div class="filter-wrapper">
-                <label for="filter-by">Filter by</label>
+                <label for="min-date">Min date</label>
+                <input type="date" value="10.10.2017" id="min-date" name="min-date" class="management-input date-input"
+                    [max]="maxDateLock" [(ngModel)]="minDate" (change)="onFilter()">
+            </div>
+
+            <div class="filter-wrapper">
+                <label for="max-date">Max date</label>
+                <input type="date" value="10.10.2017" id="max-date" name="max-date" class="management-input date-input"
+                    [max]="maxDateLock" [(ngModel)]="maxDate" (change)="onFilter()">
+            </div>
+
+            <div class="filter-wrapper">
+                <label for="filter-by">Filter by status</label>
                 <select class="management-input" [(ngModel)]="currentFilter" name="filter-by" id="filter-by"
                     (change)="onFilter()">
                     <option *ngFor="let filter of filters" [value]="filter">
@@ -15,15 +27,15 @@
             </div>
 
             <div class="button-wrapper">
-                <label for="csv">Download</label>
-                <input type="button" class="download-data management-input" name="csv" id="csv" (click)="onDownload('csv')" value="CSV"/>
+                <label for="">Download</label>
+                <div class="row"> 
+                    <input type="button" class="download-data management-input" name="csv" id="csv"
+                        (click)="onDownload('csv')" value="CSV" />
+                    <input type="button" class="download-data management-input" name="json" id="json"
+                        (click)="onDownload('json')" value="JSON" />
+                </div>
             </div>
 
-            <div class="button-wrapper">
-                <label for="json">Download</label>
-                <input type="button" class="download-data management-input" name="json" id="json" (click)="onDownload('json')" value="JSON"/>
-            </div>
-        
         </div>
 
         <hr />
@@ -32,7 +44,7 @@
             <div class="table-wrapper" (scroll)="onScroll()" #scrollContainer>
 
                 <table>
-                
+
                     <thead>
                         <tr>
                             <th class="narrow-col">index</th>
@@ -41,7 +53,7 @@
                             <th class="narrow-col"></th>
                         </tr>
                     </thead>
-                
+
                     <tr *ngFor="let log of logs; index as i" logView [instance]="log" [index]="i">
                     </tr>
 
