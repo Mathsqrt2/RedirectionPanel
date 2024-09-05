@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Log } from '../display-logs.component';
 
 @Component({
@@ -7,15 +7,16 @@ import { Log } from '../display-logs.component';
   styleUrls: ['../display-logs.component.scss', './log-bar.component.scss'],
 })
 
-export class LogBarComponent {
+export class LogBarComponent implements OnInit {
 
   @Input('instance') log: Log;
   @Input('index') index: number;
 
-  isExpanded: boolean = false;
+  public timestamp: string;
+  public isExpanded: boolean = false;
 
-  constructor() {
-
+  ngOnInit(): void {
+    this.timestamp = this.log.jstimestamp ? new Date(this.log?.jstimestamp).toLocaleString('pl-PL') : 'no data';
   }
 
   toggleDetailsDisplay() {

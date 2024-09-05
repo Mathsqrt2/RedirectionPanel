@@ -38,13 +38,13 @@ export class DisplayLogsComponent {
     this.onFetchLogs();
   }
 
-  private filterLogsByDate = (logs: Log[]): Log[] => { 
+  private filterLogsByDate = (logs: Log[]): Log[] => {
     if (this.minDate) {
-      logs = logs.filter((log: Log) => log?.jstimestamp > new Date(this.minDate).getTime());
+      logs = logs.filter((log: Log) => new Date(new Date(log?.jstimestamp).toISOString().split("T")[0]).getTime() >= new Date(this.minDate).getTime());
     }
 
     if (this.maxDate) {
-      logs = logs.filter((log: Log) => log?.jstimestamp < new Date(this.maxDate).getTime());
+      logs = logs.filter((log: Log) => new Date(new Date(log?.jstimestamp).toISOString().split("T")[0]).getTime() <= new Date(this.maxDate).getTime());
     }
     return logs
   }
@@ -68,13 +68,7 @@ export class DisplayLogsComponent {
         const currentState = this.allLogs.getValue();
         let values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
 
-        if (this.minDate) {
-          values = values.filter((log: Log) => log?.jstimestamp > new Date(this.minDate).getTime());
-        }
-
-        if (this.maxDate) {
-          values = values.filter((log: Log) => log?.jstimestamp < new Date(this.maxDate).getTime());
-        }
+        values = this.filterLogsByDate(values);
 
         this.allLogs.next(values)
         this.isDataLoading = false;
