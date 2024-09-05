@@ -11,7 +11,13 @@ export class UserProfileComponent {
   currentUser: User;
   permissions: { key: string, value: string }[] = []
 
+  public showCurrentPassword: boolean = false;
+  public showNewPassword: boolean = false;
+  public showConfirmNewPassword: boolean = false;
 
+  public currentPassword: string = null;
+  public newPassword: string = null;
+  public confirmNewPassword: string = null;
 
   constructor(
     private readonly usersService: UsersService
@@ -27,6 +33,20 @@ export class UserProfileComponent {
 
       }
     });
+  }
+
+  onToggleVisibility = (field: string) => {
+
+    if (field === 'currentPassword') {
+      this.showCurrentPassword = !this.showCurrentPassword;
+    }
+    if (field === 'newPassword') {
+      this.showNewPassword = !this.showNewPassword;
+    }
+    if (field === 'confirmPassword') {
+      this.showConfirmNewPassword = !this.showConfirmNewPassword;
+    }
+
   }
 
 }
