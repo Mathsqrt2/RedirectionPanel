@@ -2,16 +2,28 @@
     <div>
         <h1> Last logs</h1>
 
-        <div class="filter-wrapper">
-            <div class="filter-item">
+        <div class="items-wrapper">
+
+            <div class="filter-wrapper">
                 <label for="filter-by">Filter by</label>
-                <select class="filter-input" [(ngModel)]="currentFilter" name="filter-by" id="filter-by"
+                <select class="management-input" [(ngModel)]="currentFilter" name="filter-by" id="filter-by"
                     (change)="onFilter()">
                     <option *ngFor="let filter of filters" [value]="filter">
                         {{filter}}
                     </option>
                 </select>
             </div>
+
+            <div class="button-wrapper">
+                <label for="csv">Download</label>
+                <input type="button" class="download-data management-input" name="csv" id="csv" (click)="onDownload('csv')" value="CSV"/>
+            </div>
+
+            <div class="button-wrapper">
+                <label for="json">Download</label>
+                <input type="button" class="download-data management-input" name="json" id="json" (click)="onDownload('json')" value="JSON"/>
+            </div>
+        
         </div>
 
         <hr />

@@ -85,6 +85,36 @@ export class DisplayLogsComponent {
     await this.fetchLogs();
   }
 
+  onDownload = (extension: string) => {
+    const heading = ['index', 'id', 'label', 'description', 'status'];
+    const logs = this.logs;
+    let outputData = '';
+
+    if (extension === 'csv') {
+      for (let label of heading) {
+        outputData += `${label},`;
+      }
+      outputData += '\n';
+
+      for (let indx in logs) {
+        outputData += `"${indx}",`;
+        outputData += `"${logs[indx].id}",`;
+        outputData += `"${logs[indx].label.replaceAll("\"", "")}",`;
+        outputData += `"${logs[indx].description.replaceAll("\"", "")}",`;
+        outputData += `"${logs[indx].status.replaceAll("\"", "")}",`;
+        outputData += `\n`;
+      }
+    } else if (extension === 'json') {
+      outputData = JSON.stringify(logs);
+    }
+
+    let anchor = document.createElement('a');
+    const file = new Blob([outputData], { type: extension === 'json' ? 'application/json' : 'text/csv' });
+    anchor.href = URL.createObjectURL(file);
+    anchor.download = `export_${this.logs.length}_logs_${this.currentFilter}_${new Date().toLocaleDateString('pl-PL')}.${extension}`;
+    anchor.click();
+  }
+
 }
 
 type LogRequest = {
