@@ -49,8 +49,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `${response.length} elements found.`,
-                description: `endpoint: ${endpoint}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
+                description: `endpoint: "${endpoint}", maxCount: "${maxCount}", offset: "${offset}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -61,8 +62,9 @@ export class DatabaseService {
             console.log(`getMultipleElements error: `, err);
             this.logs.save({
                 label: `Error while trying to get multiple elements`,
-                description: `Couldn't get elements on: "${endpoint}", maxCount: ${maxCount}, offset: ${offset}. getMultipleElements error: ${err} ${new Date()}`,
+                description: `Couldn't get elements on: "${endpoint}", maxCount: "${maxCount}", offset: "${offset}". getMultipleElements error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -86,8 +88,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Single element found`,
-                description: `endpoint: ${endpoint}, id: ${id}. ${new Date()}`,
+                description: `endpoint: "${endpoint}", id: "${id}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -98,8 +101,9 @@ export class DatabaseService {
             console.log(`getSingleElementById error: `, err);
             this.logs.save({
                 label: `Error while trying to get single element`,
-                description: `Couldn't get element with id: "${id}" on: "${endpoint}". getSingleElementById error: ${err}. ${new Date()}`,
+                description: `Couldn't get element with id: "${id}" on: "${endpoint}". getSingleElementById error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -130,8 +134,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `${response.length} items found`,
-                description: `Search on "${endpoint}", query: {${param}:${value}}, maxCount: ${maxCount}, offset: ${offset}. ${new Date()}`,
+                description: `Search on "${endpoint}", query: "{${param}:${value}}", maxCount: "${maxCount}", offset: "${offset}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -142,9 +147,10 @@ export class DatabaseService {
             console.log(`getMultipleElementsByParam error: `, err);
             this.logs.save({
                 label: `Error while geting multiple elements by param`,
-                description: `Couldn't get multiple elements by {${param}:${value}} on: "${endpoint}",
-                    maxCount: ${maxCount}, offset: ${offset}, getMultipleElementsByParam error: ${err} ${new Date()}`,
+                description: `Couldn't get multiple elements by "{${param}:${value}}" on: "${endpoint}",
+                    maxCount: "${maxCount}", offset: "${offset}", getMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -173,8 +179,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `${dataArray.length} items created`,
-                description: `endpoint: ${endpoint}. ${new Date()}`,
+                description: `endpoint: "${endpoint}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -185,8 +192,9 @@ export class DatabaseService {
             console.log(`createMultipleElements error: `, err);
             this.logs.save({
                 label: `Error while trying to create multiple elements`,
-                description: `Couldn't create ${dataArray.length} elements on "${endpoint}". createMultipleElements error: ${err} ${new Date()}`,
+                description: `Couldn't create ${dataArray.length} elements on "${endpoint}". createMultipleElements error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -212,8 +220,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Single item created`,
-                description: `endpoint: ${endpoint}. ${new Date()}`,
+                description: `endpoint: ${endpoint}, Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -224,8 +233,9 @@ export class DatabaseService {
             console.log(`createSingleElement error: `, err);
             this.logs.save({
                 label: `Error while trying to create single element`,
-                description: `Couldn't create single element on "${endpoint}". createSingleElement error: ${err} ${new Date()}`,
+                description: `Couldn't create single element on "${endpoint}". createSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -251,8 +261,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Item with id: ${id} updated`,
-                description: `endpoint: ${endpoint}, element id: ${id}, new data: ${data}. ${new Date()}`,
+                description: `endpoint: ${endpoint}, element id: "${id}", new data: "${data}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -263,8 +274,9 @@ export class DatabaseService {
             console.log(`updateSingleElement error: `, err);
             this.logs.save({
                 label: `Error while trying to update single element`,
-                description: `Couldn't update single element with id: "${id}" on "${endpoint}". updateSingleElement error: ${err} ${new Date()}`,
+                description: `Couldn't update single element with id: "${id}" on "${endpoint}". updateSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -291,8 +303,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Item with id: "${id}" patched`,
-                description: `endpoint: ${endpoint}, id: ${id}, new data: ${data}. ${new Date()}`,
+                description: `endpoint: "${endpoint}", id: "${id}", new data: "${data}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -303,8 +316,9 @@ export class DatabaseService {
             console.log(`patchSingleElement error: `, err);
             this.logs.save({
                 label: `Error while trying to patch single element`,
-                description: `Couldn't patch single element with id: "${id}" on "${endpoint}". patchSingleElement error: ${err} ${new Date()}`,
+                description: `Couldn't patch single element with id: "${id}" on "${endpoint}". patchSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -335,8 +349,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `${response.length} items patched`,
-                description: `endpoint: ${endpoint}, items: ${response.length}, query: {${param}:${value}}. New data: ${data}. ${new Date()}`,
+                description: `endpoint: "${endpoint}", items: ${response.length}, query: "{${param}:${value}}". New data: "${data}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -347,8 +362,9 @@ export class DatabaseService {
             console.log(`patchMultipleElementsByParam error: `, err);
             this.logs.save({
                 label: `Error while trying to patch multiple elements`,
-                description: `Couldn't patch ${data.length} elements found by: {${param}:${value}} on "${endpoint}". patchMultipleElementsByParam error: ${err} ${new Date()}`,
+                description: `Couldn't patch ${data.length} elements found by: "{${param}:${value}}" on "${endpoint}". patchMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -375,8 +391,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Item with ID: ${id} deleted`,
-                description: `endpoint: ${endpoint}, item: ${JSON.stringify(response)}, id: "${id}". ${new Date()}`,
+                description: `endpoint: "${endpoint}", item: "${JSON.stringify(response)}", id: "${id}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -387,8 +404,9 @@ export class DatabaseService {
             console.log(`deleteSingleElementById error: `, err);
             this.logs.save({
                 label: `Error while trying to delete single element`,
-                description: `Couldn't delete single element with id: "${id}" on "${endpoint}". deleteSingleElementById error: ${err} ${new Date()}`,
+                description: `Couldn't delete single element with id: "${id}" on "${endpoint}". deleteSingleElementById error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -418,8 +436,9 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `${response?.raw?.length} items deleted`,
-                description: `endpoint: ${endpoint}, items: ${JSON.stringify(response)}, query: {${param}:${value}}. ${new Date()}`,
+                description: `endpoint: "${endpoint}", items: "${JSON.stringify(response)}", query: "{${param}:${value}}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -430,8 +449,9 @@ export class DatabaseService {
             console.log(`deleteMultipleElementsByParam error: `, err);
             this.logs.save({
                 label: `Error while trying to delete multiple element`,
-                description: `Couldn't delete multiple elements found by: {${param}:${value}} on "${endpoint}". deleteMultipleElementsByParam error: ${err} ${new Date()}`,
+                description: `Couldn't delete multiple elements found by: "{${param}:${value}}" on "${endpoint}". deleteMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 

@@ -37,8 +37,9 @@ export class RedirectionsController {
 
             this.logs.save({
                 label: `Redirection doesn't exist`,
-                description: `Nothing was found for route "${redirection}". Request time: ${new Date()}`,
+                description: `Nothing was found for route "${redirection}", Request time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             })
 
@@ -54,8 +55,9 @@ export class RedirectionsController {
 
             this.logs.save({
                 label: `User redirected successfully`,
-                description: `Client redirected by "${redirection}" to "${url?.targetUrl}", ${new Date()}`,
+                description: `Client redirected by "${redirection}" to "${url?.targetUrl}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `completed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
             });
 
@@ -66,10 +68,10 @@ export class RedirectionsController {
 
             this.logs.save({
                 label: `Error while redirecting`,
-                description: `Client couldn't be redirected to "${redirection}", ${new Date()}`,
+                description: `Client couldn't be redirected to "${redirection}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
-
             })
 
             this.loggedRequests.push(requestId);

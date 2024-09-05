@@ -78,8 +78,9 @@ export class AuthService {
 
             await this.logs.save({
                 label: `User registered`,
-                description: `${login} registered from ip: "${req?.ip}", canManage: ${canManage}, canCreate: ${canCreate}, canUpdate: ${canUpdate}, canDelete: ${canDelete}`,
+                description: `"${login}" registered from ip: "${req?.ip}", canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
@@ -96,8 +97,9 @@ export class AuthService {
 
             await this.logs.save({
                 label: `Error while trying to register user`,
-                description: `User couldn't be registered with login: "${login}" from ip: "${req?.ip}", ${err}`,
+                description: `User couldn't be registered with login: "${login}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
@@ -130,8 +132,9 @@ export class AuthService {
 
             await this.logs.save({
                 label: `Signed in`,
-                description: `User with login: "${login}" signed in from ip: "${req?.ip}", canManage: ${canManage}, canCreate: ${canCreate}, canUpdate: ${canUpdate}, canDelete: ${canDelete}. ${new Date()}`,
+                description: `User with login: "${login}", Signed in from ip: "${req?.ip}", canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
@@ -147,8 +150,9 @@ export class AuthService {
             console.log(err);
             await this.logs.save({
                 label: `error while trying to sign in`,
-                description: `Someone tried to sign in: "${login}" from ip: "${req?.ip}" couldn't signed in. ${err}. ${new Date()}`,
+                description: `Someone tried to sign in as: "${login}", From ip: "${req?.ip}", Couldn't signed in. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
             return {
@@ -177,8 +181,9 @@ export class AuthService {
 
             await this.logs.save({
                 label: `User removed`,
-                description: `User with login: "${login}" removed. ${new Date()}`,
+                description: `User with login: "${login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
@@ -188,8 +193,9 @@ export class AuthService {
 
             await this.logs.save({
                 label: `Error while trying to remove user`,
-                description: `User with login: "${login}" couldn't be removed. ${err} ${new Date()}`,
+                description: `User with login: "${login}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
@@ -289,8 +295,9 @@ export class AuthService {
 
             await this.logs.save({
                 label: `Email send`,
-                description: `User "${user.login}" requested for email from: "${req?.ip}" The email has been sent. ${new Date()}`,
+                description: `User "${user.login}", Requested for email from: "${req?.ip}", The email has been sent, Time: ${new Date().toLocaleString('pl-PL')}}`,
                 status: `success`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
@@ -304,8 +311,9 @@ export class AuthService {
 
             await this.logs.save({
                 label: `Email couldn't be send`,
-                description: `User "${user.login}" requested for email from: "${req?.ip}" The email couldn't be sent. ${err}. ${new Date()}`,
+                description: `User "${user.login}" requested for email from: "${req?.ip}" The email couldn't be sent. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
@@ -357,8 +365,9 @@ export class AuthService {
 
             await this.logs.save({
                 label: `User verified`,
-                description: `User ${user.login} has been verified with email: "${user.email}". ip: "${req?.ip}". ${new Date()}`,
-                status: `success`,
+                description: `User "${user.login}" has been verified with email: "${user.email}". ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `completed`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
@@ -371,8 +380,9 @@ export class AuthService {
         } catch (err) {
             await this.logs.save({
                 label: `Couldn't verify user`,
-                description: `email verification request from: "${req?.ip}" couldn't be handled. ${err}. ${new Date()}`,
+                description: `email verification request from: "${req?.ip}" couldn't be handled. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
+                jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 

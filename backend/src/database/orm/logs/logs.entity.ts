@@ -18,6 +18,9 @@ export class Logs {
     @Column()
     duration: number;
 
+    @Column()
+    jstimestamp: number;
+
     @Generated()
     timestamp: Timestamp;
 
