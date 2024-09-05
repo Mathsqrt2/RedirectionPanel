@@ -18,7 +18,9 @@
 
         <div>
             <div class="table-wrapper" (scroll)="onScroll()" #scrollContainer>
+
                 <table>
+                
                     <thead>
                         <tr>
                             <th class="narrow-col">index</th>
@@ -27,6 +29,7 @@
                             <th class="narrow-col"></th>
                         </tr>
                     </thead>
+                
                     <tr *ngFor="let log of logs; index as i" logView [instance]="log" [index]="i">
                     </tr>
 
