@@ -18,6 +18,7 @@ export class UserProfileComponent implements OnInit {
   public confirmEmailForm: FormGroup;
   public confirmEmailWithCodeForm: FormGroup;
   public changePasswordForm: FormGroup
+  public changeEmailForm: FormGroup;
 
   public currentUser: User;
   public permissions: { key: string, value: string }[] = []
@@ -33,6 +34,7 @@ export class UserProfileComponent implements OnInit {
   public emailSent: boolean = false;
   public isEmailConfirmed: boolean = false;
   public wrongCode: boolean = false;
+  public showEmailChangeForm: boolean = false;
 
   constructor(
     private readonly usersService: UsersService,
@@ -105,9 +107,14 @@ export class UserProfileComponent implements OnInit {
       newPassword: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       confirmPassword: new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
+  
+    this.changeEmailForm = new FormGroup({
+      updateEmail: new FormControl(null, [Validators.required, this.matchEmail.bind(this)]),
+      password: new FormControl(null, [Validators.required]),
+    })
   }
 
-  public onPasswordChange = () => {
+  public onPasswordChange = (): void => {
     if (this.changePasswordForm.status === 'VALID') {
       const { currentPassword, newPassword, confirmPassword } = this.changePasswordForm.value;
       const body = {
@@ -132,7 +139,7 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  public onPermissionsUpdate = () => {
+  public onPermissionsUpdate = (): void => {
     if (this.permissionsForm.status === 'VALID') {
       const { canDelete, canUpdate, canCreate, canManage } = this.permissionsForm.value;
       const body = { canDelete, canUpdate, canCreate, canManage };
@@ -151,7 +158,7 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  public onEmailConfirm = () => {
+  public onEmailConfirm = (): void => {
 
     if (this.confirmEmailWithCodeForm.status === 'VALID') {
       const code = this.confirmEmailWithCodeForm.value.confirmationCode;
@@ -160,6 +167,7 @@ export class UserProfileComponent implements OnInit {
           if (response.status === 200) {
             this.wrongCode = false;
             this.isEmailConfirmed = true;
+            this.usersService.updateCurrentUser();
           } else {
             this.wrongCode = true;
           }
@@ -168,14 +176,14 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  private initializeConfirmationForm = (email?: string) => {
+  private initializeConfirmationForm = (email?: string): void => {
     this.confirmEmailWithCodeForm = new FormGroup({
       newEmail: new FormControl({ value: email || null, disabled: true }),
       confirmationCode: new FormControl(null, [Validators.required, Validators.minLength(6)])
     })
   }
 
-  public onSendVerificationCode = () => {
+  public onSendVerificationCode = (): void => {
     this.initializeConfirmationForm(this.confirmEmailForm.value.newEmail);
 
     if (this.confirmEmailForm.status === 'VALID') {
@@ -200,7 +208,7 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  public onToggleVisibility = (field: string) => {
+  public onToggleVisibility = (field: string): void => {
 
     if (field === 'currentPassword') {
       this.showCurrentPassword = !this.showCurrentPassword;
@@ -212,6 +220,17 @@ export class UserProfileComponent implements OnInit {
       this.showConfirmNewPassword = !this.showConfirmNewPassword;
     }
 
+  }
+
+  public startEmailChange = (): void => {
+
+
+    this.showEmailChangeForm = true;
+  }
+
+  public onRejectEdit = (): void => {
+
+    this.showEmailChangeForm = false;
   }
 
 }

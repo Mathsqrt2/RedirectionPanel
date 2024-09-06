@@ -2,7 +2,7 @@
     <h1>{{currentUser.username}} profile</h1>
     <div class="sections-wrapper">
 
-        <div class="description">
+        <div class="description-side">
 
             <div class="permissions">
                 <h3>Permissions</h3>
@@ -75,13 +75,15 @@
             </div>
         </div>
 
-        <div class="image">
+        <div class="image-side">
 
-            <div class="img-placeholder">
+            <div class="img-wrapper">
                 <img src="" />
             </div>
 
-            <div class="confirm-field" *ngIf="!currentUser.email">
+            <hr />
+
+            <div *ngIf="!currentUser.email">
                 <form [formGroup]="confirmEmailForm" class="email-form" *ngIf="!emailSent">
                     <div class="inputs-field">
                         <label for="newEmail">Verify using email</label>
@@ -123,16 +125,29 @@
                 </form>
             </div>
 
-            <div class="confirm-field" *ngIf="currentUser.email">
-                <form>
-                    <div>
-                        <label></label>
-                        <input type="email" />
+            <div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm">
+                <span>You're verified with email:</span>
+                <span>{{currentUser.email}}</span>
+                <input type="button" class="input button" value="change" (click)="startEmailChange()" />
+            </div>
+
+            <div class="wrapper" *ngIf="currentUser.email && showEmailChangeForm">
+                <form [formGroup]="changeEmailForm" class="updateEmailForm">
+                    <div class="inputs-field">
+                        <label for="updateEmail">New email:</label>
+                        <input id="updateEmail" name="updateEmail" formControlName="updateEmail" type="email"
+                            class="input field" />
                     </div>
 
-                    <div>
-                        <label></label>
-                        <input type="number">
+                    <div class="inputs-field">
+                        <label for="updateEmailConfirm">Password</label>
+                        <input id="updateEmailConfirm" name="updateEmailConfirm" formControl="updateEmailConfirm"
+                            type="password" class="input field">
+                    </div>
+
+                    <div class="buttons-field">
+                        <input type="button" value="reject" class="input button" (click)="onRejectEdit()" />
+                        <input type="button" value="confirm" class="input button" />
                     </div>
                 </form>
             </div>
