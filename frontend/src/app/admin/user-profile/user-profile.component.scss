@@ -38,7 +38,7 @@ h1 {
     gap: 20px;
 }
 
-img{
+img {
     width: 300px;
     height: 300px;
     display: block;
@@ -68,7 +68,6 @@ hr {
     margin: 20px 0;
 }
 
-
 form {
     display: flex;
     flex-direction: column;
@@ -76,26 +75,11 @@ form {
     align-items: center;
 }
 
-h3 {
-    margin-top: 5px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-bottom: 32px;
-
-    &.last {
-        margin-bottom: 16px;
-    }
-}
-
-.confirmation-field{
+.confirmation-field {
     margin-top: 16px;
 }
 
-.buttons-field{
+.buttons-field {
     margin-top: 10px;
     display: flex;
     flex-direction: row;
@@ -103,7 +87,7 @@ h3 {
 }
 
 .confirm-button {
-    
+
     border: none;
     border-radius: 8px;
     font-size: medium;
@@ -192,32 +176,26 @@ h3 {
     gap: 6px;
 }
 
-.password-wrapper {
-    display: flex;
-    flex-direction: row;
-    gap: 6px;
-}
-
 .wrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    span{
+
+    span {
         margin-bottom: 16px;
     }
 }
 
-.updateEmailForm{
+.updateEmailForm {
     display: flex;
     flex-direction: column;
     gap: 16px
-
 }
 
 @media (max-width: 996px) {
 
-    .sections-wrapper{
+    .sections-wrapper {
         flex-direction: column-reverse;
         align-items: center;
         gap: 20px;

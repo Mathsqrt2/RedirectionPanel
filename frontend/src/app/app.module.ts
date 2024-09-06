@@ -24,6 +24,7 @@ import { RedirectionBarComponent } from './admin/manage-redirections/redirection
 import { UserProfileComponent } from './admin/user-profile/user-profile.component';
 import { LogBarComponent } from './admin/display-logs/log-bar/log-bar.component';
 import { ManagePermissionsComponent } from './admin/user-profile/manage-permissions/manage-permissions.component';
+import { ChangePasswordComponent } from './admin/user-profile/change-password/change-password.component';
 
 @NgModule({
   declarations: [
@@ -42,6 +43,7 @@ import { ManagePermissionsComponent } from './admin/user-profile/manage-permissi
     UserProfileComponent,
     LogBarComponent,
     ManagePermissionsComponent,
+    ChangePasswordComponent,
   ],
   imports: [
     BrowserModule,

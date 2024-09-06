@@ -4,60 +4,14 @@
 
         <div class="description-side">
 
-                <manage-permissions [permissions]="permissions" [currentUser]="currentUser" [baseUrl]="baseUrl" />
+            <manage-permissions [permissions]="permissions" [currentUser]="currentUser" [baseUrl]="baseUrl" />
 
             <hr />
 
+            <change-password [currentUser]="currentUser" [baseUrl]="baseUrl" />
+
             <div class="change-password">
-                <form [formGroup]="changePasswordForm" (ngSubmit)="onPasswordChange()">
-                    <h3>Change password</h3>
 
-                    <div class="form-group">
-                        <label for="currentPassword">Current password</label>
-                        <div class="password-wrapper">
-                            <input name="currentPassword" id="currentPassword" formControlName="currentPassword"
-                                [type]="!showCurrentPassword ? 'password' : 'text'" class="input field" />
-                            <input type="button" [value]="!showCurrentPassword ? 'show' : 'hide'" class="input button"
-                                (click)="onToggleVisibility('currentPassword')" />
-                        </div>
-
-                        <div class="error-code" *ngIf="this.unauthorizedResponse">
-                            Incorrect password
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="newPassword">New password</label>
-                        <div class="password-wrapper">
-                            <input name="newPassword" id="newPassword" formControlName="newPassword"
-                                [type]="!showNewPassword ? 'password' : 'text'" class="input field" />
-                            <input type="button" [value]="!showNewPassword ? 'show' : 'hide'" class="input button"
-                                (click)="onToggleVisibility('newPassword')" />
-                        </div>
-
-                    </div>
-
-                    <div class="form-group last">
-                        <label for="confirmPassword">Confirm new password</label>
-                        <div class="password-wrapper">
-                            <input name="confirmPassword" id="confirmPassword" formControlName="confirmPassword"
-                                [type]="!showConfirmNewPassword ? 'password' : 'text'" class="input field" />
-                            <input type="button" [value]="!showConfirmNewPassword ? 'show' : 'hide'"
-                                class="input button" (click)="onToggleVisibility('confirmPassword')" />
-                        </div>
-                    </div>
-
-                    <div *ngIf="changePasswordForm.get('confirmPassword').touched 
-                    && !changePasswordForm.get('confirmPassword').valid 
-                    && changePasswordForm.get('confirmPassword').errors['passwordMustMatch']">
-                        <span class="error-code">Passwords must match</span>
-                    </div>
-
-                    <div class="confirmation-field">
-                        <input type="submit" value="save password" class="confirm-button" />
-                    </div>
-
-                </form>
             </div>
         </div>
 

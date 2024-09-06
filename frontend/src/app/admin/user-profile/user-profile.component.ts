@@ -12,24 +12,15 @@ export class UserProfileComponent implements OnInit {
 
   private domain: string = `http://localhost:3000`;
   public baseUrl: string = `${this.domain}/api/auth`;
-  public unauthorizedResponse: boolean = false;
+  
 
-  public permissionsForm: FormGroup;
   public confirmEmailForm: FormGroup;
   public confirmEmailWithCodeForm: FormGroup;
-  public changePasswordForm: FormGroup
+  
   public changeEmailForm: FormGroup;
 
   public currentUser: User;
   public permissions: { key: string, value: string }[] = []
-
-  public showCurrentPassword: boolean = false;
-  public showNewPassword: boolean = false;
-  public showConfirmNewPassword: boolean = false;
-
-  public currentPassword: string = null;
-  public newPassword: string = null;
-  public confirmNewPassword: string = null;
 
   public emailSent: boolean = false;
   public isEmailConfirmed: boolean = false;
@@ -42,14 +33,6 @@ export class UserProfileComponent implements OnInit {
   ) {
     this.usersService.getCurrentUser().subscribe((newValue: User) => {
       this.currentUser = newValue;
-
-      const { canUpdate, canDelete, canManage, canCreate } = newValue.permissions;
-      this.permissionsForm = new FormGroup({
-        canUpdate: new FormControl({ value: canUpdate, disabled: !canManage }, [Validators.required]),
-        canDelete: new FormControl({ value: canDelete, disabled: !canManage }, [Validators.required]),
-        canManage: new FormControl({ value: canManage, disabled: !canManage }, [Validators.required]),
-        canCreate: new FormControl({ value: canCreate, disabled: !canManage }, [Validators.required]),
-      });
 
       if (this.currentUser?.permissions) {
         const keys = Object.keys(this.currentUser.permissions);
@@ -79,13 +62,6 @@ export class UserProfileComponent implements OnInit {
 
   }
 
-  private areEquals(control: FormControl): { [s: string]: boolean } {
-    if (control?.value !== this.changePasswordForm?.value?.newPassword) {
-      return { 'passwordMustMatch': true }
-    }
-    return null;
-  }
-
   private matchEmail(control: FormControl): { [s: string]: boolean } {
     const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
     if (!pattern.test(control.value)) {
@@ -102,60 +78,10 @@ export class UserProfileComponent implements OnInit {
       newEmail: new FormControl(null, [Validators.required, Validators.minLength(5), this.matchEmail.bind(this)])
     });
 
-    this.changePasswordForm = new FormGroup({
-      currentPassword: new FormControl(null, [Validators.required]),
-      newPassword: new FormControl(null, [Validators.required, Validators.minLength(3)]),
-      confirmPassword: new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
-    });
-
     this.changeEmailForm = new FormGroup({
       updateEmail: new FormControl(null, [Validators.required, this.matchEmail.bind(this)]),
       password: new FormControl(null, [Validators.required]),
     })
-  }
-
-  public onPasswordChange = (): void => {
-    if (this.changePasswordForm.status === 'VALID') {
-      const { currentPassword, newPassword, confirmPassword } = this.changePasswordForm.value;
-      const body = {
-        password: currentPassword,
-        newPassword,
-        confirmPassword,
-        userId: this.currentUser.userId
-      }
-
-      this.http.patch(`${this.baseUrl}/password`, body, { withCredentials: true }).subscribe(
-        (response: { status: number, message: string }) => {
-          if (response.status === 401) {
-            this.unauthorizedResponse = true;
-          }
-
-          if (response.status === 200) {
-            this.unauthorizedResponse = false;
-          }
-        });
-
-      this.changePasswordForm.reset();
-    }
-  }
-
-  public onPermissionsUpdate = (): void => {
-    if (this.permissionsForm.status === 'VALID') {
-      const { canDelete, canUpdate, canCreate, canManage } = this.permissionsForm.value;
-      const body = { canDelete, canUpdate, canCreate, canManage };
-
-      this.http.patch(`${this.baseUrl}/permissions`, { ...body, userId: this.currentUser.userId }, { withCredentials: true }).subscribe(
-        (response: { status: number, message: string }) => {
-          if (response.status === 200) {
-            this.usersService.setCurrentUserPermissions(body);
-            const accessToken = localStorage.getItem(`accessToken`);
-            if (accessToken) {
-              const data = JSON.parse(accessToken);
-              localStorage.accessToken = JSON.stringify({ ...data, permissions: body });
-            }
-          }
-        });
-    }
   }
 
   public onEmailConfirm = (): void => {
@@ -208,23 +134,7 @@ export class UserProfileComponent implements OnInit {
     }
   }
 
-  public onToggleVisibility = (field: string): void => {
-
-    if (field === 'currentPassword') {
-      this.showCurrentPassword = !this.showCurrentPassword;
-    }
-    if (field === 'newPassword') {
-      this.showNewPassword = !this.showNewPassword;
-    }
-    if (field === 'confirmPassword') {
-      this.showConfirmNewPassword = !this.showConfirmNewPassword;
-    }
-
-  }
-
   public startEmailChange = (): void => {
-
-
     this.showEmailChangeForm = true;
   }
 
