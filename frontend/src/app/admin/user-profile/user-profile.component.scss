@@ -52,7 +52,7 @@ li {
     padding: 10px;
 }
 
-.permissions{
+.permissions {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -64,18 +64,18 @@ li {
     flex-direction: column;
     justify-content: center;
     align-items: baseline;
-    
+
     width: 100%;
     height: 100%;
 
     transition: all $duration ease-in-out;
 
     &:hover {
-        background-color: aqua;
+        background-color: rgb(12, 23, 32);
     }
 }
 
-hr{
+hr {
     width: 100%;
     border: 2px solid $accent;
     border-radius: 5px;
@@ -92,7 +92,8 @@ form {
     justify-content: center;
     align-items: center;
 }
-h3{
+
+h3 {
     margin-top: 5px;
 }
 
@@ -102,6 +103,7 @@ h3{
     gap: 4px;
     margin-bottom: 32px;
 }
+
 
 .confirm-button {
 
@@ -122,6 +124,11 @@ h3{
             transform: scale(0.97);
             background-color: $accent-hover;
         }
+
+        &:active {
+            transform: scale(0.92);
+            background-color: white;
+        }
     }
 
 }
@@ -129,54 +136,63 @@ h3{
 .input {
     background-color: rgb(51, 51, 51);
     border: none;
+    box-sizing: border-box;
     padding: 8px 12px;
     outline: none;
     border-bottom: 3px solid $accent;
     transition: all 0.3s ease-in-out;
     color: white;
 
-    &.field {
+    &:enabled {
+        &.field {
 
-        &:focus {
-            box-shadow: 0 0 24px $accent-focus;
-            border-bottom: 3px solid rgb(39, 230, 71);
+            &:focus {
+                box-shadow: 0 0 24px $accent-focus;
+                border-bottom: 3px solid rgb(39, 230, 71);
+            }
+
         }
-
-    }
-
-    &:hover {
-        box-shadow: 0 0 24px $accent-focus;
-    }
-
-    &.button {
 
         &:hover {
-            transform: scale(0.95);
+            box-shadow: 0 0 24px $accent-focus;
         }
 
-        &:active {
-            transform: scale(0.88);
-            animation-name: example;
-            animation-duration: 0.3s;
+        &.button {
+            min-width: 70px;
 
+            &:hover {
+                transform: scale(0.95);
+            }
+
+            &:active {
+                transform: scale(0.88);
+                background-color: white;
+
+            }
+
+            cursor: pointer;
         }
-
-        cursor: pointer;
     }
+
+    &:disabled{
+        color: #aaa;
+        user-select: none;
+    }
+
 }
 
-@keyframes example {
-    0% {
-        background-color: rgb(51, 51, 51);
-    }
+.email-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 
-    50% {
-        background-color: rgb(255, 255, 255);
-    }
-
-    100% {
-        background-color: rgb(51, 51, 51);
-    }
+.inputs-field {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
 }
 
 .password-wrapper {

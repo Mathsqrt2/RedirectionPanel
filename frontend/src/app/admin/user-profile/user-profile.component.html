@@ -6,29 +6,32 @@
 
             <div class="permissions">
                 <h3>Permissions</h3>
-                <ul>
-                    <li *ngFor="let permission of permissions" class="permissions-wrapper">
-                        <label [htmlFor]="permission.key" class="permission-field">
-                            <input type="checkbox" class="permission-value" [id]="permission.key"
-                                [name]="permission.key" [checked]="permission.value"
-                                [disabled]="currentUser.permissions.canManage" />
-                            <span class="permission-label">{{permission.key}}</span>
-                        </label>
-                    </li>
-                </ul>
+                <form [formGroup]="permissionsForm">
+                    <ul>
+                        <li *ngFor="let permission of permissions" class="permissions-wrapper">
+                            <label [htmlFor]="permission.key" class="permission-field">
+                                <input type="checkbox" class="permission-value" [id]="permission.key"
+                                    [name]="permission.key" [checked]="permission.value"
+                                    [formControlName]="permission.key" (change)="onPermissionsUpdate()" />
+                                <span class="permission-label">{{permission.key}}</span>
+                            </label>
+                        </li>
+                    </ul>
+                </form>
             </div>
 
-            <hr/>
+            <hr />
 
             <div class="change-password">
-                <form>
+                <form [formGroup]="changePasswordForm" (ngSubmit)="onPasswordChange()">
                     <h3>Change password</h3>
 
                     <div class="form-group">
-                        <label>Current password</label>
+                        <label for="current-password">Current password</label>
                         <div class="password-wrapper">
-                            <input [type]="!showCurrentPassword ? 'password' : 'text'" class="input field" />
-                            <input type="button" value="show" class="input button"
+                            <input name="currentPassword" id="currentPassword" formControlName="currentPassword"
+                                [type]="!showCurrentPassword ? 'password' : 'text'" class="input field" />
+                            <input type="button" [value]="!showCurrentPassword ? 'show' : 'hide'" class="input button"
                                 (click)="onToggleVisibility('currentPassword')" />
                         </div>
                     </div>
@@ -36,8 +39,9 @@
                     <div class="form-group">
                         <label>New password</label>
                         <div class="password-wrapper">
-                            <input [type]="!showNewPassword ? 'password' : 'text'" class="input field" />
-                            <input type="button" value="show" class="input button"
+                            <input name="newPassword" id="newPassword" formControlName="newPassword"
+                                [type]="!showNewPassword ? 'password' : 'text'" class="input field" />
+                            <input type="button" [value]="!showNewPassword ? 'show' : 'hide'" class="input button"
                                 (click)="onToggleVisibility('newPassword')" />
                         </div>
                     </div>
@@ -45,14 +49,15 @@
                     <div class="form-group">
                         <label for="">Confirm new password</label>
                         <div class="password-wrapper">
-                            <input [type]="!showConfirmNewPassword ? 'password' : 'text'" class="input field" />
-                            <input type="button" value="show" class="input button"
-                                (click)="onToggleVisibility('confirmPassword')" />
+                            <input name="confirmPassword" id="confirmPassword" formControlName="confirmPassword"
+                                [type]="!showConfirmNewPassword ? 'password' : 'text'" class="input field" />
+                            <input type="button" [value]="!showConfirmNewPassword ? 'show' : 'hide'"
+                                class="input button" (click)="onToggleVisibility('confirmPassword')" />
                         </div>
                     </div>
 
                     <div class="confirmation-field">
-                        <input type="button" value="save changes" class="confirm-button" />
+                        <input type="submit" value="save password" class="confirm-button" />
                     </div>
 
                 </form>
@@ -65,8 +70,49 @@
                 <img src="" />
             </div>
 
-            <div class="confirm-field">
+            <div class="confirm-field" *ngIf="!currentUser.email">
+                <form [formGroup]="confirmEmailForm" class="email-form" *ngIf="!hasBeenEmailSend">
+                    <div class="inputs-field">
+                        <label for="newEmail">Verify using email</label>
+                        <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
+                    </div>
 
+                    <div class="inputs-field">
+                        <label for="send-code-button">Send code</label>
+                        <input type="button" value="send" class="input button" (click)="onSendVerificationCode()" />
+                    </div>
+
+                </form>
+                
+                <form [formGroup]="confirmEmailWithCodeForm" class="email-form" *ngIf="hasBeenEmailSend">
+                    <div class="inputs-field">
+                        <label for="new-email">Verify using email</label>
+                        <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
+                    </div>
+
+                    <div class="inputs-field" *ngIf="hasBeenEmailSend">
+                        <label for="send-code-button">confirm code</label>
+                        <div class="password-wrapper">
+                            <input name="confirmationCode" id="confirmationCode" formControlName="confirmationCode"
+                                [type]="!showConfirmNewPassword ? 'password' : 'text'" class="input field" />
+                            <input type="button" value="send" class="input button" (click)="onEmailConfirm()" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="confirm-field" *ngIf="currentUser.email">
+                <form>
+                    <div>
+                        <label></label>
+                        <input type="email" />
+                    </div>
+
+                    <div>
+                        <label></label>
+                        <input type="number">
+                    </div>
+                </form>
             </div>
 
         </div>
