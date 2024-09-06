@@ -31,48 +31,70 @@ export class UsersService {
             (newValue: User) => {
                 if (!this.hasBeenDataFetched && newValue.userId) {
                     this.hasBeenDataFetched = true;
-                    if(newValue.permissions.canManage){
+                    if (newValue.permissions.canManage) {
                         this.getUsersList()
                     }
                 }
             })
     }
 
-    getCurrentUser = (): BehaviorSubject<User> => {
+    public updateCurrentUser = async () => {
+        this.http.get(`${this.targetUrl}/users/${this.currentUser.getValue().userId}`, { withCredentials: true }).subscribe(
+            (newState: UserResponse) => {
+                const currentUser = this.currentUser.getValue();
+                const user: User = {
+                    username: newState.login,
+                    accessToken: currentUser.accessToken,
+                    permissions: {
+                        canCreate: newState.canCreate,
+                        canDelete: newState.canDelete,
+                        canUpdate: newState.canUpdate,
+                        canManage: newState.canManage,
+
+                    },
+                    userId: newState.id,
+                    email: newState.email,
+                }
+                this.currentUser.next(user);
+            }
+        );
+    }
+
+    public getCurrentUser = (): BehaviorSubject<User> => {
         return this.currentUser;
     }
 
-    getCurrentUserToken = (): string => {
+    public getCurrentUserToken = (): string => {
         return this.currentUser.getValue().accessToken;
     }
 
-    getCurrentUserName = (): string => {
+    public getCurrentUserName = (): string => {
         return this.currentUser.getValue().username;
     }
 
-    getCurrentUserPermissions = () => {
+    public getCurrentUserPermissions = () => {
         return this.currentUser.getValue().permissions;
     }
 
-    getCurrentUserId = (): number => {
+    public getCurrentUserId = (): number => {
         return this.currentUser.getValue().userId;
     }
 
-    getCurrentUserEmail = (): string => {
+    public getCurrentUserEmail = (): string => {
         return this.currentUser.getValue().email;
     }
 
-    setCurrentUserEmail = (email: string): void => {
+    public setCurrentUserEmail = (email: string): void => {
         const user = this.currentUser.getValue();
         this.currentUser.next({ ...user, email });
     }
 
-    setCurrentUserPermissions = (permissions: Permissions): void => {
+    public setCurrentUserPermissions = (permissions: Permissions): void => {
         const user = this.currentUser.getValue();
         this.currentUser.next({ ...user, permissions });
     }
 
-    registerUser(newUser: User) {
+    public registerUser(newUser: User) {
         this.currentUser.next(newUser);
     }
 }
@@ -88,4 +110,14 @@ export type User = {
     accessToken?: string,
     userId: number,
     email?: string,
+}
+
+type UserResponse = {
+    login: string,
+    id: number,
+    email?: string,
+    canCreate: boolean,
+    canDelete: boolean,
+    canManage: boolean,
+    canUpdate: boolean,
 }

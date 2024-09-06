@@ -411,7 +411,7 @@ export class AuthService {
                 throw new ConflictException(`Passwords must be equal`);
             }
 
-            if(!this.comparePasswords(body.password, user.password)){
+            if (!this.comparePasswords(body.password, user.password)) {
                 throw new UnauthorizedException(`Incorrect password`);
             }
 
@@ -442,7 +442,7 @@ export class AuthService {
             })
 
             return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                status: HttpStatus.UNAUTHORIZED,
                 message: err.message,
             }
         }

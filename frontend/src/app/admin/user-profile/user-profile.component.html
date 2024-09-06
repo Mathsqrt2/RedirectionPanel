@@ -34,6 +34,10 @@
                             <input type="button" [value]="!showCurrentPassword ? 'show' : 'hide'" class="input button"
                                 (click)="onToggleVisibility('currentPassword')" />
                         </div>
+
+                        <div class="error-code" *ngIf="this.unauthorizedResponse">
+                            Incorrect password
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -44,6 +48,7 @@
                             <input type="button" [value]="!showNewPassword ? 'show' : 'hide'" class="input button"
                                 (click)="onToggleVisibility('newPassword')" />
                         </div>
+
                     </div>
 
                     <div class="form-group last">
@@ -83,9 +88,15 @@
                         <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
                     </div>
 
+                    <div class="error-code" *ngIf="confirmEmailForm.get('newEmail').touched 
+                    && !confirmEmailForm.get('newEmail').valid">
+                        email is incorrect!
+                    </div>
+
                     <div class="inputs-field">
                         <label for="send-code-button">Send code</label>
-                        <input type="button" value="send" class="input button" (click)="onSendVerificationCode()" />
+                        <input type="button" value="send" class="input button" [disabled]="!confirmEmailForm.valid"
+                            (click)="onSendVerificationCode()" />
                     </div>
 
                 </form>

@@ -76,7 +76,7 @@ export class AuthController {
         }
     }
 
-    @Post(`getVerificationEmail`)
+    @Post(`getverificationemail`)
     async sendVerificationEmail(
         @Body() body: CodesDto,
         @Req() req: Request,
@@ -93,7 +93,7 @@ export class AuthController {
     }
 
     @Get(`verify/:code`)
-    @Redirect(`${config.frontend.domain}/verified`, 302)
+    @Redirect(`${config.frontend.domain}/admin/profile`, 302)
     async recieveVerificationCode(
         @Param(`code`) code: string,
         @Req() req: Request,
