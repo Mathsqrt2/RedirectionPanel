@@ -11,7 +11,7 @@ import { HttpClient } from '@angular/common/http';
 export class UserProfileComponent implements OnInit {
 
   private domain: string = `http://localhost:3000`;
-  private baseUrl: string = `${this.domain}/api/auth`;
+  public baseUrl: string = `${this.domain}/api/auth`;
   public unauthorizedResponse: boolean = false;
 
   public permissionsForm: FormGroup;
@@ -107,7 +107,7 @@ export class UserProfileComponent implements OnInit {
       newPassword: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       confirmPassword: new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
-  
+
     this.changeEmailForm = new FormGroup({
       updateEmail: new FormControl(null, [Validators.required, this.matchEmail.bind(this)]),
       password: new FormControl(null, [Validators.required]),

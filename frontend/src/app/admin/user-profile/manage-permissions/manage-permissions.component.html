@@ -1,0 +1,12 @@
+<h3>Permissions</h3>
+<form [formGroup]="permissionsForm">
+    <ul>
+        <li *ngFor="let permission of permissions" class="permissions-wrapper">
+            <label [htmlFor]="permission.key">
+                <input type="checkbox" class="permission-value" [id]="permission.key" [name]="permission.key"
+                    [checked]="permission.value" [formControlName]="permission.key" (change)="onPermissionsUpdate()" />
+                <span class="permission-label">{{permission.key}}</span>
+            </label>
+        </li>
+    </ul>
+</form>

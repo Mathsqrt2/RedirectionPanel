@@ -23,6 +23,7 @@ import { RedirectionsService } from './services/redirections.service';
 import { RedirectionBarComponent } from './admin/manage-redirections/redirection-bar/redirection-bar.component';
 import { UserProfileComponent } from './admin/user-profile/user-profile.component';
 import { LogBarComponent } from './admin/display-logs/log-bar/log-bar.component';
+import { ManagePermissionsComponent } from './admin/user-profile/manage-permissions/manage-permissions.component';
 
 @NgModule({
   declarations: [
@@ -40,6 +41,7 @@ import { LogBarComponent } from './admin/display-logs/log-bar/log-bar.component'
     RedirectionBarComponent,
     UserProfileComponent,
     LogBarComponent,
+    ManagePermissionsComponent,
   ],
   imports: [
     BrowserModule,
