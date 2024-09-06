@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { User, UsersService } from '../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-profile',
@@ -8,6 +9,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
   styleUrl: './user-profile.component.scss'
 })
 export class UserProfileComponent implements OnInit {
+
+  private domain: string = `http://localhost:3000`;
+  private baseUrl: string = `${this.domain}/api/auth`;
 
   public permissionsForm: FormGroup;
   public confirmEmailForm: FormGroup;
@@ -29,7 +33,8 @@ export class UserProfileComponent implements OnInit {
   public isEmailConfirmed: boolean = false;
 
   constructor(
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly http: HttpClient,
   ) {
     this.usersService.getCurrentUser().subscribe((newValue: User) => {
       this.currentUser = newValue;
@@ -41,6 +46,13 @@ export class UserProfileComponent implements OnInit {
         }
       }
     });
+  }
+
+  private areEquals(control: FormControl): { [s: string]: boolean } {
+    if (control?.value !== this.changePasswordForm?.value?.newPassword) {
+      return { 'passwordMustMatch': true }
+    }
+    return null;
   }
 
   ngOnInit(): void {
@@ -57,14 +69,26 @@ export class UserProfileComponent implements OnInit {
     });
 
     this.changePasswordForm = new FormGroup({
-      currentPassword: new FormControl(null),
-      newPassword: new FormControl(null),
-      confirmPassword: new FormControl(null),
+      currentPassword: new FormControl(null, [Validators.required]),
+      newPassword: new FormControl(null, [Validators.required, Validators.minLength(3)]),
+      confirmPassword: new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
   }
 
   onPasswordChange = () => {
+    console.log(this.changePasswordForm.status)
+    if (this.changePasswordForm.status === 'VALID') {
+      const { password, newPassword, confirmPassword } = this.changePasswordForm.value;
+      const body = {
+        password,
+        newPassword,
+        confirmPassword,
+        userId: this.currentUser.userId
+      }
 
+      this.http.post(`${this.baseUrl}/updatepassword/${this.currentUser.userId}`, body, { withCredentials: true }).subscribe((response) => { console.log(response) });
+      this.changePasswordForm.reset();
+    }
   }
 
   onPermissionsUpdate = () => {

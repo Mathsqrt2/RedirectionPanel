@@ -2,12 +2,13 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, 
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
-import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse, SendVerificationCodeResponse, VerifyEmailResponse } from './auth.types';
+import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse, SendVerificationCodeResponse, UpdatePswdResponse, VerifyEmailResponse } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
 import { CodesDto } from './dtos/codes.dto';
 import { AuthGuard } from './auth.guard';
 import config from 'src/config';
+import { UpdatePswdDTO } from './dtos/updatepswd.dto';
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -105,6 +106,25 @@ export class AuthController {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Couldn't verify request with code: ${code}`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Post(`updatepassword/:id`)
+    async updatePassword(
+        @Param('id') id: number,
+        @Body() body: UpdatePswdDTO,
+        @Req() req: Request,
+    ): Promise<UpdatePswdResponse> {
+        try {
+            console.log(id,body)
+            await this.authService.updatePassword(id, body, req);
+        } catch (err) {
+            console.log('verifyEmail', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't update password`,
             }
         }
     }

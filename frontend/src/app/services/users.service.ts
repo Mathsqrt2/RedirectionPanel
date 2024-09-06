@@ -63,7 +63,7 @@ export class UsersService {
         return this.currentUser.getValue().userId;
     }
 
-    geCurrentUserEmail = (): string => {
+    getCurrentUserEmail = (): string => {
         return this.currentUser.getValue().email;
     }
 

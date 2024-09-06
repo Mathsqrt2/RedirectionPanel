@@ -9,6 +9,7 @@ import {
     LoginUser, LoginUserResponse, RegisterUser,
     RegisterUserResponse, RemoveUserProps, RemoveUserResponse,
     SendVerificationCodeResponse,
+    UpdatePswdResponse,
     VerifyEmailResponse,
 } from './auth.types';
 
@@ -21,6 +22,7 @@ import { CodesDto } from './dtos/codes.dto';
 import { Codes } from './orm/codes.entity';
 import { Request } from 'express';
 import config from 'src/config';
+import { UpdatePswdDTO } from './dtos/updatepswd.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +34,7 @@ export class AuthService {
     ) { }
 
     private securePassword = (password: string): string => {
-        const salt = SHA256(new Date()).toString();
+        const salt = SHA256(Date.now()).toString();
         return `${salt}$${SHA256(`${password}$${salt}`).toString()}`;
     }
 
@@ -389,6 +391,54 @@ export class AuthService {
             return {
                 status: HttpStatus.BAD_REQUEST,
                 message: `Couldn't verify user`,
+            }
+        }
+    }
+
+    public updatePassword = async (id: number, body: UpdatePswdDTO, req: Request): Promise<UpdatePswdResponse> => {
+
+        const startTime = Date.now();
+
+        try {
+
+            const user = await this.users.findOneBy({ id });
+
+            if (!user) {
+                throw new ConflictException(`User with id: ${id} doesn't exist`);
+            }
+
+            if (body.newPassword !== body.confirmPassword) {
+                throw new ConflictException(`Passwords must be equal`);
+            }
+
+            user.password = this.securePassword(body.newPassword);
+            await this.users.save({ ...user });
+
+            await this.logs.save({
+                label: `Password changed`,
+                description: `"${user.login}" password has been changed from ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `success`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+            }
+
+        } catch (err) {
+            console.log(`registerUser`, err);
+            await this.logs.save({
+                label: `Error while trying to change password`,
+                description: `Password couldn't be changed for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: 'Password updated successfully'
             }
         }
     }

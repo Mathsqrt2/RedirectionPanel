@@ -76,3 +76,8 @@ export type VerifyEmailResponse = {
         userId: number,
     },
 }
+
+export type UpdatePswdResponse = {
+    status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
+}
