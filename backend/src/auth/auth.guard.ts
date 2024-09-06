@@ -44,27 +44,31 @@ export class AuthGuard implements CanActivate {
                 throw new UnauthorizedException(`Token has expired`);
             }
 
-            user.id = payload.sub;
-            user.username = payload.username;
-            request['user'] = payload;
+            const route = `${request.route.path}`;
+            if (!route.startsWith(`/api/auth`)) {
 
-            const user_ = await this.users.findOneBy({ id: user.id });
-            const method = request.route.methods;
+                user.id = payload.sub;
+                user.username = payload.username;
+                request['user'] = payload;
 
-            if (method?.post && !user_.canCreate) {
-                throw new UnauthorizedException(`Couldn't create. Insufficient permissions`);
-            }
+                const user_ = await this.users.findOneBy({ id: user.id });
+                const method = request.route.methods;
 
-            else if (method?.delete && !user_.canDelete) {
-                throw new UnauthorizedException(`Couldn't delete. Insufficient permissions`);
-            }
+                if (method?.post && !user_.canCreate) {
+                    throw new UnauthorizedException(`Couldn't create. Insufficient permissions`);
+                }
 
-            else if ((method?.patch || method.put) && !user_.canUpdate) {
-                throw new UnauthorizedException(`Couldn't update. insufficient permissions`);
-            }
+                else if (method?.delete && !user_.canDelete) {
+                    throw new UnauthorizedException(`Couldn't delete. Insufficient permissions`);
+                }
 
-            if (request.params.endpoint === 'users' && !user_.canManage && request.params?.id !== user_.id) {
-                throw new UnauthorizedException(`Couldn't manage users. Insufficient permissions`);
+                else if ((method?.patch || method.put) && !user_.canUpdate) {
+                    throw new UnauthorizedException(`Couldn't update. insufficient permissions`);
+                }
+
+                if (request.params.endpoint === 'users' && !user_.canManage && request.params?.id !== user_.id) {
+                    throw new UnauthorizedException(`Couldn't manage users. Insufficient permissions`);
+                }
             }
 
         } catch (err) {

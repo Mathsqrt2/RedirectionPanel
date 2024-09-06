@@ -8,8 +8,11 @@ import * as nodemailer from 'nodemailer';
 import {
     LoginUser, LoginUserResponse, RegisterUser,
     RegisterUserResponse, RemoveUserProps, RemoveUserResponse,
+    responseWithCode,
     SendVerificationCodeResponse,
+    updatePermissionsResponse,
     UpdatePswdResponse,
+    updateStatusResponse,
     VerifyEmailResponse,
 } from './auth.types';
 
@@ -23,6 +26,8 @@ import { Codes } from './orm/codes.entity';
 import { Request } from 'express';
 import config from 'src/config';
 import { UpdatePswdDTO } from './dtos/updatepswd.dto';
+import { UpdatePermissionsDTO } from './dtos/updatePermissions.dto';
+import { UpdateStatusDTO } from './dtos/updateEmailStatus.dto';
 
 @Injectable()
 export class AuthService {
@@ -446,6 +451,154 @@ export class AuthService {
                 message: err.message,
             }
         }
+    }
+
+    public updatePermissions = async (body: UpdatePermissionsDTO, req: Request): Promise<updatePermissionsResponse> => {
+        const startTime = Date.now();
+
+        try {
+
+            let user = await this.users.findOneBy({ id: body.userId });
+
+            if (!user) {
+                throw new NotFoundException(`User with id: ${body.userId} doesn't exist`);
+            }
+
+            if (!user.canManage) {
+                throw new UnauthorizedException(`Couldn't manage users. Insufficient permissions`);
+            }
+
+            user = await this.users.save({ ...user, ...body });
+
+            await this.logs.save({
+                label: `Permissions have been updated`,
+                description: `User: "${user.login}" permissions was updated to: canManage: "${user.canManage}", canCreate: "${user.canCreate}",
+                 canUpdate: "${user.canUpdate}", canDelete: "${user.canDelete}". Request ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `success`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+                message: 'Permissions updated successfully',
+            }
+        } catch (err) {
+            console.log(`updatePermissions`, err);
+            await this.logs.save({
+                label: `Error while trying to update permissions`,
+                description: `Permissions couldn't be updated for user with id: "${body.userId}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't update permissions`,
+            }
+        }
+    }
+
+    public updateEmailStatus = async (id: number, body: UpdateStatusDTO, req: Request): Promise<updateStatusResponse> => {
+
+        const startTime = Date.now();
+
+        try {
+
+            const user = await this.users.findOneBy({ id })
+
+            if (!user) {
+                throw new NotFoundException(`User with id: ${id} doesn't exist`);
+            }
+
+            user.emailSent = body.emailSent;
+
+            await this.users.save({ ...user });
+
+            await this.logs.save({
+                label: `User email status updated successfully`,
+                description: `User: "${user.login}" email status was updated to: ${body.emailSent}. Request ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `success`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+                message: "User email status updated successfully",
+            }
+
+        } catch (err) {
+            console.log(err);
+            await this.logs.save({
+                label: `Error while trying to update email status`,
+                description: `Email status couldn't be updated for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: err.message,
+            }
+        }
+    }
+
+    public getActiveCode = async (id: number, req: Request): Promise<responseWithCode> => {
+        const startTime = Date.now();
+
+        try {
+            const code = await this.codes.findOneBy({ userId: id, status: true });
+
+            if (!code) {
+                throw new ConflictException(`Code for user with id: "${id}" doesn't exist`);
+            }
+
+            if (Date.now() > code.expireDate) {
+                throw new ConflictException(`Last code for user with id: "${id}" has expired`)
+            }
+
+            const content = {
+                id: code.id,
+                code: code.code,
+                userId: code.userId,
+                status: code.status,
+                expireDate: code.expireDate,
+                email: code.email,
+            }
+
+            await this.logs.save({
+                label: `Active code was found`,
+                description: `Active code was found: ${code.code}. been changed from ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `success`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+                message: `Active code was found`,
+                content,
+            }
+
+        } catch (err) {
+            console.log(`getActiveCode`, err);
+            await this.logs.save({
+                label: `Error while trying to get activeCode`,
+                description: `Active code couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: err.message,
+            }
+        }
+
     }
 
 }

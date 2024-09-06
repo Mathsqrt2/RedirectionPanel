@@ -81,3 +81,28 @@ export type UpdatePswdResponse = {
     status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
     message?: string,
 }
+
+export type updatePermissionsResponse = {
+    status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
+}
+
+export type updateStatusResponse = {
+    status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
+}
+
+export type responseWithCode = {
+    status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
+    content?: Code,
+}
+
+type Code = {
+    id: number,
+    code: string,
+    userId: number,
+    status: boolean,
+    expireDate: number,
+    email: string,
+}

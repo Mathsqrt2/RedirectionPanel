@@ -59,9 +59,9 @@ export class UserProfileComponent implements OnInit {
 
       if (newValue.emailSent) {
 
-        this.http.get(`${this.domain}/api/codes/userId/${this.currentUser.userId}`, { withCredentials: true }).subscribe(
+        this.http.get(`${this.baseUrl}/activecode/${this.currentUser.userId}`, { withCredentials: true }).subscribe(
           (response: CodeResponse) => {
-            const code = response.content[response.content.length - 1];
+            const code = response.content;
 
             if (Date.now() <= code.expireDate) {
               this.initializeConfirmationForm(code.email);
@@ -105,8 +105,6 @@ export class UserProfileComponent implements OnInit {
       newPassword: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       confirmPassword: new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
-
-
   }
 
   public onPasswordChange = () => {
@@ -119,7 +117,7 @@ export class UserProfileComponent implements OnInit {
         userId: this.currentUser.userId
       }
 
-      this.http.patch(`${this.baseUrl}/update/password`, body, { withCredentials: true }).subscribe(
+      this.http.patch(`${this.baseUrl}/password`, body, { withCredentials: true }).subscribe(
         (response: { status: number, message: string }) => {
           if (response.status === 401) {
             this.unauthorizedResponse = true;
@@ -128,7 +126,6 @@ export class UserProfileComponent implements OnInit {
           if (response.status === 200) {
             this.unauthorizedResponse = false;
           }
-
         });
 
       this.changePasswordForm.reset();
@@ -140,8 +137,8 @@ export class UserProfileComponent implements OnInit {
       const { canDelete, canUpdate, canCreate, canManage } = this.permissionsForm.value;
       const body = { canDelete, canUpdate, canCreate, canManage };
 
-      this.http.put(`${this.domain}/api/users/${this.currentUser.userId}`, body, { withCredentials: true }).subscribe(
-        (response: { status: number }) => {
+      this.http.patch(`${this.baseUrl}/permissions`, { ...body, userId: this.currentUser.userId }, { withCredentials: true }).subscribe(
+        (response: { status: number, message: string }) => {
           if (response.status === 200) {
             this.usersService.setCurrentUserPermissions(body);
             const accessToken = localStorage.getItem(`accessToken`);
@@ -179,7 +176,6 @@ export class UserProfileComponent implements OnInit {
   }
 
   public onSendVerificationCode = () => {
-    this.emailSent = true;
     this.initializeConfirmationForm(this.confirmEmailForm.value.newEmail);
 
     if (this.confirmEmailForm.status === 'VALID') {
@@ -192,7 +188,11 @@ export class UserProfileComponent implements OnInit {
       this.http.post(`${this.baseUrl}/getverificationemail`, body, { withCredentials: true }).subscribe(
         (response: { status: number, message: string }) => {
           if (response.status === 200) {
-            this.http.patch(`${this.domain}/api/users/${body.userId}`, { emailSent: true }, { withCredentials: true });
+            this.http.patch(`${this.baseUrl}/emailstatus/${body.userId}`,
+              { emailSent: true },
+              { withCredentials: true }).subscribe(res => {
+                this.emailSent = true;
+              });
           } else if (response.status === 400) {
             this.confirmEmailForm.reset();
           }
@@ -217,7 +217,7 @@ export class UserProfileComponent implements OnInit {
 }
 type CodeResponse = {
   status: number,
-  content: Code[],
+  content: Code,
 }
 
 type Code = {

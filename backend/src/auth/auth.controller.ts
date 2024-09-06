@@ -2,13 +2,15 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, 
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
-import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse, SendVerificationCodeResponse, UpdatePswdResponse, VerifyEmailResponse } from './auth.types';
+import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse, responseWithCode, SendVerificationCodeResponse, updatePermissionsResponse, UpdatePswdResponse, updateStatusResponse, VerifyEmailResponse } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
 import { CodesDto } from './dtos/codes.dto';
 import { AuthGuard } from './auth.guard';
 import config from 'src/config';
 import { UpdatePswdDTO } from './dtos/updatepswd.dto';
+import { UpdatePermissionsDTO } from './dtos/updatePermissions.dto';
+import { UpdateStatusDTO } from './dtos/updateEmailStatus.dto';
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -76,6 +78,7 @@ export class AuthController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Post(`getverificationemail`)
     async sendVerificationEmail(
         @Body() body: CodesDto,
@@ -109,6 +112,7 @@ export class AuthController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @Get(`verifybyrequest/:code`)
     async recieveVerificationCode(
         @Param('code') code: string,
@@ -125,7 +129,8 @@ export class AuthController {
         }
     }
 
-    @Patch(`update/password`)
+    @UseGuards(AuthGuard)
+    @Patch(`password`)
     async updatePassword(
         @Body() body: UpdatePswdDTO,
         @Req() req: Request,
@@ -133,7 +138,7 @@ export class AuthController {
         try {
             return await this.authService.updatePassword(body, req);
         } catch (err) {
-            console.log('verifyEmail', err);
+            console.log('updatePassword', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Couldn't update password`,
@@ -141,5 +146,55 @@ export class AuthController {
         }
     }
 
+    @UseGuards(AuthGuard)
+    @Patch(`permissions`)
+    async updatePermissions(
+        @Body() body: UpdatePermissionsDTO,
+        @Req() req: Request,
+    ): Promise<updatePermissionsResponse> {
+        try {
+            return await this.authService.updatePermissions(body, req);
+        } catch (err) {
+            console.log('updatePermissions', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't update permissions`,
+            }
+        }
+    }
 
+    @UseGuards(AuthGuard)
+    @Patch(`emailstatus/:id`)
+    async updateEmailStatus(
+        @Param(`id`) id: number,
+        @Body() body: UpdateStatusDTO,
+        @Req() req: Request,
+    ): Promise<updateStatusResponse> {
+        try {
+            return await this.authService.updateEmailStatus(id, body, req);
+        } catch (err) {
+            console.log('updateEmailStatus', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't update email status`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('activecode/:userid')
+    async getActiveCode(
+        @Param(`uderid`) id: number,
+        @Req() req: Request
+    ): Promise<responseWithCode> {
+        try {
+            return await this.authService.getActiveCode(id, req);
+        } catch (err) {
+            console.log('getActiveCode', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't get active code`,
+            }
+        }
+    }
 }
