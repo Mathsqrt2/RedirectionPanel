@@ -118,8 +118,7 @@ export class AuthController {
         @Req() req: Request,
     ): Promise<UpdatePswdResponse> {
         try {
-            console.log(id,body)
-            await this.authService.updatePassword(id, body, req);
+            return await this.authService.updatePassword(id, body, req);
         } catch (err) {
             console.log('verifyEmail', err);
             return {

@@ -38,9 +38,17 @@ export class UserProfileComponent implements OnInit {
   ) {
     this.usersService.getCurrentUser().subscribe((newValue: User) => {
       this.currentUser = newValue;
+      const { canUpdate, canDelete, canManage, canCreate } = newValue.permissions;
+      this.permissionsForm = new FormGroup({
+        canUpdate: new FormControl({ value: canUpdate, disabled: !canManage }, [Validators.required]),
+        canDelete: new FormControl({ value: canDelete, disabled: !canManage }, [Validators.required]),
+        canManage: new FormControl({ value: canManage, disabled: !canManage }, [Validators.required]),
+        canCreate: new FormControl({ value: canCreate, disabled: !canManage }, [Validators.required]),
+      });
+
       if (this.currentUser?.permissions) {
         const keys = Object.keys(this.currentUser.permissions);
-
+        this.permissions = [];
         for (let key of keys) {
           this.permissions.push({ key, value: this.currentUser.permissions[key] });
         }
@@ -56,13 +64,8 @@ export class UserProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const { canUpdate, canDelete, canManage, canCreate } = this.currentUser.permissions;
-    this.permissionsForm = new FormGroup({
-      canUpdate: new FormControl({ value: canUpdate, disabled: !canManage }, [Validators.required]),
-      canDelete: new FormControl({ value: canDelete, disabled: !canManage }, [Validators.required]),
-      canManage: new FormControl({ value: canManage, disabled: !canManage }, [Validators.required]),
-      canCreate: new FormControl({ value: canCreate, disabled: !canManage }, [Validators.required]),
-    });
+    
+
 
     this.confirmEmailForm = new FormGroup({
       newEmail: new FormControl(null, [Validators.required])
@@ -79,20 +82,36 @@ export class UserProfileComponent implements OnInit {
     console.log(this.changePasswordForm.status)
     if (this.changePasswordForm.status === 'VALID') {
       const { password, newPassword, confirmPassword } = this.changePasswordForm.value;
-      const body = {
-        password,
-        newPassword,
-        confirmPassword,
-        userId: this.currentUser.userId
-      }
+      const body = { password, newPassword, confirmPassword, userId: this.currentUser.userId }
+      this.http.post(`${this.baseUrl}/updatepassword/${this.currentUser.userId}`, body, { withCredentials: true }).subscribe(
+        (response: { status: number, message: string }) => {
+          if (response.status === 202) {
 
-      this.http.post(`${this.baseUrl}/updatepassword/${this.currentUser.userId}`, body, { withCredentials: true }).subscribe((response) => { console.log(response) });
+          }
+        });
+
       this.changePasswordForm.reset();
     }
   }
 
   onPermissionsUpdate = () => {
+    if (this.permissionsForm.status === 'VALID') {
+      const { canDelete, canUpdate, canCreate, canManage } = this.permissionsForm.value;
+      const body = { canDelete, canUpdate, canCreate, canManage };
 
+      this.http.put(`${this.domain}/api/users/${this.currentUser.userId}`, body, { withCredentials: true }).subscribe(
+        (response: { status: number }) => {
+          if (response.status === 200) {
+            this.usersService.setCurrentUserPermissions(body);
+            this.permissionsForm.value.canUpdate
+            const accessToken = localStorage.getItem(`accessToken`);
+            if (accessToken) {
+              const data = JSON.parse(accessToken);
+              localStorage.accessToken = JSON.stringify({ ...data, permissions: body });
+            }
+          }
+        });
+    }
   }
 
   onEmailConfirm = () => {

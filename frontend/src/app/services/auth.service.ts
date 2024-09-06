@@ -38,12 +38,13 @@ export class AuthService {
     private isLoggedIn: Boolean = false;
     private accessToken: string | null = null;
 
-    private setCookie = (name: string, value: string | number, expirationDays: number): void => {
+    private setCookie = (name: string, value: string | number, expirationDays: number, path: string = "/"): void => {
         const date: Date = new Date((Date.now() + (1000 * 60 * 60 * 24 * expirationDays)));
-        document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)};expires=${date.toUTCString()}`;
+        document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)};path=${path};expires=${date.toUTCString()}`;
     }
-    private deleteCookie = (name: string): void => {
-        document.cookie = `${decodeURIComponent(name)}=; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+
+    private deleteCookie = (name: string, path: string = "/"): void => {
+        document.cookie = `${decodeURIComponent(name)}=;path=${path}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
     }
     private setStatus = (token?: string): void => {
         if (token) {

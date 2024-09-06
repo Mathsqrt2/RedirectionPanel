@@ -70,8 +70,10 @@ li {
 
     transition: all $duration ease-in-out;
 
-    &:hover {
-        background-color: rgb(12, 23, 32);
+    &:enabled {
+        &:hover {
+            background-color: rgb(12, 23, 32);
+        }
     }
 }
 
@@ -174,7 +176,7 @@ h3 {
         }
     }
 
-    &:disabled{
+    &:disabled {
         color: #aaa;
         user-select: none;
     }

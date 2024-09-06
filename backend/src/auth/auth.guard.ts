@@ -48,22 +48,22 @@ export class AuthGuard implements CanActivate {
             user.username = payload.username;
             request['user'] = payload;
 
-            const userPermissions = await this.users.findOneBy({ id: user.id });
+            const user_ = await this.users.findOneBy({ id: user.id });
             const method = request.route.methods;
 
-            if (method?.post && !userPermissions.canCreate) {
+            if (method?.post && !user_.canCreate) {
                 throw new UnauthorizedException(`Couldn't create. Insufficient permissions`);
             }
 
-            else if (method?.delete && !userPermissions.canDelete) {
+            else if (method?.delete && !user_.canDelete) {
                 throw new UnauthorizedException(`Couldn't delete. Insufficient permissions`);
             }
 
-            else if ((method?.patch || method.put) && !userPermissions.canUpdate) {
+            else if ((method?.patch || method.put) && !user_.canUpdate) {
                 throw new UnauthorizedException(`Couldn't update. insufficient permissions`);
             }
-
-            if (request.params.endpoint === 'users' && !userPermissions.canManage) {
+            console.log(request.params)
+            if (request.params.endpoint === 'users' && !user_.canManage && request.params?.id !== user_.id) {
                 throw new UnauthorizedException(`Couldn't manage users. Insufficient permissions`);
             }
 

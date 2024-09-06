@@ -261,7 +261,7 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Item with id: ${id} updated`,
-                description: `endpoint: ${endpoint}, element id: "${id}", new data: "${data}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `endpoint: ${endpoint}, element id: "${id}", new data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
                 jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
@@ -303,7 +303,7 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Item with id: "${id}" patched`,
-                description: `endpoint: "${endpoint}", id: "${id}", new data: "${data}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `endpoint: "${endpoint}", id: "${id}", new data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
                 jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
@@ -349,7 +349,7 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `${response.length} items patched`,
-                description: `endpoint: "${endpoint}", items: ${response.length}, query: "{${param}:${value}}". New data: "${data}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `endpoint: "${endpoint}", items: ${response.length}, query: "{${param}:${value}}". New data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
                 jstimestamp: Date.now(),
                 duration: Date.now() - startTime,

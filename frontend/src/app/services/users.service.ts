@@ -13,10 +13,6 @@ export class UsersService {
     private domain: string = `http://localhost:3000`;
     private targetUrl: string = `${this.domain}/api`;
 
-    private fetchData = async () => {
-        await this.getUsersList();
-    }
-
     private getUsersList = async () => {
         return new Promise(resolve => {
             this.http.get(`${this.targetUrl}/users`, { withCredentials: true }).subscribe(
@@ -31,16 +27,15 @@ export class UsersService {
     constructor(
         private readonly http: HttpClient,
     ) {
-        this.currentUser.subscribe({
-            next: (newValue: User) => {
-                if (!this.hasBeenDataFetched) {
-                    if (newValue.userId) {
-                        this.hasBeenDataFetched = true;
-                        this.fetchData()
+        this.currentUser.subscribe(
+            (newValue: User) => {
+                if (!this.hasBeenDataFetched && newValue.userId) {
+                    this.hasBeenDataFetched = true;
+                    if(newValue.permissions.canManage){
+                        this.getUsersList()
                     }
                 }
-            }
-        })
+            })
     }
 
     getCurrentUser = (): BehaviorSubject<User> => {
@@ -65,6 +60,16 @@ export class UsersService {
 
     getCurrentUserEmail = (): string => {
         return this.currentUser.getValue().email;
+    }
+
+    setCurrentUserEmail = (email: string): void => {
+        const user = this.currentUser.getValue();
+        this.currentUser.next({ ...user, email });
+    }
+
+    setCurrentUserPermissions = (permissions: Permissions): void => {
+        const user = this.currentUser.getValue();
+        this.currentUser.next({ ...user, permissions });
     }
 
     registerUser(newUser: User) {
