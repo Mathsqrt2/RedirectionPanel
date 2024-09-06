@@ -28,6 +28,9 @@ export class Users {
     @Column({ default: null })
     email: string;
 
+    @Column({ default: null })
+    emailSent: boolean;
+
     @Generated()
     creationTime: Timestamp;
 

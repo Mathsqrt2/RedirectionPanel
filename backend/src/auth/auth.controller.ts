@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Post, Redirect, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Redirect, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
@@ -94,7 +94,7 @@ export class AuthController {
 
     @Get(`verify/:code`)
     @Redirect(`${config.frontend.domain}/admin/profile`, 302)
-    async recieveVerificationCode(
+    async recieveVerificationCodeFromEmail(
         @Param(`code`) code: string,
         @Req() req: Request,
     ): Promise<VerifyEmailResponse> {
@@ -109,7 +109,23 @@ export class AuthController {
         }
     }
 
-    @Post(`update/password`)
+    @Get(`verifybyrequest/:code`)
+    async recieveVerificationCode(
+        @Param('code') code: string,
+        @Req() req: Request,
+    ): Promise<VerifyEmailResponse> {
+        try {
+            return await this.authService.recieveVerificationCode(code, req);
+        } catch (err) {
+            console.log('verifyEmail', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't verify request with code: ${code}`,
+            }
+        }
+    }
+
+    @Patch(`update/password`)
     async updatePassword(
         @Body() body: UpdatePswdDTO,
         @Req() req: Request,
@@ -124,5 +140,6 @@ export class AuthController {
             }
         }
     }
+
 
 }

@@ -30,8 +30,9 @@ export class UserProfileComponent implements OnInit {
   public newPassword: string = null;
   public confirmNewPassword: string = null;
 
-  public hasBeenEmailSend: boolean = false;
+  public emailSent: boolean = false;
   public isEmailConfirmed: boolean = false;
+  public wrongCode: boolean = false;
 
   constructor(
     private readonly usersService: UsersService,
@@ -39,6 +40,7 @@ export class UserProfileComponent implements OnInit {
   ) {
     this.usersService.getCurrentUser().subscribe((newValue: User) => {
       this.currentUser = newValue;
+
       const { canUpdate, canDelete, canManage, canCreate } = newValue.permissions;
       this.permissionsForm = new FormGroup({
         canUpdate: new FormControl({ value: canUpdate, disabled: !canManage }, [Validators.required]),
@@ -54,7 +56,25 @@ export class UserProfileComponent implements OnInit {
           this.permissions.push({ key, value: this.currentUser.permissions[key] });
         }
       }
+
+      if (newValue.emailSent) {
+
+        this.http.get(`${this.domain}/api/codes/userId/${this.currentUser.userId}`, { withCredentials: true }).subscribe(
+          (response: CodeResponse) => {
+            const code = response.content[response.content.length - 1];
+
+            if (Date.now() <= code.expireDate) {
+              this.initializeConfirmationForm(code.email);
+              this.confirmEmailWithCodeForm.value.newEmail = code.email;
+              this.emailSent = this.currentUser.emailSent;
+            } else {
+              this.emailSent = false;
+            }
+          })
+
+      }
     });
+
   }
 
   private areEquals(control: FormControl): { [s: string]: boolean } {
@@ -85,6 +105,8 @@ export class UserProfileComponent implements OnInit {
       newPassword: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       confirmPassword: new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
+
+
   }
 
   public onPasswordChange = () => {
@@ -97,7 +119,7 @@ export class UserProfileComponent implements OnInit {
         userId: this.currentUser.userId
       }
 
-      this.http.post(`${this.baseUrl}/update/password`, body, { withCredentials: true }).subscribe(
+      this.http.patch(`${this.baseUrl}/update/password`, body, { withCredentials: true }).subscribe(
         (response: { status: number, message: string }) => {
           if (response.status === 401) {
             this.unauthorizedResponse = true;
@@ -134,15 +156,31 @@ export class UserProfileComponent implements OnInit {
 
   public onEmailConfirm = () => {
 
+    if (this.confirmEmailWithCodeForm.status === 'VALID') {
+      const code = this.confirmEmailWithCodeForm.value.confirmationCode;
+      this.http.get(`${this.baseUrl}/verifybyrequest/${code}`, { withCredentials: true }).subscribe(
+        (response: EmailCheck) => {
+          if (response.status === 200) {
+            this.wrongCode = false;
+            this.isEmailConfirmed = true;
+          } else {
+            this.wrongCode = true;
+          }
+        }
+      );
+    }
+  }
 
+  private initializeConfirmationForm = (email?: string) => {
+    this.confirmEmailWithCodeForm = new FormGroup({
+      newEmail: new FormControl({ value: email || null, disabled: true }),
+      confirmationCode: new FormControl(null, [Validators.required, Validators.minLength(6)])
+    })
   }
 
   public onSendVerificationCode = () => {
-    this.hasBeenEmailSend = true;
-    this.confirmEmailWithCodeForm = new FormGroup({
-      newEmail: new FormControl({ value: this.confirmEmailForm.value.newEmail, disabled: true }),
-      confirmationCode: new FormControl(null, [Validators.required, Validators.minLength(9)])
-    })
+    this.emailSent = true;
+    this.initializeConfirmationForm(this.confirmEmailForm.value.newEmail);
 
     if (this.confirmEmailForm.status === 'VALID') {
 
@@ -154,7 +192,7 @@ export class UserProfileComponent implements OnInit {
       this.http.post(`${this.baseUrl}/getverificationemail`, body, { withCredentials: true }).subscribe(
         (response: { status: number, message: string }) => {
           if (response.status === 200) {
-
+            this.http.patch(`${this.domain}/api/users/${body.userId}`, { emailSent: true }, { withCredentials: true });
           } else if (response.status === 400) {
             this.confirmEmailForm.reset();
           }
@@ -176,4 +214,27 @@ export class UserProfileComponent implements OnInit {
 
   }
 
+}
+type CodeResponse = {
+  status: number,
+  content: Code[],
+}
+
+type Code = {
+  id: number,
+  code: number,
+  userId: number,
+  status: boolean,
+  expireDate: number,
+  email: string,
+}
+
+type EmailCheck = {
+  status: number;
+  message?: string;
+  content?: {
+    permissions: Permissions;
+    login: string;
+    userId: number;
+  };
 }

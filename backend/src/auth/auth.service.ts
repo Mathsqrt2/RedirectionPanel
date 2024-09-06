@@ -327,7 +327,7 @@ export class AuthService {
     };
 
     public recieveVerificationCode = async (code: string, req: Request): Promise<VerifyEmailResponse> => {
-
+        code = code.trim();
         const startTime = Date.now();
 
         try {

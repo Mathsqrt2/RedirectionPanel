@@ -82,7 +82,7 @@
             </div>
 
             <div class="confirm-field" *ngIf="!currentUser.email">
-                <form [formGroup]="confirmEmailForm" class="email-form" *ngIf="!hasBeenEmailSend">
+                <form [formGroup]="confirmEmailForm" class="email-form" *ngIf="!emailSent">
                     <div class="inputs-field">
                         <label for="newEmail">Verify using email</label>
                         <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
@@ -101,18 +101,23 @@
 
                 </form>
 
-                <form [formGroup]="confirmEmailWithCodeForm" class="email-form" *ngIf="hasBeenEmailSend">
+                <form [formGroup]="confirmEmailWithCodeForm" class="email-form" *ngIf="emailSent">
                     <div class="inputs-field">
                         <label for="new-email">Verify using email</label>
                         <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
                     </div>
 
-                    <div class="inputs-field" *ngIf="hasBeenEmailSend">
+                    <div class="inputs-field" *ngIf="emailSent">
                         <label for="send-code-button">confirm code</label>
                         <div class="password-wrapper">
                             <input name="confirmationCode" id="confirmationCode" formControlName="confirmationCode"
-                                [type]="!showConfirmNewPassword ? 'password' : 'text'" class="input field" />
-                            <input type="button" value="send" class="input button" (click)="onEmailConfirm()" />
+                                type="text" class="input field" />
+                            <input type="button" value="confirm" class="input button" (click)="onEmailConfirm()"
+                                [disabled]="!confirmEmailWithCodeForm.valid" />
+                        </div>
+
+                        <div class="error-code" *ngIf="wrongCode">
+                            Incorrect code!
                         </div>
                     </div>
                 </form>

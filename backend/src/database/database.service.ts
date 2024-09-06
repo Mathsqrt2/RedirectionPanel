@@ -12,6 +12,7 @@ import { Users } from "./orm/users/users.entity";
 import { Requests } from "./orm/requests/requests.entity";
 import { Redirections } from "./orm/redirections/redirections.entity";
 import { Logs } from "./orm/logs/logs.entity";
+import { Codes } from "src/auth/orm/codes.entity";
 
 @Injectable()
 export class DatabaseService {
@@ -21,6 +22,7 @@ export class DatabaseService {
         @Inject(`REDIRECTIONS`) private redirections: Repository<Redirections>,
         @Inject(`REQUESTS`) private requests: Repository<Requests>,
         @Inject(`USERS`) private users: Repository<Users>,
+        @Inject('CODES') private codes: Repository<Codes>,
     ) { }
 
     private recognizeModel = (endpoint: string): Repository<CRUDTypes> => {
@@ -29,6 +31,7 @@ export class DatabaseService {
             case 'redirections': return this.redirections;
             case 'requests': return this.requests;
             case 'users': return this.users;
+            case 'codes': return this.codes;
             default: throw new Error(`Endpoint: "${endpoint}" doesn't exist.`);
         }
     }

@@ -46,14 +46,15 @@ export class UsersService {
                     username: newState.login,
                     accessToken: currentUser.accessToken,
                     permissions: {
-                        canCreate: newState.canCreate,
                         canDelete: newState.canDelete,
                         canUpdate: newState.canUpdate,
+                        canCreate: newState.canCreate,
                         canManage: newState.canManage,
 
                     },
                     userId: newState.id,
                     email: newState.email,
+                    emailSent: newState.emailSent
                 }
                 this.currentUser.next(user);
             }
@@ -110,12 +111,14 @@ export type User = {
     accessToken?: string,
     userId: number,
     email?: string,
+    emailSent?: boolean,
 }
 
 type UserResponse = {
     login: string,
     id: number,
     email?: string,
+    emailSent?: boolean,
     canCreate: boolean,
     canDelete: boolean,
     canManage: boolean,
