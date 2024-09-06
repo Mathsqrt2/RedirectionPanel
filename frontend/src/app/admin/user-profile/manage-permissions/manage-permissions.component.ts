@@ -10,16 +10,29 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ManagePermissionsComponent implements OnInit {
 
-  @Input(`currentUser`) currentUser: User;
-  @Input(`permissions`) permissions: { key: string, value: string }[] = []
   @Input(`baseUrl`) baseUrl: string;
 
-  public permissionsForm: FormGroup;
+  protected permissions: { key: string, value: string }[] = []
+  protected currentUser: User;
+  protected permissionsForm: FormGroup;
 
   constructor(
     private readonly http: HttpClient,
     private readonly usersService: UsersService,
-  ) { }
+  ) {
+    usersService.getCurrentUser().subscribe(
+      (newValue: User) => {
+        this.currentUser = newValue;
+
+        if (this.currentUser?.permissions) {
+          const keys = Object.keys(this.currentUser.permissions);
+          this.permissions = [];
+          for (let key of keys) {
+            this.permissions.push({ key, value: this.currentUser.permissions[key] });
+          }
+        }
+      })
+  }
 
   ngOnInit(): void {
     const { canUpdate, canDelete, canManage, canCreate } = this.currentUser?.permissions;

@@ -56,11 +56,6 @@ img {
     align-items: flex-start;
 }
 
-ul {
-    all: unset;
-    list-style-type: none;
-}
-
 hr {
     width: 100%;
     border: 2px solid $accent;
@@ -162,12 +157,6 @@ form {
 
 }
 
-.email-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
 .inputs-field {
     display: flex;
     flex-direction: column;
@@ -185,12 +174,6 @@ form {
     span {
         margin-bottom: 16px;
     }
-}
-
-.updateEmailForm {
-    display: flex;
-    flex-direction: column;
-    gap: 16px
 }
 
 @media (max-width: 996px) {

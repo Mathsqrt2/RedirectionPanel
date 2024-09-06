@@ -4,15 +4,12 @@
 
         <div class="description-side">
 
-            <manage-permissions [permissions]="permissions" [currentUser]="currentUser" [baseUrl]="baseUrl" />
+            <manage-permissions [baseUrl]="baseUrl" />
 
             <hr />
 
             <change-password [currentUser]="currentUser" [baseUrl]="baseUrl" />
 
-            <div class="change-password">
-
-            </div>
         </div>
 
         <div class="image-side">
@@ -23,77 +20,9 @@
 
             <hr />
 
-            <div *ngIf="!currentUser.email">
-                <form [formGroup]="confirmEmailForm" class="email-form" *ngIf="!emailSent">
-                    <div class="inputs-field">
-                        <label for="newEmail">Verify using email</label>
-                        <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
-                    </div>
-
-                    <div class="error-code" *ngIf="confirmEmailForm.get('newEmail').touched 
-                    && !confirmEmailForm.get('newEmail').valid">
-                        email is incorrect!
-                    </div>
-
-                    <div class="inputs-field">
-                        <label for="send-code-button">Send code</label>
-                        <input type="button" value="send" class="input button" [disabled]="!confirmEmailForm.valid"
-                            (click)="onSendVerificationCode()" />
-                    </div>
-
-                </form>
-
-                <form [formGroup]="confirmEmailWithCodeForm" class="email-form" *ngIf="emailSent">
-                    <div class="inputs-field">
-                        <label for="new-email">Verify using email</label>
-                        <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
-                    </div>
-
-                    <div class="inputs-field" *ngIf="emailSent">
-                        <label for="send-code-button">confirm code</label>
-                        <div class="password-wrapper">
-                            <input name="confirmationCode" id="confirmationCode" formControlName="confirmationCode"
-                                type="text" class="input field" />
-                            <input type="button" value="confirm" class="input button" (click)="onEmailConfirm()"
-                                [disabled]="!confirmEmailWithCodeForm.valid" />
-                        </div>
-
-                        <div class="error-code" *ngIf="wrongCode">
-                            Incorrect code!
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm">
-                <span>You're verified with email:</span>
-                <span>{{currentUser.email}}</span>
-                <input type="button" class="input button" value="change" (click)="startEmailChange()" />
-            </div>
-
-            <div class="wrapper" *ngIf="currentUser.email && showEmailChangeForm">
-                <form [formGroup]="changeEmailForm" class="updateEmailForm">
-                    <div class="inputs-field">
-                        <label for="updateEmail">New email:</label>
-                        <input id="updateEmail" name="updateEmail" formControlName="updateEmail" type="email"
-                            class="input field" />
-                    </div>
-
-                    <div class="inputs-field">
-                        <label for="updateEmailConfirm">Password</label>
-                        <input id="updateEmailConfirm" name="updateEmailConfirm" formControl="updateEmailConfirm"
-                            type="password" class="input field">
-                    </div>
-
-                    <div class="buttons-field">
-                        <input type="button" value="reject" class="input button" (click)="onRejectEdit()" />
-                        <input type="button" value="confirm" class="input button" />
-                    </div>
-                </form>
-            </div>
+            <confirm-email *ngIf="currentUser.email" [baseUrl]="baseUrl"/>
+            <manage-email *ngIf="currentUser.email" [currentUser]="currentUser" />
 
         </div>
-
     </div>
-
 </div>

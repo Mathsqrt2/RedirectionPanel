@@ -25,6 +25,8 @@ import { UserProfileComponent } from './admin/user-profile/user-profile.componen
 import { LogBarComponent } from './admin/display-logs/log-bar/log-bar.component';
 import { ManagePermissionsComponent } from './admin/user-profile/manage-permissions/manage-permissions.component';
 import { ChangePasswordComponent } from './admin/user-profile/change-password/change-password.component';
+import { ManageEmailComponent } from './admin/user-profile/manage-email/manage-email.component';
+import { ConfirmEmailComponent } from './admin/user-profile/confirm-email/confirm-email.component';
 
 @NgModule({
   declarations: [
@@ -44,6 +46,8 @@ import { ChangePasswordComponent } from './admin/user-profile/change-password/ch
     LogBarComponent,
     ManagePermissionsComponent,
     ChangePasswordComponent,
+    ManageEmailComponent,
+    ConfirmEmailComponent,
   ],
   imports: [
     BrowserModule,
