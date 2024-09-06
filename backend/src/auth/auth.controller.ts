@@ -92,7 +92,6 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
     @Get(`verify/:code`)
     @Redirect(`${config.frontend.domain}/verified`, 302)
     async recieveVerificationCode(
@@ -110,15 +109,13 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
-    @Post(`updatepassword/:id`)
+    @Post(`update/password`)
     async updatePassword(
-        @Param('id') id: number,
         @Body() body: UpdatePswdDTO,
         @Req() req: Request,
     ): Promise<UpdatePswdResponse> {
         try {
-            return await this.authService.updatePassword(id, body, req);
+            return await this.authService.updatePassword(body, req);
         } catch (err) {
             console.log('verifyEmail', err);
             return {

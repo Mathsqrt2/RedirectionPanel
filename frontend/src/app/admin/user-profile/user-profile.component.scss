@@ -104,11 +104,19 @@ h3 {
     flex-direction: column;
     gap: 4px;
     margin-bottom: 32px;
+
+    &.last {
+        margin-bottom: 16px;
+    }
 }
 
 
-.confirm-button {
+.confirmation-field{
+    margin-top: 16px;
+}
 
+.confirm-button {
+    
     border: none;
     border-radius: 8px;
     font-size: medium;
@@ -234,4 +242,9 @@ h3 {
     .inputs-field {
         flex-direction: column;
     }
+}
+
+.error-code {
+    margin: unset;
+    color: red;
 }

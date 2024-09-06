@@ -395,20 +395,24 @@ export class AuthService {
         }
     }
 
-    public updatePassword = async (id: number, body: UpdatePswdDTO, req: Request): Promise<UpdatePswdResponse> => {
+    public updatePassword = async (body: UpdatePswdDTO, req: Request): Promise<UpdatePswdResponse> => {
 
         const startTime = Date.now();
 
         try {
 
-            const user = await this.users.findOneBy({ id });
+            const user = await this.users.findOneBy({ id: body.userId });
 
             if (!user) {
-                throw new ConflictException(`User with id: ${id} doesn't exist`);
+                throw new ConflictException(`User with id: ${body.userId} doesn't exist`);
             }
 
             if (body.newPassword !== body.confirmPassword) {
                 throw new ConflictException(`Passwords must be equal`);
+            }
+
+            if(!this.comparePasswords(body.password, user.password)){
+                throw new UnauthorizedException(`Incorrect password`);
             }
 
             user.password = this.securePassword(body.newPassword);
@@ -424,13 +428,14 @@ export class AuthService {
 
             return {
                 status: HttpStatus.OK,
+                message: 'Password updated successfully'
             }
 
         } catch (err) {
             console.log(`registerUser`, err);
             await this.logs.save({
                 label: `Error while trying to change password`,
-                description: `Password couldn't be changed for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `Password couldn't be changed for user with id: "${body.userId}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
                 jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
@@ -438,7 +443,7 @@ export class AuthService {
 
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: 'Password updated successfully'
+                message: err.message,
             }
         }
     }

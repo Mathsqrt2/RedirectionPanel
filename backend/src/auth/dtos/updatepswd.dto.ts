@@ -1,6 +1,7 @@
 import { IsNumber, IsString } from "class-validator";
 
 export class UpdatePswdDTO {
+    
     @IsString()
     password: string;
 

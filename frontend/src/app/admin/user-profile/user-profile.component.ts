@@ -64,9 +64,6 @@ export class UserProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    
-
-
     this.confirmEmailForm = new FormGroup({
       newEmail: new FormControl(null, [Validators.required])
     });
@@ -79,14 +76,19 @@ export class UserProfileComponent implements OnInit {
   }
 
   onPasswordChange = () => {
-    console.log(this.changePasswordForm.status)
     if (this.changePasswordForm.status === 'VALID') {
-      const { password, newPassword, confirmPassword } = this.changePasswordForm.value;
-      const body = { password, newPassword, confirmPassword, userId: this.currentUser.userId }
-      this.http.post(`${this.baseUrl}/updatepassword/${this.currentUser.userId}`, body, { withCredentials: true }).subscribe(
-        (response: { status: number, message: string }) => {
-          if (response.status === 202) {
+      const { currentPassword, newPassword, confirmPassword } = this.changePasswordForm.value;
+      const body = {
+        password: currentPassword,
+        newPassword,
+        confirmPassword,
+        userId: this.currentUser.userId
+      }
 
+      this.http.post(`${this.baseUrl}/update/password`, body, { withCredentials: true }).subscribe(
+        (response: { status: number, message: string }) => {
+          console.log(response)
+          if (response.status === 202) {
           }
         });
 
@@ -103,7 +105,6 @@ export class UserProfileComponent implements OnInit {
         (response: { status: number }) => {
           if (response.status === 200) {
             this.usersService.setCurrentUserPermissions(body);
-            this.permissionsForm.value.canUpdate
             const accessToken = localStorage.getItem(`accessToken`);
             if (accessToken) {
               const data = JSON.parse(accessToken);

@@ -62,7 +62,7 @@ export class AuthGuard implements CanActivate {
             else if ((method?.patch || method.put) && !user_.canUpdate) {
                 throw new UnauthorizedException(`Couldn't update. insufficient permissions`);
             }
-            console.log(request.params)
+
             if (request.params.endpoint === 'users' && !user_.canManage && request.params?.id !== user_.id) {
                 throw new UnauthorizedException(`Couldn't manage users. Insufficient permissions`);
             }
