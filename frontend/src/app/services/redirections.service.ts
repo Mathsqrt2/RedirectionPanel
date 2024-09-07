@@ -84,6 +84,9 @@ export class RedirectionsService {
     public editRedirection(redirection: Redirection) {
         this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true }).subscribe(
             () => {
+                this.redirections.next([...this.redirections.getValue().map(
+                    (r: Redirection) => redirection.id === r.id ? redirection : r)],
+                );
                 this.findCategories(this.redirections.getValue())
             })
     }

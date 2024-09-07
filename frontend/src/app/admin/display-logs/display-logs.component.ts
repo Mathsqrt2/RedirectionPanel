@@ -25,8 +25,8 @@ export class DisplayLogsComponent {
     maxDate: new Date(Date.now() + this.timeOffset).toISOString().split('T')[0],
   }
 
-  public filter: string = 'all';
   public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
+  public filter: string = this.filters[0];
   public logs: Log[];
   public maxDateLock = new Date(Date.now() + this.timeOffset).toISOString().split('T')[0];
 

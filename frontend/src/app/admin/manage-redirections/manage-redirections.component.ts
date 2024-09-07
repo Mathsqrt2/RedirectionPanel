@@ -106,11 +106,11 @@ export class ManageRedirectionsComponent implements OnInit {
     this.redirections = this.redirectionsService.redirections.getValue();
 
     if (this.minValue) {
-      this.redirections = this.redirections.filter((i: Redirection) => i.clicksTotal >= this.minValue);
+      this.redirections = this.redirections.filter((r: Redirection) => r.clicksTotal >= this.minValue);
     }
 
     if (this.maxValue) {
-      this.redirections = this.redirections.filter((i: Redirection) => i.clicksTotal <= this.maxValue);
+      this.redirections = this.redirections.filter((r: Redirection) => r.clicksTotal <= this.maxValue);
     }
 
     if (this.currentCategory !== 'all') {
@@ -141,5 +141,7 @@ export class ManageRedirectionsComponent implements OnInit {
     ref.value = !this.showSensitiveData ? 'show' : 'hide';
     localStorage.visibilitySettings = JSON.stringify({ showSensitiveData: this.showSensitiveData })
   }
+
+  
 
 }

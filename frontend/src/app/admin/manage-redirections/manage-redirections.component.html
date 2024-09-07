@@ -1,90 +1,81 @@
-<div class="redirection-management-field">
+<div class="redirection-field">
 
     <form class="form-field" [formGroup]="newRedirection" (ngSubmit)="onCreate()" *ngIf="permissions.canCreate">
 
-        <h3>CREATE REDIRECTION</h3>
+        <h1>CREATE REDIRECTION</h1>
 
         <div class="inputs-field">
-            <div class="form-control-group">
+            <div class="control-group">
                 <label for="path">Route</label>
-                <input class="new-data-input" type="text" id="path" name="path" placeholder="redirection"
+                <input class="input" type="text" id="path" name="path" placeholder="redirection"
                     formControlName="route">
             </div>
-            <div class="form-control-group">
+            <div class="control-group">
                 <label for="url">Target url</label>
-                <input class="new-data-input" type="text" id="url" name="url" placeholder="where to redirect"
+                <input class="input" type="text" id="url" name="url" placeholder="where to redirect"
                     formControlName="targetUrl">
             </div>
-            <div class="form-control-group">
+            <div class="control-group">
                 <label for="category">Category</label>
-                <input class="new-data-input" type="text" id="category" name="category" placeholder="category"
+                <input class="input" type="text" id="category" name="category" placeholder="category"
                     formControlName="category">
             </div>
         </div>
 
-        <input type="submit" value="CREATE" class="confirm-button" [disabled]="!newRedirection.valid">
+        <input type="submit" value="CREATE" class="confirm" [disabled]="!newRedirection.valid">
 
     </form>
 
     <hr *ngIf="this.redirections.length && this.permissions.canCreate" />
 
-    <div class="search-query-field">
+    <div class="inputs-field">
 
-        <div class="numbers-wrapper">
+        <div class="control-group">
+            <label for="sort-by">Sort by</label>
+            <select [(ngModel)]="currentSortMode" class="input" name="sort-by" id="sort-by" (change)="sortBy()">
+                <option *ngFor="let option of sortByOptions">{{option}}</option>
+            </select>
+        </div>
 
-            <div class="counter">
-                <label for="sort-by">Sort by</label>
-                <select class="new-data-input" [(ngModel)]="currentSortMode" name="sort-by" id="sort-by"
-                    (change)="sortBy()">
-                    <option *ngFor="let option of sortByOptions">{{option}}</option>
-                </select>
-            </div>
+        <div class="control-group min-clicks-count">
+            <label for="min-elements" (click)="onMinReset()">min clicks</label>
+            <input [(ngModel)]="minValue" type="number" min="0" id="min-elements" class="input"
+                (change)="onFilterResults()" />
+        </div>
 
-            <div class="counter min-clicks-count">
-                <label for="min-elements" (click)="onMinReset()">min clicks</label>
-                <input type="number" min="0" id="min-elements" class="new-data-input" [(ngModel)]="minValue"
-                    (change)="onFilterResults()" />
-            </div>
+        <div class="control-group max-clicks-count">
+            <label for="max-elements" (click)="onMaxReset()">max clicks</label>
+            <input [(ngModel)]="maxValue" type="number" min="0" id="max-elements" class="input"
+                (change)="onFilterResults()" />
+        </div>
 
-            <div class="counter max-clicks-count">
-                <label for="max-elements" (click)="onMaxReset()">max clicks</label>
-                <input type="number" min="0" id="max-elements" class="new-data-input" [(ngModel)]="maxValue"
-                    (change)="onFilterResults()" />
-            </div>
-
-            <div class="counter" *ngIf="categories.length > 2">
-                <label for="category">category</label>
-                <select class="new-data-input" [(ngModel)]="currentCategory" (change)="onFilterResults()">
-                    <option *ngFor="let category of categories" name="category">{{category}}</option>
-                </select>
-            </div>
-
+        <div class="control-group" *ngIf="categories.length > 2">
+            <label for="search-category">category</label>
+            <select [(ngModel)]="currentCategory" class="input" name="search-category" id="search-category"
+                (change)="onFilterResults()">
+                <option *ngFor="let category of categories">{{category}}</option>
+            </select>
         </div>
 
     </div>
 
     <hr *ngIf="this.redirections.length" />
 
-    <table class="table-field" *ngIf="this.redirections.length">
+    <table *ngIf="this.redirections.length">
         <tr>
             <th class="narrow-col">id</th>
-            <th class="wide-col" #urlCol>
+            <th class="medium-col" #urlCol>
                 <span>url</span>
-                <input type="button" (click)="onToggleSensitiveDataDisplay(toggler)" value={{togglerText}} #toggler
-                    id="toggler" />
+                <input type="button" (click)="onToggleSensitiveDataDisplay(toggler)" value={{togglerText}} id="toggler"
+                    #toggler />
             </th>
-            <th class="super-wide-col" #routeCol>route</th>
+            <th class="wide-col" #routeCol>route</th>
             <th class="narrow-col">category</th>
             <th class="narrow-col">clicks</th>
-            <th class="narrow-col"*ngIf="colspan !== 0" 
-            [attr.colspan]="colspan" ></th>
+            <th class="narrow-col" *ngIf="colspan !== 0" [attr.colspan]="colspan"></th>
         </tr>
-        <tr *ngFor="let redirection of redirections; index as i;" 
-            redirectionBar 
-            [instance]="redirection" 
-            [index]="i"
-            [secret]="showSensitiveData"
-            [permissions]="permissions">
+        <tr *ngFor="let redirection of redirections; index as i;" redirectionBar [instance]="redirection" [index]="i"
+            [secret]="showSensitiveData" [permissions]="permissions">
         </tr>
     </table>
 </div>

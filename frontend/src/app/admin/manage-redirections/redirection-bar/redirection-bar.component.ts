@@ -5,7 +5,7 @@ import { Permissions } from '../../../services/auth.service';
 @Component({
     selector: '[redirectionBar]',
     templateUrl: './redirection-bar.component.html',
-    styleUrls: ['./redirection-bar.component.scss', '../manage-redirections.component.scss'],
+    styleUrls: ['../manage-redirections.component.scss', './redirection-bar.component.scss'],
 })
 
 export class RedirectionBarComponent implements OnChanges {
@@ -15,7 +15,7 @@ export class RedirectionBarComponent implements OnChanges {
     @Input('secret') secret: boolean = false;
     @Input('permissions') permissions: Permissions;
 
-    redirectionInput: string;
+    routeInput: string;
     targetPathInput: string;
     categoryInput: string;
     displayData: boolean = this.secret;
@@ -51,21 +51,23 @@ export class RedirectionBarComponent implements OnChanges {
     }
 
     onEdit() {
-        this.redirectionInput = this.redirection.route;
+        this.routeInput = this.redirection.route;
         this.targetPathInput = this.redirection.targetUrl;
         this.categoryInput = this.redirection.category;
         this.editMode = true;
     }
 
-    confirmEdit() {
+    onConfirmEdit() {
         this.editMode = false;
-        this.redirection.route = this.redirectionInput;
-        this.redirection.targetUrl = this.targetPathInput;
-        this.redirection.category = this.categoryInput;
-        this.redirectionsService.editRedirection(this.redirection);
+        this.redirectionsService.editRedirection({
+            ...this.redirection,
+            route: this.routeInput,
+            targetUrl: this.targetPathInput,
+            category: this.categoryInput,
+        });
     }
 
-    rejectEdit() {
+    onRejectEdit() {
         this.editMode = false
     }
 }

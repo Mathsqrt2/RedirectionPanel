@@ -1,30 +1,42 @@
-<td>{{index+1}}
+<td class="narrow-col">
+    {{index+1}}
 </td>
-<td>
+
+<td class="medium-col">
     <span *ngIf="!editMode" (click)="onRedirectTo()" class="copy-link">
         {{displayData ? redirection.route : '***** ***'}}</span>
-    <input *ngIf="editMode" type="text" value={{redirection.route}} class="edit-input" [(ngModel)]="redirectionInput">
+    <input *ngIf="editMode" type="text" value={{redirection.route}} class="edit" [(ngModel)]="routeInput"
+        (keydown.escape)="onRejectEdit()" (keydown.enter)="onConfirmEdit()">
 </td>
-<td>
+
+<td class="wide-col">
     <span *ngIf="!editMode" (click)="onCopyToClipboard()" class="copy-link">
         {{displayData ? redirection.targetUrl : '***** ***'}}</span>
-    <input *ngIf="editMode" type="text" value={{redirection.targetUrl}} class="edit-input"
-        [(ngModel)]="targetPathInput">
+    <input *ngIf="editMode" type="text" value={{redirection.targetUrl}} class="edit" [(ngModel)]="targetPathInput"
+        (keydown.escape)="onRejectEdit()" (keydown.enter)="onConfirmEdit()">
 </td>
-<td>
+
+<td class="narrow-col">
     <span *ngIf="!editMode">{{redirection.category}}</span>
-    <input *ngIf="editMode" type="text" value={{redirection.category}} class="edit-input" [(ngModel)]="categoryInput" />
+    <input *ngIf="editMode" type="text" value={{redirection.category}} class="edit" [(ngModel)]="categoryInput"
+        (keydown.escape)="onRejectEdit()" (keydown.enter)="onConfirmEdit()" />
 </td>
-<td>{{ redirection.clicksTotal ? redirection.clicksTotal : '0' }}</td>
+
+<td>
+    {{ redirection.clicksTotal ? redirection.clicksTotal : '0' }}
+</td>
+
 <td *ngIf="editMode">
-    <div class="edit-box">
-        <input class="instance-button confirm" type="button" value="confirm" (click)="confirmEdit()" />
-        <input class="instance-button delete" type="button" value="reject" (click)="rejectEdit()" />
-    </div>
+
+    <input class="button apply" type="button" value="confirm" (click)="onConfirmEdit()" />
+    <input class="button apply" type="button" value="reject" (click)="onRejectEdit()" />
+
 </td>
+
 <td (click)="onEdit()" *ngIf="!editMode && permissions.canUpdate">
-    <input class="instance-button edit" type="button" value="edit">
+    <input class="button edit" type="button" value="edit">
 </td>
+
 <td (click)="onDelete()" *ngIf="permissions.canDelete">
-    <input class="instance-button delete" type="button" value="X">
+    <input class="button delete" type="button" value="X">
 </td>

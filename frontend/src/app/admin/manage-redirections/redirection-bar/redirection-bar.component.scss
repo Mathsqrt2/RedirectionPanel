@@ -1,29 +1,47 @@
 @import "../../../../styleset.scss";
 
-.edit-input {
+.edit {
     width: 100%;
+    padding: 4px;
     background-color: #222;
     color: #ccc;
     border: 2px solid $accent;
 }
 
-.edit-box {
-    display: flex;
-    gap: 6px
+.copy-link {
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+
+    &:visited {
+        color: white;
+    }
+
+    &:hover {
+        color: #ccc;
+    }
 }
-.confirm-button {
+
+
+.apply {
+
     margin-right: 5px;
+
     &:hover {
         background-color: green;
     }
 }
 
-.link-field{
+.link-field {
     cursor: pointer;
 }
 
-.instance-button {
-    padding: 1px 12px;
+
+.button {
+    display: inline-block;
+    padding: 4px 12px;
+    margin: 2px;
     transition: all 0.25s ease-in-out;
     cursor: pointer;
 
@@ -44,20 +62,5 @@
     &:hover {
         transform: scale(0.94);
         background-color: $accent-hover;
-    }
-}
-
-.copy-link {
-    cursor: pointer;
-    color: white;
-    transition: all 0.2s ease-in-out;
-    text-decoration: none;
-
-    &:visited {
-        color: white;
-    }
-
-    &:hover {
-        color: #ccc;
     }
 }

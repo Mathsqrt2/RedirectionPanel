@@ -1,24 +1,21 @@
 @import "./../../../styleset.scss";
 
-.redirection-management-field {
+.redirection-field {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
-    gap: 32px;
-    min-width: 920px;
+    align-items: center;
 
-    padding: 42px 64px;
+    gap: 32px;
+    padding: 64px;
+
     border-radius: 24px;
-    background-color: $menu-background;
-    box-shadow: 0 0 32px $shadowColor;
     border-top: 4px solid $accent;
 
-    transition: all $duration ease-in-out;
-}
+    background-color: $menu-background;
+    box-shadow: 0 0 32px $shadowColor;
 
-label {
-    margin-bottom: 10px;
+    transition: all $duration ease-in-out;
 }
 
 .form-field {
@@ -29,20 +26,40 @@ label {
     gap: 20px;
 }
 
+h1 {
+    margin: unset;
+    margin-bottom: 12px;
+}
+
 .inputs-field {
     display: flex;
     flex-direction: row;
-    gap: 16px;
+    gap: 24px;
 }
 
-.new-data-input {
+label {
+    margin-bottom: 10px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.input {
+    box-sizing: border-box;
+
     background-color: rgb(51, 51, 51);
-    border: none;
-    padding: 8px 12px;
-    outline: none;
-    border-bottom: 3px solid $accent;
-    transition: all 0.3s ease-in-out;
     color: white;
+
+    border: none;
+    border-bottom: 3px solid $accent;
+    outline: none;
+
+    padding: 12px;
+    transition: all 0.3s ease-in-out;
 
     &:focus {
         box-shadow: 0 0 24px $accent-focus;
@@ -54,16 +71,42 @@ label {
     }
 }
 
-.form-control-group {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
+.confirm {
+
+    border: none;
+    border-radius: 8px;
+    padding: 6px 16px;
+    margin-top: 18px;
+    color: #ccc;
+    transition: all 0.3s ease-in-out;
+
+    &:enabled {
+        cursor: pointer;
+        color: $text-default;
+        background-color: $accent;
+
+        &:hover {
+            transform: scale(0.97);
+            background-color: $accent-hover;
+        }
+    }
 }
 
-h3 {
-    margin: unset;
-    margin-bottom: 12px;
+hr {
+    width: 100%;
+    border: 2px solid $accent;
+    border-radius: 3px;
+}
+
+th {
+    background-color: $accent;
+    padding: 12px 32px !important;
+}
+
+td {
+    text-align: center;
+    overflow: hidden;
+    padding: 5px;
 }
 
 table,
@@ -75,11 +118,20 @@ td {
 }
 
 .narrow-col {
-    padding: 5px 4px;
+    padding: 4px;
+    max-width: 155px;
+    overflow: hidden;
+}
+
+.medium-col {
+    min-width: 180px;
+    padding: 5px;
 }
 
 .wide-col {
-    min-width: 180px;
+    padding: 5px;
+    width: 450px;
+    overflow: hidden;
 }
 
 #toggler {
@@ -100,77 +152,16 @@ td {
     }
 }
 
-.super-wide-col {
-    width: 360px;
-    overflow: hidden;
-}
-
-th {
-    background-color: $accent;
-    padding: 12px 40px;
-}
-
-td {
-    text-align: center;
-    overflow: hidden;
-    padding: 8px 8px;
-}
-
-.confirm-button {
-    
-    border: none;
-    border-radius: 8px;
-    padding: 6px 16px;
-    margin-top: 18px;
-    color: #ccc;
-    transition: all 0.3s ease-in-out;
-    
-    &:enabled {
-        cursor: pointer;
-        color: $text-default;
-        background-color: $accent;
-        &:hover {
-            transform: scale(0.97);
-            background-color: $accent-hover;
-        }
-    }
-
-}
-
-.table-field {
-    overflow: hidden;
-}
-
-hr {
-    width: 100%;
-    border: 2px solid $accent;
-    border-radius: 3px;
-}
-
-a {
-    color: white;
-    transition: all 0.2s ease-in-out;
-    text-decoration: none;
-
-    &:visited {
-        color: white;
-    }
-
-    &:hover {
-        color: #ccc;
-    }
-}
-
 @media (max-width: 996px) {
+
+    * {
+        font-size: small;
+    }
 
     .redirection-management-field {
         width: 95%;
         padding: 24px 12px;
         gap: 10px;
-    }
-
-    * {
-        font-size: x-small;
     }
 
     th {
@@ -181,46 +172,11 @@ a {
         padding: 3px 6px;
     }
 
-    .wide-col {
+    .medium-col {
         min-width: 60px;
     }
 
     .narrow-col {
         padding: 2px 3px;
     }
-
-    .inputs-field {
-        flex-direction: column;
-    }
-}
-
-.search-query-field {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 16px;
-}
-
-.numbers-wrapper {
-    display: flex;
-    flex-direction: row;
-    gap: 32px;
-}
-
-.counter{
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.counter {
-    &>label {
-        margin-bottom: 6px;
-
-    }
-}
-
-.category{
-    margin-top: 16px;
 }
