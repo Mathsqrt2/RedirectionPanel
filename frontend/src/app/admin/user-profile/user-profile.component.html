@@ -20,7 +20,7 @@
 
             <hr />
 
-            <confirm-email *ngIf="currentUser.email" [baseUrl]="baseUrl"/>
+            <confirm-email *ngIf="!currentUser.email" [baseUrl]="baseUrl"/>
             <manage-email *ngIf="currentUser.email" [currentUser]="currentUser" />
 
         </div>

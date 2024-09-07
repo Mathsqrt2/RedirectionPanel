@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, 
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
-import { LoginUserResponse, RegisterUserResponse, RemoveUserResponse, responseWithCode, SendVerificationCodeResponse, updatePermissionsResponse, UpdatePswdResponse, updateStatusResponse, VerifyEmailResponse } from './auth.types';
+import { currentUserResponse, LoginUserResponse, RegisterUserResponse, RemoveUserResponse, responseWithCode, SendVerificationCodeResponse, updatePermissionsResponse, UpdatePswdResponse, updateStatusResponse, VerifyEmailResponse } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
 import { CodesDto } from './dtos/codes.dto';
@@ -189,6 +189,23 @@ export class AuthController {
     ): Promise<responseWithCode> {
         try {
             return await this.authService.getActiveCode(id, req);
+        } catch (err) {
+            console.log('getActiveCode', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't get active code`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('currentuser/:id')
+    async getCurrentUserData(
+        @Param(`id`) id: number,
+        @Req() req: Request
+    ): Promise<currentUserResponse> {
+        try {
+            return await this.authService.getCurrentUserData(id, req);
         } catch (err) {
             console.log('getActiveCode', err);
             return {

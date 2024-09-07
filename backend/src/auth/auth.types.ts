@@ -106,3 +106,17 @@ type Code = {
     expireDate: number,
     email: string,
 }
+
+export type currentUserResponse = {
+    status: HttpStatus.OK | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
+    content?: User,
+}
+
+export type User = {
+    username: string,
+    permissions: Permissions,
+    userId: number,
+    email?: string,
+    emailSent?: boolean,
+}

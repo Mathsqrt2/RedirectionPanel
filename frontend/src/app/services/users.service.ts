@@ -29,34 +29,18 @@ export class UsersService {
     ) {
         this.currentUser.subscribe(
             (newValue: User) => {
-                if (!this.hasBeenDataFetched && newValue.userId) {
+                if (!this.hasBeenDataFetched && newValue.userId && newValue.permissions.canManage) {
                     this.hasBeenDataFetched = true;
-                    if (newValue.permissions.canManage) {
-                        this.getUsersList()
-                    }
+                    this.getUsersList();
                 }
             })
     }
 
     public updateCurrentUser = async () => {
-        this.http.get(`${this.targetUrl}/users/${this.currentUser.getValue().userId}`, { withCredentials: true }).subscribe(
-            (newState: UserResponse) => {
+        this.http.get(`${this.targetUrl}/auth/currentuser/${this.currentUser.getValue().userId}`, { withCredentials: true }).subscribe(
+            (newState: { status: number, content: User }) => {
                 const currentUser = this.currentUser.getValue();
-                const user: User = {
-                    username: newState.login,
-                    accessToken: currentUser.accessToken,
-                    permissions: {
-                        canDelete: newState.canDelete,
-                        canUpdate: newState.canUpdate,
-                        canCreate: newState.canCreate,
-                        canManage: newState.canManage,
-
-                    },
-                    userId: newState.id,
-                    email: newState.email,
-                    emailSent: newState.emailSent
-                }
-                this.currentUser.next(user);
+                this.currentUser.next({ ...currentUser, ...newState.content });
             }
         );
     }
@@ -112,15 +96,4 @@ export type User = {
     userId: number,
     email?: string,
     emailSent?: boolean,
-}
-
-type UserResponse = {
-    login: string,
-    id: number,
-    email?: string,
-    emailSent?: boolean,
-    canCreate: boolean,
-    canDelete: boolean,
-    canManage: boolean,
-    canUpdate: boolean,
 }

@@ -17,14 +17,13 @@ export class DisplayLogsComponent {
   private allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
   private isDataLoading: boolean = true;
   private offset: number = 0;
-  private count: number = 25;
-  private request = 0;
-
+  private count: number = 500;
 
   public currentFilter: string = 'all';
   public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
   public logs: Log[];
-  public maxDateLock = new Date().toISOString().split('T')[0];
+  private timeOffset = new Date().getTimezoneOffset() * -1000 * 60;
+  public maxDateLock = new Date(Date.now() + this.timeOffset).toISOString().split('T')[0];
 
   public minDate;
   public maxDate;
@@ -33,73 +32,90 @@ export class DisplayLogsComponent {
     private readonly http: HttpClient,
   ) {
     this.allLogs.subscribe((newState: Log[]) => {
-      this.logs = newState;
+      this.logs = this.filterLogsByDate(newState);
     })
-    this.onFetchLogs();
+    this.fetchLogs();
   }
 
   private filterLogsByDate = (logs: Log[]): Log[] => {
+
     if (this.minDate) {
-      logs = logs.filter((log: Log) => new Date(new Date(log?.jstimestamp).toISOString().split("T")[0]).getTime() >= new Date(this.minDate).getTime());
+      logs = logs.filter(
+        (log: Log) => (
+          new Date(new Date(log?.jstimestamp + this.timeOffset).toISOString().split("T")[0]).getTime() >= new Date(this.minDate).getTime())
+      );
     }
 
     if (this.maxDate) {
-      logs = logs.filter((log: Log) => new Date(new Date(log?.jstimestamp).toISOString().split("T")[0]).getTime() <= new Date(this.maxDate).getTime());
+      logs = logs.filter(
+        (log: Log) => new Date(new Date(log?.jstimestamp + this.timeOffset).toISOString().split("T")[0]).getTime() <= new Date(this.maxDate).getTime()
+      );
     }
+
     return logs
   }
 
-  onFetchLogs = async (status?: string): Promise<void> => {
-
-    if (status) {
-      this.http.get(`${this.baseUrl}/logs/status/${status}?maxCount=${this.count}&offset=${this.offset + this.request}`, { withCredentials: true }).subscribe((response: LogRequest) => {
-        this.offset += this.count;
-        const currentState = this.allLogs.getValue();
-        let values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
-
-        values = this.filterLogsByDate(values);
-
-        this.allLogs.next(values)
-        this.isDataLoading = false;
-      })
-    } else {
-      this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset + this.request}`, { withCredentials: true }).subscribe((response: LogRequest) => {
-        this.offset += this.count;
-        const currentState = this.allLogs.getValue();
-        let values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
-
-        values = this.filterLogsByDate(values);
-
-        this.allLogs.next(values)
-        this.isDataLoading = false;
-      })
+  private fetchLogs = async (status?: string): Promise<void> => {
+    return new Promise(resolve => {
+      if (status) {
+        this.http.get(`${this.baseUrl}/logs/status/${status}?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe(
+          (response: LogRequest) => {
+            this.offset += this.count + 2;
+            const currentState = this.allLogs.getValue();
+            const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
+            this.allLogs.next(values);
+            this.isDataLoading = false;
+            resolve();
+          })
+      } else {
+        this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe(
+          (response: LogRequest) => {
+            this.offset += this.count + 2;
+            const currentState = this.allLogs.getValue();
+            const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
+            this.allLogs.next(values)
+            this.isDataLoading = false;
+            resolve();
+          })
+      }
     }
-
-    this.request += 2;
+    );
   }
 
   onFilter = async () => {
     this.allLogs.next([]);
     this.offset = 0;
+    let currentRound = 0;
     if (this.currentFilter === 'all' && !this.isDataLoading) {
-      this.isDataLoading = true;
-      await this.onFetchLogs();
+      do {
+        this.isDataLoading = true;
+        await this.fetchLogs();
+        if (currentRound++ >= 25) {
+          break;
+        }
+      } while (this.logs.length <= 15)
+
     } else {
-      this.isDataLoading = true;
-      await this.onFetchLogs(this.currentFilter);
+      do {
+        this.isDataLoading = true;
+        await this.fetchLogs(this.currentFilter);
+        if (currentRound++ >= 25) {
+          break;
+        }
+      } while (this.logs.length <= 15)
     }
   }
 
-  onScroll(): void {
+  async onScroll(): Promise<void> {
     const element = this.scrollContainer.nativeElement;
     const condition: boolean = element.scrollHeight - element.scrollTop === element.clientHeight
 
     if (condition && !this.isDataLoading) {
       this.isDataLoading = true;
       if (this.currentFilter === 'all') {
-        this.onFetchLogs();
+        await this.fetchLogs();
       } else {
-        this.onFetchLogs(this.currentFilter);
+        await this.fetchLogs(this.currentFilter);
       }
     }
 
@@ -133,6 +149,16 @@ export class DisplayLogsComponent {
     anchor.href = URL.createObjectURL(file);
     anchor.download = `export_${this.logs.length}_logs_${this.currentFilter}_${new Date().toLocaleDateString('pl-PL')}.${extension}`;
     anchor.click();
+  }
+
+  onMinReset = () => {
+    this.minDate = undefined;
+    this.onFilter();
+  }
+
+  onMaxReset = () => {
+    this.maxDate = undefined;
+    this.onFilter();
   }
 
 }

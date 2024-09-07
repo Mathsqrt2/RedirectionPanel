@@ -5,13 +5,13 @@
         <div class="items-wrapper">
 
             <div class="filter-wrapper">
-                <label for="min-date">Min date</label>
+                <label for="min-date" (click)="onMinReset()">Min date</label>
                 <input type="date" value="10.10.2017" id="min-date" name="min-date" class="management-input date-input"
                     [max]="maxDateLock" [(ngModel)]="minDate" (change)="onFilter()">
             </div>
 
             <div class="filter-wrapper">
-                <label for="max-date">Max date</label>
+                <label for="max-date" (click)="onMaxReset()" >Max date</label>
                 <input type="date" value="10.10.2017" id="max-date" name="max-date" class="management-input date-input"
                     [max]="maxDateLock" [(ngModel)]="maxDate" (change)="onFilter()">
             </div>

@@ -6,9 +6,10 @@ import {
 
 import * as nodemailer from 'nodemailer';
 import {
+    currentUserResponse,
     LoginUser, LoginUserResponse, RegisterUser,
     RegisterUserResponse, RemoveUserProps, RemoveUserResponse,
-    responseWithCode,
+    responseWithCode, User,
     SendVerificationCodeResponse,
     updatePermissionsResponse,
     UpdatePswdResponse,
@@ -571,7 +572,7 @@ export class AuthService {
 
             await this.logs.save({
                 label: `Active code was found`,
-                description: `Active code was found: ${code.code}. been changed from ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `Active code was found: ${code.code}. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
                 jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
@@ -601,6 +602,60 @@ export class AuthService {
 
     }
 
+    public getCurrentUserData = async (id: number, req: Request): Promise<currentUserResponse> => {
+
+        const startTime = Date.now();
+
+        try {
+
+            const user = await this.users.findOneBy({ id });
+
+            const permissions = {
+                canDelete: user.canDelete,
+                canUpdate: user.canUpdate,
+                canCreate: user.canCreate,
+                canManage: user.canManage,
+            }
+
+            const content: User = {
+                username: user.login,
+                permissions,
+                userId: user.id,
+                email: user.email,
+                emailSent: user.emailSent,
+            };
+
+            await this.logs.save({
+                label: `User data was found`,
+                description: `Data for user: "${user.login}" was found. been changed from ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `success`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+                message: `User data was found successfully`,
+                content,
+            }
+
+        } catch (err) {
+            console.log(`getCurrentUserData`, err);
+            await this.logs.save({
+                label: `Error while trying to get current user data`,
+                description: `Current user data couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: err.message,
+            }
+        }
+
+    }
 }
 
 type transportDataType = {
