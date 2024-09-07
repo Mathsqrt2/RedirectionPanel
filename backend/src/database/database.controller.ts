@@ -1,6 +1,6 @@
 import { Controller, Post, Param, Body, Get, Query, Put, Patch, Delete, HttpStatus, UseGuards } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
-import { DTOs, CRUDResponse } from "./database.types";
+import { DTOs, CRUDResponse, QueryConditions } from "./database.types";
 import { AuthGuard } from "src/auth/auth.guard";
 
 @Controller(`api`)
@@ -16,9 +16,12 @@ export class DatabaseController {
         @Param(`endpoint`) endpoint: string,
         @Query(`maxCount`) maxCount?: number,
         @Query(`offset`) offset?: number,
+        @Query(`mindate`) minDate?: number,
+        @Query(`maxdate`) maxDate?: number,
     ): Promise<CRUDResponse> {
         try {
-            return await this.database.getMultipleElements({ endpoint, maxCount, offset });
+            const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }
+            return await this.database.getMultipleElements({ endpoint, conditions });
         } catch (err) {
             console.log(`getMultipleElements error: `, err);
             return {
@@ -53,9 +56,12 @@ export class DatabaseController {
         @Param(`value`) value: string | number,
         @Query(`maxCount`) maxCount?: number,
         @Query(`offset`) offset?: number,
+        @Query(`mindate`) minDate?: number,
+        @Query(`maxdate`) maxDate?: number,
     ): Promise<CRUDResponse> {
         try {
-            return await this.database.getMultipleElementsByParam({ endpoint, param, value, maxCount, offset });
+            const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }
+            return await this.database.getMultipleElementsByParam({ endpoint, param, value, conditions });
         } catch (err) {
             console.log(`getMultipleElementsByParam error: `, err);
             return {

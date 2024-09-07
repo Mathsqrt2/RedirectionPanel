@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated } from "typeorm";
 
 @Entity()
 export class Requests {
@@ -14,5 +14,8 @@ export class Requests {
 
     @Generated()
     requestTime: Timestamp;
+
+    @Column()
+    jstimestamp: number;
 
 }

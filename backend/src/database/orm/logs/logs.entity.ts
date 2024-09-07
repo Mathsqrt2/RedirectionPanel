@@ -24,4 +24,5 @@ export class Logs {
     @Generated()
     timestamp: Timestamp;
 
+
 }

@@ -51,6 +51,7 @@ export class RedirectionsController {
             this.requests.save({
                 redirectionId: url.id,
                 requestIp: ip,
+                jstimestamp: Date.now(),
             })
 
             this.logs.save({

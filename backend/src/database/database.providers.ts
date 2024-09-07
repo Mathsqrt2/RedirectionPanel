@@ -19,5 +19,31 @@ export const databaseProviders = [
             });
             return dataSource.initialize();
         }
-    }
+    },
+    {
+        provide: DataSource,
+        inject: [],
+        useFactory: async () => {
+            try {
+                const dataSource = new DataSource({
+                    type: `mysql`,
+                    host: config.database.host,
+                    port: 3306,
+                    username: config.database.username,
+                    password: config.database.password,
+                    database: config.database.database,
+                    synchronize: false,
+                    entities: [
+                        `${__dirname}/../**/**.entity{.ts,.js}`
+                    ],
+                });
+                await dataSource.initialize();
+                console.log('Database connected successfully');
+                return dataSource;
+            } catch (error) {
+                console.log('Error connecting to database');
+                throw error;
+            }
+        },
+    },
 ]

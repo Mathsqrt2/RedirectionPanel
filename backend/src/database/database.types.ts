@@ -20,8 +20,7 @@ export type CRUDResponse = ErrorResponse | DatabaseOutput;
 
 export type getMultipleElementsProps = {
     endpoint: string,
-    maxCount: number,
-    offset: number,
+    conditions?: QueryConditions,
 }
 
 export type getSingleElementByIdProps = {
@@ -33,8 +32,7 @@ export type getMultipleElementsByParamProps = {
     endpoint: string,
     param: string,
     value: string | number,
-    maxCount?: number,
-    offset?: number,
+    conditions?: QueryConditions,
 }
 
 export type createMultipleElementsProps = {
@@ -75,4 +73,11 @@ export type deleteMultipleElementsByParamProps = {
     endpoint: string,
     param: string,
     value: string | number,
+}
+
+export type QueryConditions = {
+    maxCount?: number,
+    offset?: number,
+    minDate?: number,
+    maxDate?: number,
 }

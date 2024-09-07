@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, OneToMany, Unique } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, Unique } from "typeorm";
 
 @Entity()
 @Unique(['login'])
@@ -30,6 +30,9 @@ export class Users {
 
     @Column({ default: null })
     emailSent: boolean;
+
+    @Column()
+    jstimestamp: number;
 
     @Generated()
     creationTime: Timestamp;

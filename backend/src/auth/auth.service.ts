@@ -344,7 +344,7 @@ export class AuthService {
                 throw new ConflictException(`Code doesn't exist`);
             }
 
-            if (Date.now() > codeRead.expireDate) {
+            if (Date.now() > codeRead.expireDate || !codeRead.status) {
                 throw new ConflictException(`The code ${codeRead.code} has expired`);
             }
 
@@ -370,6 +370,8 @@ export class AuthService {
                 login: user.login,
                 userId: user.id,
             }
+
+            await this.codes.save({ ...codeRead, status: false });
 
             await this.logs.save({
                 label: `User verified`,

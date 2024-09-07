@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, OneToMany, ManyToOne, Unique } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, Unique } from "typeorm";
 
 @Entity()
 @Unique([`route`])
@@ -21,5 +21,8 @@ export class Redirections {
 
     @Generated()
     creationTime: Timestamp;
+
+    @Column()
+    jstimestamp: number;
 
 }

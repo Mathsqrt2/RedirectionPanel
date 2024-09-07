@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { Repository } from 'typeorm';
+import { Repository, DataSource, LessThanOrEqual, MoreThanOrEqual, Between } from 'typeorm';
 import { HttpStatus } from "@nestjs/common";
 import {
     createSingleElementProps, CRUDTypes, createMultipleElementsProps,
@@ -23,7 +23,19 @@ export class DatabaseService {
         @Inject(`REQUESTS`) private requests: Repository<Requests>,
         @Inject(`USERS`) private users: Repository<Users>,
         @Inject('CODES') private codes: Repository<Codes>,
+        private dataSource: DataSource,
     ) { }
+
+    private getEntity = (endpoint: string) => {
+        switch (endpoint) {
+            case 'logs': return Logs;
+            case 'redirections': return Redirections;
+            case 'requests': return Requests;
+            case 'users': return Users;
+            case 'codes': return Codes;
+            default: throw new Error(`Endpoint: "${endpoint}" doesn't exist.`);
+        }
+    }
 
     private recognizeModel = (endpoint: string): Repository<CRUDTypes> => {
         switch (endpoint) {
@@ -36,15 +48,37 @@ export class DatabaseService {
         }
     }
 
-    getMultipleElements = async ({ endpoint, maxCount, offset = 0 }: getMultipleElementsProps): Promise<DatabaseOutput> => {
+    getMultipleElements = async ({ endpoint, conditions }: getMultipleElementsProps): Promise<DatabaseOutput> => {
 
+        const { minDate, maxDate, maxCount, offset = 0 } = conditions;
         const startTime = Date.now();
-        const model = this.recognizeModel(endpoint);
-
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
         try {
-            let response = await model.find();
+            let response;
+
+            if (maxDate || minDate) {
+                const entity = this.getEntity(endpoint);
+
+                if (!entity) throw new Error(`Entity for ${endpoint} doesn't exist`);
+
+                let query = {};
+
+                if (maxDate && minDate) {
+                    query['jstimestamp'] = Between(minDate, maxDate);
+                } else if (minDate) {
+                    query['jstimestamp'] = MoreThanOrEqual(minDate);
+                } else if (maxDate) {
+                    query['jstimestamp'] = LessThanOrEqual(maxDate);
+                }
+
+                response = await this.dataSource.getRepository(entity).findBy(query)
+            } else {
+                const model = this.recognizeModel(endpoint);
+
+                if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+                response = await model.find();
+            }
 
             if (maxCount) {
                 response = response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
@@ -118,18 +152,49 @@ export class DatabaseService {
         }
     }
 
-    getMultipleElementsByParam = async ({ endpoint, param, value, maxCount, offset = 0 }: getMultipleElementsByParamProps): Promise<DatabaseOutput> => {
+    getMultipleElementsByParam = async ({ endpoint, param, value, conditions }: getMultipleElementsByParamProps): Promise<DatabaseOutput> => {
 
+        const { minDate, maxDate, maxCount, offset = 0 } = conditions;
         const startTime = Date.now();
-        const model = this.recognizeModel(endpoint);
-
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
         try {
+            let response;
+            let query;
 
-            const query = {}
-            query[param] = value;
-            let response = await model.findBy(query);
+            if (maxDate || minDate) {
+                const entity = this.getEntity(endpoint);
+
+                if (!entity) throw new Error(`Entity for ${endpoint} doesn't exist`);
+
+                query = {};
+
+                if (maxDate && minDate) {
+                    query['jstimestamp'] = Between(minDate, maxDate);
+                } else if (minDate) {
+                    query['jstimestamp'] = MoreThanOrEqual(minDate);
+                } else if (maxDate) {
+                    query['jstimestamp'] = LessThanOrEqual(maxDate);
+                }
+
+                query[param] = value;
+
+                response = await this.dataSource.getRepository(entity).findBy({
+                    id: 2,
+                    jstimestamp: 5
+                })
+            } else {
+                const model = this.recognizeModel(endpoint);
+
+                if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+
+                query[param] = value;
+
+                response = await model.findBy(query);
+            }
+
+
+
 
             if (maxCount) {
                 response = response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
@@ -176,7 +241,10 @@ export class DatabaseService {
 
             const response = [];
             for (let item of dataArray) {
-                const content = await model.save({ ...item });
+                const content = await model.save({
+                    ...item,
+                    jstimestamp: Date.now()
+                });
                 response.push(content);
             }
 
@@ -219,7 +287,10 @@ export class DatabaseService {
 
         try {
 
-            const response = await model.save(data);
+            const response = await model.save({
+                ...data,
+                jstimestamp: Date.now(),
+            });
 
             this.logs.save({
                 label: `Single item created`,
@@ -264,7 +335,7 @@ export class DatabaseService {
 
             this.logs.save({
                 label: `Item with id: ${id} updated`,
-                description: `endpoint: ${endpoint}, element id: "${id}", new data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `endpoint: "${endpoint}", element id: "${id}", new data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
                 jstimestamp: Date.now(),
                 duration: Date.now() - startTime,
