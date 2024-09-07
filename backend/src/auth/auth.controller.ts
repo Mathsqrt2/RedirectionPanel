@@ -1,17 +1,17 @@
 import {
     BadRequestException, Body, Controller,
     Delete, Get, HttpStatus,
-    Param, Patch, Post,
+    Param, Patch, Post, Query,
     Redirect, Req, Res, UseGuards
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
 import {
-    currentUserResponse, LoginUserResponse, RegisterUserResponse,
-    RemoveUserResponse, responseWithCode, SendVerificationCodeResponse,
-    updatePermissionsResponse, UpdatePswdResponse,
-    updateStatusResponse, VerifyEmailResponse
+    CurrentUserResponse, LoginUserResponse, RegisterUserResponse,
+    RemoveUserResponse, ResponseWithCode, SendVerificationCodeResponse,
+    UpdatePermissionsResponse, UpdatePswdResponse,
+    UpdateStatusResponse, VerifyEmailResponse
 } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
@@ -48,9 +48,9 @@ export class AuthController {
     @UseGuards(AuthGuard)
     @Get('activecode/:userid')
     async getActiveCode(
-        @Param(`uderid`) id: number,
+        @Param(`userid`) id: number,
         @Req() req: Request
-    ): Promise<responseWithCode> {
+    ): Promise<ResponseWithCode> {
         try {
             return await this.authService.getActiveCode(id, req);
         } catch (err) {
@@ -67,7 +67,7 @@ export class AuthController {
     async getCurrentUserData(
         @Param(`id`) id: number,
         @Req() req: Request
-    ): Promise<currentUserResponse> {
+    ): Promise<CurrentUserResponse> {
         try {
             return await this.authService.getCurrentUserData(id, req);
         } catch (err) {
@@ -81,7 +81,7 @@ export class AuthController {
 
     @Get(`verify/:code`)
     @Redirect(`${config.frontend.domain}/admin/profile`, 302)
-    async receiveVerificationCodeFromEmail(
+    async getVerificationCodeFromEmail(
         @Param(`code`) code: string,
         @Req() req: Request,
     ): Promise<VerifyEmailResponse> {
@@ -179,7 +179,7 @@ export class AuthController {
     async updatePermissions(
         @Body() body: UpdatePermissionsDTO,
         @Req() req: Request,
-    ): Promise<updatePermissionsResponse> {
+    ): Promise<UpdatePermissionsResponse> {
         try {
             return await this.authService.updatePermissions(body, req);
         } catch (err) {
@@ -197,7 +197,7 @@ export class AuthController {
         @Param(`id`) id: number,
         @Body() body: UpdateStatusDTO,
         @Req() req: Request,
-    ): Promise<updateStatusResponse> {
+    ): Promise<UpdateStatusResponse> {
         try {
             return await this.authService.updateEmailStatus(id, body, req);
         } catch (err) {

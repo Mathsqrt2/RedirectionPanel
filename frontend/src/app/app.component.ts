@@ -12,5 +12,4 @@ export class AppComponent {
     event.preventDefault();
   }
 
-
 }

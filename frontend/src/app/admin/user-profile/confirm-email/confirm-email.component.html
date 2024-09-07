@@ -20,7 +20,10 @@
 <form [formGroup]="confirmEmailWithCodeForm" class="email-form" *ngIf="emailSent">
     <div class="inputs-field">
         <label for="new-email">Verify using email</label>
-        <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
+        <div class="confirm-wrapper">
+            <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
+            <input type="button" value="cancel" class="input button" (click)="onChangeEmail()" />
+        </div>
     </div>
 
     <div class="inputs-field" *ngIf="emailSent">

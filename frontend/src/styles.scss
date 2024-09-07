@@ -7,7 +7,7 @@
     box-sizing: border-box;
 }
 
-body{
+body {
     padding: 0;
     margin: 0;
     color: white;
@@ -26,4 +26,49 @@ body{
 
 ::-webkit-scrollbar-thumb:hover {
     background-color: $background-color-secondary-on-hover;
+}
+
+.input {
+    background-color: rgb(51, 51, 51);
+    border: none;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    outline: none;
+    border-bottom: 3px solid $accent;
+    transition: all 0.3s ease-in-out;
+    color: white;
+
+    &:enabled {
+        &.field {
+            &:focus {
+                box-shadow: 0 0 24px $accent-focus;
+                border-bottom: 3px solid rgb(39, 230, 71);
+            }
+        }
+
+        &:hover {
+            box-shadow: 0 0 24px $accent-focus;
+        }
+
+        &.button {
+            min-width: 70px;
+
+            &:hover {
+                transform: scale(0.95);
+            }
+
+            &:active {
+                transform: scale(0.88);
+                background-color: white;
+            }
+
+            cursor: pointer;
+        }
+    }
+
+    &:disabled {
+        color: #aaa;
+        user-select: none;
+    }
+
 }

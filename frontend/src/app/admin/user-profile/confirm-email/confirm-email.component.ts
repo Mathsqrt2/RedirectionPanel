@@ -14,37 +14,16 @@ export class ConfirmEmailComponent implements OnInit {
   @Input('currentUser') currentUser: User;
   @Input('baseUrl') baseUrl: string;
 
+  private isUserSynced = false;
   public confirmEmailForm: FormGroup;
   public confirmEmailWithCodeForm: FormGroup;
   public emailSent: boolean = false;
-  public isEmailConfirmed: boolean = false;
   public wrongCode: boolean = false;
 
   constructor(
     private readonly usersService: UsersService,
     private readonly http: HttpClient,
-  ) {
-    this.usersService.getCurrentUser().subscribe((newValue: User) => {
-
-      this.currentUser = newValue;
-      if (newValue.emailSent) {
-
-        this.http.get(`${this.baseUrl}/activecode/${this.currentUser.userId}`, { withCredentials: true }).subscribe(
-          (response: CodeResponse) => {
-            const code = response.content;
-
-            if (Date.now() <= code.expireDate) {
-              this.initializeConfirmationForm(code.email);
-              this.confirmEmailWithCodeForm.value.newEmail = code.email;
-              this.emailSent = this.currentUser.emailSent;
-            } else {
-              this.emailSent = false;
-            }
-          })
-
-      }
-    });
-  }
+  ) { }
 
   private matchEmail(control: FormControl): { [s: string]: boolean } {
     const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -58,6 +37,48 @@ export class ConfirmEmailComponent implements OnInit {
     this.confirmEmailForm = new FormGroup({
       newEmail: new FormControl(null, [Validators.required, Validators.minLength(5), this.matchEmail.bind(this)])
     });
+
+    this.usersService.getCurrentUser().subscribe((newValue: User) => {
+
+      this.currentUser = newValue;
+
+      if (this.currentUser) {
+        this.isUserSynced = true;
+      }
+
+      if (!this.currentUser.email && this.currentUser.emailSent && this.isUserSynced) {
+
+        this.http.get(`${this.baseUrl}/activecode/${newValue.userId}`, { withCredentials: true }).subscribe(
+          (response: CodeResponse) => {
+            if (response.status === 200) {
+              const code = response.content;
+              if (Date.now() <= code.expireDate) {
+                this.initializeConfirmationForm(code.email);
+                this.confirmEmailWithCodeForm.value.newEmail = code.email;
+                this.emailSent = this.currentUser.emailSent;
+                this.wrongCode = false;
+              } else {
+                this.wrongCode = true;
+              }
+            }
+          }
+        )
+      }
+
+      (response: CodeResponse) => {
+        if (response.status === 200) {
+          const code = response.content;
+          if (Date.now() <= code.expireDate) {
+            this.initializeConfirmationForm(code.email);
+            this.confirmEmailWithCodeForm.value.newEmail = code.email;
+            this.emailSent = this.currentUser.emailSent;
+          }
+        } else {
+          this.emailSent = false;
+        }
+      }
+
+    });
   }
 
   public onEmailConfirm = (): void => {
@@ -68,7 +89,6 @@ export class ConfirmEmailComponent implements OnInit {
         (response: EmailCheck) => {
           if (response.status === 200) {
             this.wrongCode = false;
-            this.isEmailConfirmed = true;
             this.usersService.updateCurrentUser();
           } else {
             this.wrongCode = true;
@@ -108,6 +128,22 @@ export class ConfirmEmailComponent implements OnInit {
           }
         })
     }
+  }
+
+  onChangeEmail() {
+    this.emailSent = false;
+    this.confirmEmailForm.value.newEmail = null;
+
+    const body = {
+      userId: this.currentUser.userId,
+      email: null,
+    }
+
+    this.http.patch(`${this.baseUrl}/emailstatus/${body.userId}`, { emailSent: false },
+      { withCredentials: true }).subscribe(res => {
+        this.emailSent = false;
+        this.usersService.updateCurrentUser();
+      });
   }
 
 }

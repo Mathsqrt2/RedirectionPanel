@@ -6,12 +6,11 @@
     align-items: center;
     justify-content: space-around;
     box-sizing: border-box;
-    gap: 32px;
-    min-width: 920px;
+    gap: 48px;
 
     color: white;
 
-    padding: 48px 0px;
+    padding: 48px 86px;
     border-radius: 24px;
     background-color: $menu-background;
     box-shadow: 0 0 32px $shadowColor;
@@ -20,14 +19,24 @@
     transition: all $duration ease-in-out;
 }
 
-h1 {
-    margin: 0;
+.sections-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-around;
+    align-items: flex-start;
+
+    gap: 86px;
 }
 
 .description-side {
     display: flex;
     flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
 }
+
 
 .image-side {
     height: 100%;
@@ -47,21 +56,22 @@ img {
     outline: none;
 }
 
-
-.sections-wrapper {
-    width: 100%;
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: space-around;
-    align-items: flex-start;
-}
-
 hr {
     width: 100%;
     border: 2px solid $accent;
     border-radius: 5px;
-    margin: 20px 0;
 }
+
+h1 {
+    margin: 0;
+}
+
+
+
+
+
+
+
 
 form {
     display: flex;
@@ -81,81 +91,9 @@ form {
     gap: 8px
 }
 
-.confirm-button {
 
-    border: none;
-    border-radius: 8px;
-    font-size: medium;
-    padding: 14px 24px;
-    margin-top: 18px;
-    color: #ccc;
-    transition: all 0.3s ease-in-out;
 
-    &:enabled {
-        cursor: pointer;
-        color: $text-default;
-        background-color: $accent;
 
-        &:hover {
-            transform: scale(0.97);
-            background-color: $accent-hover;
-        }
-
-        &:active {
-            transform: scale(0.92);
-            background-color: white;
-        }
-    }
-
-}
-
-.input {
-    background-color: rgb(51, 51, 51);
-    border: none;
-    box-sizing: border-box;
-    padding: 8px 12px;
-    outline: none;
-    border-bottom: 3px solid $accent;
-    transition: all 0.3s ease-in-out;
-    color: white;
-
-    &:enabled {
-        &.field {
-
-            &:focus {
-                box-shadow: 0 0 24px $accent-focus;
-                border-bottom: 3px solid rgb(39, 230, 71);
-            }
-
-        }
-
-        &:hover {
-            box-shadow: 0 0 24px $accent-focus;
-        }
-
-        &.button {
-            min-width: 70px;
-
-            &:hover {
-                transform: scale(0.95);
-            }
-
-            &:active {
-                transform: scale(0.88);
-                background-color: white;
-
-            }
-
-            cursor: pointer;
-        }
-    }
-
-    &:disabled {
-        color: #aaa;
-        user-select: none;
-    }
-
-}
 
 .inputs-field {
     display: flex;

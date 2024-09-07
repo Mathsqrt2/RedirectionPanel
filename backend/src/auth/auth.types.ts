@@ -44,12 +44,12 @@ export type LoginUserResponse = {
     permissions: Permissions
 } | ErrorResponse;
 
-export type logoutUser = {
+export type LogoutUser = {
     login: string,
     accessToken: string,
 }
 
-export type logoutUserResponse = {
+export type LogoutUserResponse = {
     status: HttpStatus.ACCEPTED | HttpStatus.UNAUTHORIZED,
 } | ErrorResponse;
 
@@ -82,32 +82,31 @@ export type UpdatePswdResponse = {
     message?: string,
 }
 
-export type updatePermissionsResponse = {
+export type UpdatePermissionsResponse = {
     status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
     message?: string,
 }
 
-export type updateStatusResponse = {
+export type UpdateStatusResponse = {
     status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
     message?: string,
 }
 
-export type responseWithCode = {
+export type ResponseWithCode = {
     status: HttpStatus.OK | HttpStatus.UNAUTHORIZED | HttpStatus.INTERNAL_SERVER_ERROR,
     message?: string,
-    content?: Code,
+    content?: CodeWithoutDetails,
 }
 
-type Code = {
+type CodeWithoutDetails = {
     id: number,
-    code: string,
     userId: number,
     status: boolean,
     expireDate: number,
     email: string,
 }
 
-export type currentUserResponse = {
+export type CurrentUserResponse = {
     status: HttpStatus.OK | HttpStatus.INTERNAL_SERVER_ERROR,
     message?: string,
     content?: User,
@@ -122,15 +121,20 @@ export type User = {
 }
 
 
-export type transportDataType = {
+export type TransportDataType = {
     service: string,
     host: string,
     port: string,
     secure: boolean,
-    auth: smtpAuth,
+    auth: SmtpAuth,
 }
 
-export type smtpAuth = {
+export type SmtpAuth = {
     user: string,
     pass: string,
+}
+
+export type SimpleResponse = {
+    status: HttpStatus.OK | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
 }

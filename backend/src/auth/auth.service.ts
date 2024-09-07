@@ -4,16 +4,16 @@ import {
 } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import {
-    currentUserResponse, LoginUser, LoginUserResponse, RegisterUser,
+    CurrentUserResponse, LoginUser, LoginUserResponse, RegisterUser,
     RegisterUserResponse, RemoveUserProps, RemoveUserResponse,
-    responseWithCode, User, SendVerificationCodeResponse,
-    updatePermissionsResponse, UpdatePswdResponse,
-    updateStatusResponse, VerifyEmailResponse,
-    transportDataType,
+    ResponseWithCode, User, SendVerificationCodeResponse,
+    UpdatePermissionsResponse, UpdatePswdResponse,
+    UpdateStatusResponse, VerifyEmailResponse,
+    TransportDataType
 } from './auth.types';
 
 import { JwtService } from '@nestjs/jwt';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Users } from 'src/database/orm/users/users.entity';
 import { SHA256 } from 'crypto-js';
 import { CodesDto } from './dtos/codes.dto';
@@ -30,6 +30,7 @@ export class AuthService {
     constructor(
         @Inject(`CODES`) private codes: Repository<Codes>,
         @Inject(`USERS`) private users: Repository<Users>,
+        private dataSource: DataSource,
         private jwtService: JwtService,
         private logger: LoggerService,
     ) { }
@@ -95,11 +96,33 @@ export class AuthService {
         }
     }
 
-    public getActiveCode = async (id: number, req: Request): Promise<responseWithCode> => {
+    private hideEmailDetails = (email: string) => {
+        const parts: string[] = email.split("@");
+
+        const firstPartLength = parts[0].length;
+
+        let firstPart = parts[0].substring(0, Math.floor(firstPartLength / 3));
+        for (let i = 0; i <= Math.floor(firstPartLength / 3); i++) {
+            firstPart += '*'
+        }
+
+        const lastPartLength = parts[1].length;
+        let lastPart = parts[1].substring(Math.floor(lastPartLength / 3), lastPartLength);
+        let stars = ""
+        for (let i = 0; i <= Math.floor(lastPartLength / 3); i++) {
+            stars += '*'
+        }
+        lastPart = `${stars}${lastPart}`;
+
+        return `${firstPart}@${lastPart}`;
+    }
+
+    public getActiveCode = async (id: number, req: Request): Promise<ResponseWithCode> => {
         const startTime = Date.now();
 
         try {
-            const code = await this.codes.findOneBy({ userId: id, status: true });
+
+            const code = await this.dataSource.getRepository(Codes).findOneBy({ userId: id, status: true });
 
             if (!code) {
                 throw new ConflictException(`Code for user with id: "${id}" doesn't exist`);
@@ -109,13 +132,13 @@ export class AuthService {
                 throw new ConflictException(`Last code for user with id: "${id}" has expired`)
             }
 
+
             const content = {
                 id: code.id,
-                code: code.code,
                 userId: code.userId,
                 status: code.status,
                 expireDate: code.expireDate,
-                email: code.email,
+                email: this.hideEmailDetails(code.email)
             }
 
             await this.logger.completed({
@@ -146,7 +169,7 @@ export class AuthService {
 
     }
 
-    public getCurrentUserData = async (id: number, req: Request): Promise<currentUserResponse> => {
+    public getCurrentUserData = async (id: number, req: Request): Promise<CurrentUserResponse> => {
 
         const startTime = Date.now();
 
@@ -236,7 +259,7 @@ export class AuthService {
             throw new ConflictException(`The user is already verified`);
         }
 
-        const options: nodemailer.TransportOptions & transportDataType = {
+        const options: nodemailer.TransportOptions & TransportDataType = {
             host: config.mailer.host,
             port: config.mailer.port,
             secure: false,
@@ -247,7 +270,7 @@ export class AuthService {
             },
         };
 
-        const transport = nodemailer.createTransport<transportDataType>(options)
+        const transport = nodemailer.createTransport<TransportDataType>(options)
 
         let code = "";
         for (let i = 0; i < 9; i++) {
@@ -483,7 +506,7 @@ export class AuthService {
         }
     }
 
-    public updatePermissions = async (body: UpdatePermissionsDTO, req: Request): Promise<updatePermissionsResponse> => {
+    public updatePermissions = async (body: UpdatePermissionsDTO, req: Request): Promise<UpdatePermissionsResponse> => {
         const startTime = Date.now();
 
         try {
@@ -526,7 +549,7 @@ export class AuthService {
         }
     }
 
-    public updateEmailStatus = async (id: number, body: UpdateStatusDTO, req: Request): Promise<updateStatusResponse> => {
+    public updateEmailStatus = async (id: number, body: UpdateStatusDTO, req: Request): Promise<UpdateStatusResponse> => {
 
         const startTime = Date.now();
 
@@ -540,11 +563,21 @@ export class AuthService {
 
             user.emailSent = body.emailSent;
 
+            if (body.emailSent === false) {
+                user.email = null;
+                const code = await this.dataSource.getRepository(Codes).findOneBy({ userId: user.id, status: true });
+
+                if (code) {
+                    code.status = false;
+                    await this.dataSource.getRepository(Codes).save({ ...code });
+                }
+            }
+
             await this.users.save({ ...user });
 
             await this.logger.completed({
                 label: `User email status updated successfully`,
-                description: `User: "${user.login}" email status was updated to: ${body.emailSent}. Request ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `User: "${user.login}" email status was updated to: {enailSent:${body.emailSent}}. Request ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 startTime,
             })
 
