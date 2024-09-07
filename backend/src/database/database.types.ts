@@ -78,6 +78,6 @@ export type deleteMultipleElementsByParamProps = {
 export type QueryConditions = {
     maxCount?: number,
     offset?: number,
-    minDate?: number,
-    maxDate?: number,
+    minDate?: string,
+    maxDate?: string,
 }

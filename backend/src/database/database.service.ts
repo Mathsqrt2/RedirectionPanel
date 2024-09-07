@@ -17,6 +17,9 @@ import { Codes } from "src/auth/orm/codes.entity";
 @Injectable()
 export class DatabaseService {
 
+    private timezoneOffset = new Date().getTimezoneOffset() * -1000 * 60;
+    private offset = (-1000 * 60 * 60 * 24) + this.timezoneOffset;
+
     constructor(
         @Inject(`LOGS`) private logs: Repository<Logs>,
         @Inject(`REDIRECTIONS`) private redirections: Repository<Redirections>,
@@ -64,13 +67,14 @@ export class DatabaseService {
                 let query = {};
 
                 if (maxDate && minDate) {
-                    query['jstimestamp'] = Between(minDate, maxDate);
+                    query['jstimestamp'] = Between(new Date(new Date(minDate).getTime() - this.timezoneOffset).getTime(), new Date(new Date(maxDate).getTime() - this.offset).getTime());
                 } else if (minDate) {
-                    query['jstimestamp'] = MoreThanOrEqual(minDate);
+                    query['jstimestamp'] = MoreThanOrEqual(new Date(new Date(minDate).getTime() - this.timezoneOffset).getTime());
                 } else if (maxDate) {
-                    query['jstimestamp'] = LessThanOrEqual(maxDate);
+                    query['jstimestamp'] = LessThanOrEqual(new Date(new Date(maxDate).getTime() - this.offset).getTime());
                 }
-
+                
+                console.log('it is');
                 response = await this.dataSource.getRepository(entity).findBy(query)
             } else {
                 const model = this.recognizeModel(endpoint);
@@ -159,29 +163,24 @@ export class DatabaseService {
 
         try {
             let response;
-            let query;
+            let query = {};
 
             if (maxDate || minDate) {
                 const entity = this.getEntity(endpoint);
 
                 if (!entity) throw new Error(`Entity for ${endpoint} doesn't exist`);
 
-                query = {};
-
                 if (maxDate && minDate) {
-                    query['jstimestamp'] = Between(minDate, maxDate);
+                    query['jstimestamp'] = Between(new Date(new Date(minDate).getTime() - this.timezoneOffset).getTime(), new Date(new Date(maxDate).getTime() - this.offset).getTime());
                 } else if (minDate) {
-                    query['jstimestamp'] = MoreThanOrEqual(minDate);
+                    query['jstimestamp'] = MoreThanOrEqual(new Date(new Date(minDate).getTime() - this.timezoneOffset).getTime());
                 } else if (maxDate) {
-                    query['jstimestamp'] = LessThanOrEqual(maxDate);
+                    query['jstimestamp'] = LessThanOrEqual(new Date(new Date(maxDate).getTime() - this.offset).getTime());
                 }
 
                 query[param] = value;
 
-                response = await this.dataSource.getRepository(entity).findBy({
-                    id: 2,
-                    jstimestamp: 5
-                })
+                response = await this.dataSource.getRepository(entity).findBy(query)
             } else {
                 const model = this.recognizeModel(endpoint);
 

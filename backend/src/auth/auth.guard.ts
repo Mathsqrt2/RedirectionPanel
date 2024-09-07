@@ -45,13 +45,14 @@ export class AuthGuard implements CanActivate {
             }
 
             const route = `${request.route.path}`;
+            user.id = payload.sub;
+            user.username = payload.username;
+            request['user'] = payload;
+
+            const user_ = await this.users.findOneBy({ id: user.id });
+            
             if (!route.startsWith(`/api/auth`)) {
 
-                user.id = payload.sub;
-                user.username = payload.username;
-                request['user'] = payload;
-
-                const user_ = await this.users.findOneBy({ id: user.id });
                 const method = request.route.methods;
 
                 if (method?.post && !user_.canCreate) {

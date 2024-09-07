@@ -7,13 +7,13 @@
             <div class="filter-wrapper">
                 <label for="min-date" (click)="onMinReset()">Min date</label>
                 <input type="date" value="10.10.2017" id="min-date" name="min-date" class="management-input date-input"
-                    [max]="maxDateLock" [(ngModel)]="minDate" (change)="onFilter()">
+                    [max]="maxDateLock" [(ngModel)]="params.minDate" (change)="onFilter()">
             </div>
 
             <div class="filter-wrapper">
-                <label for="max-date" (click)="onMaxReset()" >Max date</label>
+                <label for="max-date" (click)="onMaxReset()">Max date</label>
                 <input type="date" value="10.10.2017" id="max-date" name="max-date" class="management-input date-input"
-                    [max]="maxDateLock" [(ngModel)]="maxDate" (change)="onFilter()">
+                    [max]="maxDateLock" [(ngModel)]="params.maxDate" (change)="onFilter()">
             </div>
 
             <div class="filter-wrapper">
@@ -28,7 +28,7 @@
 
             <div class="button-wrapper">
                 <label for="">Download</label>
-                <div class="row"> 
+                <div class="row">
                     <input type="button" class="download-data management-input" name="csv" id="csv"
                         (click)="onDownload('csv')" value="CSV" />
                     <input type="button" class="download-data management-input" name="json" id="json"

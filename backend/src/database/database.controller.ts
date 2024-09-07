@@ -16,8 +16,8 @@ export class DatabaseController {
         @Param(`endpoint`) endpoint: string,
         @Query(`maxCount`) maxCount?: number,
         @Query(`offset`) offset?: number,
-        @Query(`mindate`) minDate?: number,
-        @Query(`maxdate`) maxDate?: number,
+        @Query(`minDate`) minDate?: string,
+        @Query(`maxDate`) maxDate?: string,
     ): Promise<CRUDResponse> {
         try {
             const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }
@@ -56,8 +56,8 @@ export class DatabaseController {
         @Param(`value`) value: string | number,
         @Query(`maxCount`) maxCount?: number,
         @Query(`offset`) offset?: number,
-        @Query(`mindate`) minDate?: number,
-        @Query(`maxdate`) maxDate?: number,
+        @Query(`minDate`) minDate?: string,
+        @Query(`maxDate`) maxDate?: string,
     ): Promise<CRUDResponse> {
         try {
             const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }

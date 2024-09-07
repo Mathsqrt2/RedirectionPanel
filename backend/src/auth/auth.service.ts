@@ -629,7 +629,7 @@ export class AuthService {
 
             await this.logs.save({
                 label: `User data was found`,
-                description: `Data for user: "${user.login}" was found. been changed from ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `Data for user: "${user.login}" was found. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
                 jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),

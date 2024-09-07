@@ -16,8 +16,13 @@ export class DisplayLogsComponent {
   private baseUrl = `${this.domain}/api`;
   private allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
   private isDataLoading: boolean = true;
-  private offset: number = 0;
-  private count: number = 500;
+  protected params: QueryParams = {
+    offset: 0,
+    maxCount: 100,
+    minDate: null,
+    maxDate: null,
+  }
+
 
   public currentFilter: string = 'all';
   public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
@@ -25,42 +30,34 @@ export class DisplayLogsComponent {
   private timeOffset = new Date().getTimezoneOffset() * -1000 * 60;
   public maxDateLock = new Date(Date.now() + this.timeOffset).toISOString().split('T')[0];
 
-  public minDate;
-  public maxDate;
-
   constructor(
     private readonly http: HttpClient,
   ) {
     this.allLogs.subscribe((newState: Log[]) => {
-      this.logs = this.filterLogsByDate(newState);
+      this.logs = newState;
     })
     this.fetchLogs();
   }
 
-  private filterLogsByDate = (logs: Log[]): Log[] => {
-
-    if (this.minDate) {
-      logs = logs.filter(
-        (log: Log) => (
-          new Date(new Date(log?.jstimestamp + this.timeOffset).toISOString().split("T")[0]).getTime() >= new Date(this.minDate).getTime())
-      );
+  private getQuery = (): string => {
+    let params = '';
+    let isFirst = true;
+    for (let param in this.params) {
+      if (this.params[param]) {
+        params += isFirst ? `?${param}=${this.params[param]}` : `&${param}=${this.params[param]}`;
+        isFirst = false
+      }
     }
-
-    if (this.maxDate) {
-      logs = logs.filter(
-        (log: Log) => new Date(new Date(log?.jstimestamp + this.timeOffset).toISOString().split("T")[0]).getTime() <= new Date(this.maxDate).getTime()
-      );
-    }
-
-    return logs
+    return params;
   }
 
   private fetchLogs = async (status?: string): Promise<void> => {
+    console.log(this.getQuery())
     return new Promise(resolve => {
       if (status) {
-        this.http.get(`${this.baseUrl}/logs/status/${status}?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe(
+        this.http.get(`${this.baseUrl}/logs/status/${status}${this.getQuery()}`, { withCredentials: true }).subscribe(
           (response: LogRequest) => {
-            this.offset += this.count + 2;
+            this.params.offset += this.params.maxCount + 2;
             const currentState = this.allLogs.getValue();
             const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
             this.allLogs.next(values);
@@ -68,9 +65,9 @@ export class DisplayLogsComponent {
             resolve();
           })
       } else {
-        this.http.get(`${this.baseUrl}/logs?maxCount=${this.count}&offset=${this.offset}`, { withCredentials: true }).subscribe(
+        this.http.get(`${this.baseUrl}/logs${this.getQuery()}`, { withCredentials: true }).subscribe(
           (response: LogRequest) => {
-            this.offset += this.count + 2;
+            this.params.offset += this.params.maxCount + 2;
             const currentState = this.allLogs.getValue();
             const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
             this.allLogs.next(values)
@@ -84,25 +81,13 @@ export class DisplayLogsComponent {
 
   onFilter = async () => {
     this.allLogs.next([]);
-    this.offset = 0;
-    let currentRound = 0;
+    this.params.offset = 0;
     if (this.currentFilter === 'all' && !this.isDataLoading) {
-      do {
-        this.isDataLoading = true;
-        await this.fetchLogs();
-        if (currentRound++ >= 25) {
-          break;
-        }
-      } while (this.logs.length <= 15)
-
+      this.isDataLoading = true;
+      await this.fetchLogs();
     } else {
-      do {
-        this.isDataLoading = true;
-        await this.fetchLogs(this.currentFilter);
-        if (currentRound++ >= 25) {
-          break;
-        }
-      } while (this.logs.length <= 15)
+      this.isDataLoading = true;
+      await this.fetchLogs(this.currentFilter);
     }
   }
 
@@ -152,12 +137,12 @@ export class DisplayLogsComponent {
   }
 
   onMinReset = () => {
-    this.minDate = undefined;
+    this.params.minDate = undefined;
     this.onFilter();
   }
 
   onMaxReset = () => {
-    this.maxDate = undefined;
+    this.params.maxDate = undefined;
     this.onFilter();
   }
 
@@ -178,3 +163,10 @@ export type Log = {
 }
 
 type Filters = 'all' | 'success' | 'failed' | 'completed';
+
+type QueryParams = {
+  maxCount?: number,
+  offset?: number,
+  maxDate?: number,
+  minDate?: number,
+}
