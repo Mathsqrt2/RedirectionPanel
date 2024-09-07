@@ -3,77 +3,36 @@
 .logs-display-field {
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: flex-start;
-    width: 920px;
-    height: 70vh;
-    gap: 32px;
+    align-items: center;
 
-    padding: 32px 44px;
+    padding: 48px 64px;
+    gap: 28px;
+
+    border-top: 4px solid $accent;
     border-radius: 24px;
+
     background-color: $menu-background;
     box-shadow: 0 0 32px $shadowColor;
-    border-top: 4px solid $accent;
 
     transition: all $duration ease-in-out;
 }
 
-table,
-tr,
-th,
-td {
-    box-sizing: border-box;
-    border-collapse: collapse;
-    border: 1px solid rgba(255, 255, 255, 1);
-}
-
-td {
-    padding: auto auto;
+h1 {
     text-align: center;
-    padding: 8px 4px;
+    margin: unset;
 }
 
-.narrow-col {
-    padding: 5px 14px;
-}
-
-.medium-col {
-    width: 100px;
-    overflow: hidden;
-}
-
-.table-header {
-    position: absolute;
-    top: 0;
-}
-
-.row{
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-}
-
-.items-wrapper {
+.menu-wrapper {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-bottom: 30px;
     gap: 42px;
 }
 
-.download-data{
-    cursor: pointer;
-}
-
-h1{
-    text-align: center;
-    margin: 0;
-    margin-bottom: 25px;
-}
-
 .filter-wrapper,
-.button-wrapper{
+.button-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -81,31 +40,18 @@ h1{
     gap: 12px;
 }
 
-
-hr {
-    border: 2px solid $accent;
-    margin-bottom: 20px;
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
 }
 
-thead{
-    position: sticky; top: 0; z-index: 1;
-    background-color: black;
+.download {
+    cursor: pointer;
 }
 
-.table-wrapper {
-    height: 50dvh;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    border: 1px solid white;
-}
-
-.wide-col {
-    width: 520px;
-    overflow: hidden;
-}
-
-.management-input {
-    background-color: rgb(51, 51, 51);
+.input {
+    background-color: rgb(42, 45, 51);
     border: none;
     padding: 8px 12px;
     outline: none;
@@ -123,6 +69,63 @@ thead{
     }
 }
 
+.error-row {
+    display: flex;
+    text-align: center;
+    font-size: large;
+    padding: 50px;
+    color: rgb(128, 26, 26);
+}
+
+hr {
+    width: 95%;
+    border: 2px solid $accent;
+}
+
+.table-wrapper {
+    height: 50dvh;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border: 1px solid white;
+}
+
+table,
+tr,
+th,
+td {
+    box-sizing: border-box;
+    border-collapse: collapse;
+    border: 1px solid rgba(255, 255, 255, 1);
+}
+
+td {
+    text-align: center;
+    padding: 8px 4px;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: black;
+}
+
+.narrow-col {
+    padding: 5px 14px;
+}
+
+.medium-col {
+    min-width: 120px;
+    padding: 5px 14px;
+    overflow: hidden;
+}
+
+.wide-col {
+    width: 520px;
+    overflow: hidden;
+}
+
 @media (max-width: 996px) {
 
     .redirection-management-field {
@@ -131,10 +134,8 @@ thead{
         gap: 10px;
     }
 
-
     .table-wrapper {
         height: 48vh;
-
     }
 
     th {
@@ -145,36 +146,12 @@ thead{
         padding: 3px 6px;
     }
 
-    .wide-col {
-        min-width: 60px;
-    }
-
     .narrow-col {
         padding: 2px 3px;
     }
 
-    .inputs-field {
-        flex-direction: column;
-    }
-}
-
-.confirm-button {
-
-    border: none;
-    border-radius: 8px;
-    padding: 9px 16px;
-    color: #ccc;
-    transition: all 0.3s ease-in-out;
-
-    &:enabled {
-        cursor: pointer;
-        color: $text-default;
-        background-color: $accent;
-
-        &:hover {
-            transform: scale(0.97);
-            background-color: $accent-hover;
-        }
+    .wide-col {
+        min-width: 60px;
     }
 
 }

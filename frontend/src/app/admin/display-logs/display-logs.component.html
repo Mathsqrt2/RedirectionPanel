@@ -1,66 +1,63 @@
 <div class="logs-display-field">
-    <div>
-        <h1> Last logs</h1>
 
-        <div class="items-wrapper">
+    <h1> Last logs</h1>
 
-            <div class="filter-wrapper">
-                <label for="min-date" (click)="onMinReset()">Min date</label>
-                <input type="date" value="10.10.2017" id="min-date" name="min-date" class="management-input date-input"
-                    [max]="maxDateLock" [(ngModel)]="params.minDate" (change)="onFilter()">
-            </div>
+    <div class="menu-wrapper">
 
-            <div class="filter-wrapper">
-                <label for="max-date" (click)="onMaxReset()">Max date</label>
-                <input type="date" value="10.10.2017" id="max-date" name="max-date" class="management-input date-input"
-                    [max]="maxDateLock" [(ngModel)]="params.maxDate" (change)="onFilter()">
-            </div>
-
-            <div class="filter-wrapper">
-                <label for="filter-by">Filter by status</label>
-                <select class="management-input" [(ngModel)]="currentFilter" name="filter-by" id="filter-by"
-                    (change)="onFilter()">
-                    <option *ngFor="let filter of filters" [value]="filter">
-                        {{filter}}
-                    </option>
-                </select>
-            </div>
-
-            <div class="button-wrapper">
-                <label for="">Download</label>
-                <div class="row">
-                    <input type="button" class="download-data management-input" name="csv" id="csv"
-                        (click)="onDownload('csv')" value="CSV" />
-                    <input type="button" class="download-data management-input" name="json" id="json"
-                        (click)="onDownload('json')" value="JSON" />
-                </div>
-            </div>
-
+        <div class="filter-wrapper">
+            <label for="min-date" (click)="onMinReset()">Min date</label>
+            <input [(ngModel)]="params.minDate" type="date" id="min-date" name="min-date" class="input"
+                [max]="maxDateLock" (change)="onFilter()">
         </div>
 
-        <hr />
+        <div class="filter-wrapper">
+            <label for="max-date" (click)="onMaxReset()">Max date</label>
+            <input [(ngModel)]="params.maxDate" type="date" id="max-date" name="max-date" class="input"
+                [max]="maxDateLock" (change)="onFilter()">
+        </div>
 
-        <div>
-            <div class="table-wrapper" (scroll)="onScroll()" #scrollContainer>
+        <div class="filter-wrapper">
+            <label for="filter-by">Filter by status</label>
+            <select [(ngModel)]="filter" class="input" name="filter-by" id="filter-by" (change)="onFilter()">
+                <option *ngFor="let filter of filters" [value]="filter">
+                    {{filter}}
+                </option>
+            </select>
+        </div>
 
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th class="narrow-col">index</th>
-                            <th class="wide-col">label</th>
-                            <th class="medium-col">status</th>
-                            <th class="narrow-col">time</th>
-                            <th class="narrow-col"></th>
-                        </tr>
-                    </thead>
-
-                    <tr *ngFor="let log of logs; index as i" logView [instance]="log" [index]="i">
-                    </tr>
-
-                </table>
+        <div class="button-wrapper">
+            <label>Download</label>
+            <div class="row">
+                <input type="button" class="input download" name="csv" id="csv" (click)="onDownload('csv')"
+                    value="CSV" />
+                <input type="button" class="input download" name="json" id="json" (click)="onDownload('json')"
+                    value="JSON" />
             </div>
         </div>
+
     </div>
+
+    <hr />
+
+    <div class="table-wrapper" (scroll)="onScroll()" #scrollContainer>
+        <table>
+            <thead>
+                <tr>
+                    <th class="narrow-col">index</th>
+                    <th class="wide-col">label</th>
+                    <th class="medium-col">status</th>
+                    <th class="narrow-col">time</th>
+                    <th class="narrow-col"></th>
+                </tr>
+            </thead>
+
+            <tr *ngFor="let log of logs; index as i" logView [instance]="log" [index]="i">
+            </tr>
+
+            <div *ngIf="!logs.length" class="error-row" [attr.colspan]="5"> No data was found</div>
+
+        </table>
+    </div>
+
 
 </div>

@@ -1,9 +1,11 @@
+@import '../../../../styleset.scss';
+
 .label-field {
     text-align: left;
     padding: 15px 25px;
 }
 
-h3{
+h3 {
     margin: unset;
 }
 
@@ -15,10 +17,31 @@ h3{
     padding: 5px 14px;
 }
 
-.error{
+.error {
     color: red;
 }
 
 .success {
     color: green;
+}
+
+.confirm-button {
+
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    color: #ccc;
+    transition: all 0.3s ease-in-out;
+
+    &:enabled {
+        cursor: pointer;
+        color: $text-default;
+        background-color: $accent;
+
+        &:hover {
+            transform: scale(0.97);
+            background-color: $accent-hover;
+        }
+    }
+
 }

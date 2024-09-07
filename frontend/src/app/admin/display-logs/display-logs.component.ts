@@ -16,18 +16,18 @@ export class DisplayLogsComponent {
   private baseUrl = `${this.domain}/api`;
   private allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
   private isDataLoading: boolean = true;
+  private timeOffset = new Date().getTimezoneOffset() * -1000 * 60;
+
   protected params: QueryParams = {
     offset: 0,
     maxCount: 100,
     minDate: null,
-    maxDate: null,
+    maxDate: new Date(Date.now() + this.timeOffset).toISOString().split('T')[0],
   }
 
-
-  public currentFilter: string = 'all';
+  public filter: string = 'all';
   public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
   public logs: Log[];
-  private timeOffset = new Date().getTimezoneOffset() * -1000 * 60;
   public maxDateLock = new Date(Date.now() + this.timeOffset).toISOString().split('T')[0];
 
   constructor(
@@ -51,43 +51,26 @@ export class DisplayLogsComponent {
     return params;
   }
 
-  private fetchLogs = async (status?: string): Promise<void> => {
-    console.log(this.getQuery())
-    return new Promise(resolve => {
-      if (status) {
-        this.http.get(`${this.baseUrl}/logs/status/${status}${this.getQuery()}`, { withCredentials: true }).subscribe(
-          (response: LogRequest) => {
-            this.params.offset += this.params.maxCount + 2;
-            const currentState = this.allLogs.getValue();
-            const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
-            this.allLogs.next(values);
-            this.isDataLoading = false;
-            resolve();
-          })
-      } else {
-        this.http.get(`${this.baseUrl}/logs${this.getQuery()}`, { withCredentials: true }).subscribe(
-          (response: LogRequest) => {
-            this.params.offset += this.params.maxCount + 2;
-            const currentState = this.allLogs.getValue();
-            const values = [...currentState, ...response.content].sort((a: Log, b: Log) => b.id - a.id);
-            this.allLogs.next(values)
-            this.isDataLoading = false;
-            resolve();
-          })
-      }
-    }
-    );
+  private fetchLogs = async (newFetch: boolean = true): Promise<void> => {
+    const req = this.filter !== 'all' ? `status/${this.filter}` : ``;
+
+    this.http.get(`${this.baseUrl}/logs/${req}${this.getQuery()}`, { withCredentials: true }).subscribe(
+      (response: LogRequest) => {
+        this.params.offset += this.params.maxCount + 2;
+
+        let values = newFetch ? [...response.content] : [...this.allLogs.getValue(), ...response.content];
+        values = values.sort((a: Log, b: Log) => b.id - a.id);
+
+        this.allLogs.next(values);
+        this.isDataLoading = false;
+      })
   }
 
   onFilter = async () => {
-    this.allLogs.next([]);
     this.params.offset = 0;
-    if (this.currentFilter === 'all' && !this.isDataLoading) {
+    if (!this.isDataLoading) {
       this.isDataLoading = true;
       await this.fetchLogs();
-    } else {
-      this.isDataLoading = true;
-      await this.fetchLogs(this.currentFilter);
     }
   }
 
@@ -97,11 +80,7 @@ export class DisplayLogsComponent {
 
     if (condition && !this.isDataLoading) {
       this.isDataLoading = true;
-      if (this.currentFilter === 'all') {
-        await this.fetchLogs();
-      } else {
-        await this.fetchLogs(this.currentFilter);
-      }
+      await this.fetchLogs(false);
     }
 
   }
@@ -132,7 +111,7 @@ export class DisplayLogsComponent {
     let anchor = document.createElement('a');
     const file = new Blob([outputData], { type: extension === 'json' ? 'application/json' : 'text/csv' });
     anchor.href = URL.createObjectURL(file);
-    anchor.download = `export_${this.logs.length}_logs_${this.currentFilter}_${new Date().toLocaleDateString('pl-PL')}.${extension}`;
+    anchor.download = `export_${this.logs.length}_logs_${this.filter}_${new Date().toLocaleDateString('pl-PL')}.${extension}`;
     anchor.click();
   }
 
@@ -167,6 +146,6 @@ type Filters = 'all' | 'success' | 'failed' | 'completed';
 type QueryParams = {
   maxCount?: number,
   offset?: number,
-  maxDate?: number,
-  minDate?: number,
+  maxDate?: string,
+  minDate?: string,
 }
