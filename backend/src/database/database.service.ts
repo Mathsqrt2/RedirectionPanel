@@ -1,5 +1,8 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { Repository, DataSource, LessThanOrEqual, MoreThanOrEqual, Between } from 'typeorm';
+import {
+    Repository, DataSource, LessThanOrEqual,
+    MoreThanOrEqual, Between
+} from 'typeorm';
 import { HttpStatus } from "@nestjs/common";
 import {
     createSingleElementProps, CRUDTypes, createMultipleElementsProps,
@@ -13,6 +16,7 @@ import { Requests } from "./orm/requests/requests.entity";
 import { Redirections } from "./orm/redirections/redirections.entity";
 import { Logs } from "./orm/logs/logs.entity";
 import { Codes } from "src/auth/orm/codes.entity";
+import { LoggerService } from "src/utils/logs.service";
 
 @Injectable()
 export class DatabaseService {
@@ -27,6 +31,7 @@ export class DatabaseService {
         @Inject(`USERS`) private users: Repository<Users>,
         @Inject(`LOGS`) private logs: Repository<Logs>,
         private dataSource: DataSource,
+        private logger: LoggerService,
     ) { }
 
     private getEntity = (endpoint: string) => {
@@ -57,7 +62,7 @@ export class DatabaseService {
         const startTime = Date.now();
 
         try {
-            let response;
+            let response: CRUDTypes;
 
             if (maxDate || minDate) {
                 const entity = this.getEntity(endpoint);
@@ -74,7 +79,6 @@ export class DatabaseService {
                     query['jstimestamp'] = LessThanOrEqual(new Date(new Date(maxDate).getTime() - this.offset).getTime());
                 }
 
-                console.log('it is');
                 response = await this.dataSource.getRepository(entity).findBy(query)
             } else {
                 const model = this.recognizeModel(endpoint);
@@ -88,25 +92,20 @@ export class DatabaseService {
                 response = response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
             }
 
-            this.logs.save({
+            this.logger.success({
                 label: `${response.length} elements found.`,
                 description: `endpoint: "${endpoint}", maxCount: "${maxCount}", offset: "${offset}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.FOUND, content: response };
 
         } catch (err) {
 
-            console.log(`getMultipleElements error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to get multiple elements`,
                 description: `Couldn't get elements on: "${endpoint}", maxCount: "${maxCount}", offset: "${offset}". getMultipleElements error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -127,25 +126,20 @@ export class DatabaseService {
 
             const response = await model.findOneBy({ id });
 
-            this.logs.save({
+            this.logger.success({
                 label: `Single element found`,
                 description: `endpoint: "${endpoint}", id: "${id}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return response
 
         } catch (err) {
 
-            console.log(`getSingleElementById error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to get single element`,
                 description: `Couldn't get element with id: "${id}" on: "${endpoint}". getSingleElementById error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -162,12 +156,12 @@ export class DatabaseService {
         const startTime = Date.now();
 
         try {
-            let response;
+            let response: CRUDTypes[];
             let query = {};
 
             if (maxDate || minDate) {
-                const entity = this.getEntity(endpoint);
 
+                const entity = this.getEntity(endpoint);
                 if (!entity) throw new Error(`Entity for ${endpoint} doesn't exist`);
 
                 if (maxDate && minDate) {
@@ -179,46 +173,35 @@ export class DatabaseService {
                 }
 
                 query[param] = value;
-
                 response = await this.dataSource.getRepository(entity).findBy(query)
             } else {
-                const model = this.recognizeModel(endpoint);
 
+                const model = this.recognizeModel(endpoint);
                 if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
 
-
                 query[param] = value;
-
                 response = await model.findBy(query);
             }
-
-
-
 
             if (maxCount) {
                 response = response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
             }
 
-            this.logs.save({
+            this.logger.success({
                 label: `${response.length} items found`,
                 description: `Search on "${endpoint}", query: "{${param}:${value}}", maxCount: "${maxCount}", offset: "${offset}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.FOUND, content: response };
 
         } catch (err) {
 
-            console.log(`getMultipleElementsByParam error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while geting multiple elements by param`,
                 description: `Couldn't get multiple elements by "{${param}:${value}}" on: "${endpoint}",
                     maxCount: "${maxCount}", offset: "${offset}", getMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -247,25 +230,20 @@ export class DatabaseService {
                 response.push(content);
             }
 
-            this.logs.save({
+            this.logger.success({
                 label: `${dataArray.length} items created`,
                 description: `endpoint: "${endpoint}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.CREATED, content: response };
 
         } catch (err) {
 
-            console.log(`createMultipleElements error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to create multiple elements`,
                 description: `Couldn't create ${dataArray.length} elements on "${endpoint}". createMultipleElements error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -291,25 +269,20 @@ export class DatabaseService {
                 jstimestamp: Date.now(),
             });
 
-            this.logs.save({
+            this.logger.success({
                 label: `Single item created`,
                 description: `endpoint: ${endpoint}, Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.CREATED, content: response };
 
         } catch (err) {
 
-            console.log(`createSingleElement error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to create single element`,
                 description: `Couldn't create single element on "${endpoint}". createSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -332,25 +305,20 @@ export class DatabaseService {
             const instance = await model.findOneBy({ id });
             const response = await model.save({ ...instance, ...data });
 
-            this.logs.save({
+            this.logger.success({
                 label: `Item with id: ${id} updated`,
                 description: `endpoint: "${endpoint}", element id: "${id}", new data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
-            console.log(`updateSingleElement error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to update single element`,
                 description: `Couldn't update single element with id: "${id}" on "${endpoint}". updateSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -374,25 +342,20 @@ export class DatabaseService {
             const instance = await model.findOneBy({ id });
             const response = await model.save({ ...instance, ...data });
 
-            this.logs.save({
+            this.logger.success({
                 label: `Item with id: "${id}" patched`,
                 description: `endpoint: "${endpoint}", id: "${id}", new data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
-            console.log(`patchSingleElement error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to patch single element`,
                 description: `Couldn't patch single element with id: "${id}" on "${endpoint}". patchSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -420,25 +383,20 @@ export class DatabaseService {
                 response.push(item);
             }
 
-            this.logs.save({
+            this.logger.success({
                 label: `${response.length} items patched`,
                 description: `endpoint: "${endpoint}", items: ${response.length}, query: "{${param}:${value}}". New data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
-            console.log(`patchMultipleElementsByParam error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to patch multiple elements`,
                 description: `Couldn't patch ${data.length} elements found by: "{${param}:${value}}" on "${endpoint}". patchMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -462,25 +420,20 @@ export class DatabaseService {
             const status = await model.delete({ id });
             const response = { ...status, raw: { ...item } };
 
-            this.logs.save({
+            this.logger.success({
                 label: `Item with ID: ${id} deleted`,
                 description: `endpoint: "${endpoint}", item: "${JSON.stringify(response)}", id: "${id}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
-            console.log(`deleteSingleElementById error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to delete single element`,
                 description: `Couldn't delete single element with id: "${id}" on "${endpoint}". deleteSingleElementById error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {
@@ -507,25 +460,20 @@ export class DatabaseService {
             const status = await model.delete(query);
             const response = { ...status, raw: [...item] };
 
-            this.logs.save({
+            this.logger.success({
                 label: `${response?.raw?.length} items deleted`,
                 description: `endpoint: "${endpoint}", items: "${JSON.stringify(response)}", query: "{${param}:${value}}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             return { status: HttpStatus.OK, content: response };
 
         } catch (err) {
 
-            console.log(`deleteMultipleElementsByParam error: `, err);
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while trying to delete multiple element`,
                 description: `Couldn't delete multiple elements found by: "{${param}:${value}}" on "${endpoint}". deleteMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime, err,
             })
 
             return {

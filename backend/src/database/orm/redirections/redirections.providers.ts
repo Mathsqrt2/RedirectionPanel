@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm";
-import { Redirections} from "./redirections.entity";
+import { Redirections } from "./redirections.entity";
 
 export const redirectionsProviders = [
     {

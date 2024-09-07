@@ -1,4 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated, Unique } from "typeorm";
+import {
+    Entity, Column, PrimaryGeneratedColumn,
+    Timestamp, Generated, Unique
+} from "typeorm";
 
 @Entity()
 @Unique(['login'])

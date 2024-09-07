@@ -1,4 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, Timestamp, Generated } from "typeorm";
+import {
+    Entity, Column, PrimaryGeneratedColumn,
+    Timestamp, Generated
+} from "typeorm";
 
 @Entity()
 export class Logs {

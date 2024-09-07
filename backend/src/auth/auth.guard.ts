@@ -1,20 +1,19 @@
 import {
-    CanActivate, ExecutionContext,
-    Inject,
+    CanActivate, ExecutionContext, Inject,
     Injectable, UnauthorizedException
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import config from "src/config";
-import { Logs } from "src/database/orm/logs/logs.entity";
 import { Users } from "src/database/orm/users/users.entity";
+import { LoggerService } from "src/utils/logs.service";
 import { Repository } from "typeorm";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
-        private jwtService: JwtService,
-        @Inject(`LOGS`) private logs: Repository<Logs>,
         @Inject(`USERS`) private users: Repository<Users>,
+        private jwtService: JwtService,
+        private logger: LoggerService,
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -37,7 +36,7 @@ export class AuthGuard implements CanActivate {
             const payload = await this.jwtService.verifyAsync(token, { secret: config.secret });
 
             if (!payload) {
-                throw new UnauthorizedException();
+                throw new UnauthorizedException(`Incorrect token`);
             }
 
             if (Date.now() > (payload?.exp * 1000)) {
@@ -50,7 +49,7 @@ export class AuthGuard implements CanActivate {
             request['user'] = payload;
 
             const user_ = await this.users.findOneBy({ id: user.id });
-            
+
             if (!route.startsWith(`/api/auth`)) {
 
                 const method = request.route.methods;
@@ -73,23 +72,20 @@ export class AuthGuard implements CanActivate {
             }
 
         } catch (err) {
-            console.log(err);
-            await this.logs.save({
+
+            await this.logger.fail({
                 label: `Failed to authorize in service.`,
                 description: `User: "${user.username}" with id: "${user.id}". Request: "${JSON.stringify(request.route.methods)}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: "failed",
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
-            throw new UnauthorizedException();
+
+            throw new UnauthorizedException(err);
         }
 
-        await this.logs.save({
+        await this.logger.success({
             label: `Authorized in service.`,
             description: `User: "${user.username}", with id: "${user.id}". Request: "${JSON.stringify(request.route.methods)}", Time: ${new Date().toLocaleString('pl-PL')}`,
-            status: "success",
-            jstimestamp: Date.now(),
-            duration: Math.floor(Date.now() - startTime),
+            startTime,
         })
 
         return true;

@@ -1,8 +1,18 @@
-import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Redirect, Req, Res, UseGuards } from '@nestjs/common';
+import {
+    BadRequestException, Body, Controller,
+    Delete, Get, HttpStatus,
+    Param, Patch, Post,
+    Redirect, Req, Res, UseGuards
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
-import { currentUserResponse, LoginUserResponse, RegisterUserResponse, RemoveUserResponse, responseWithCode, SendVerificationCodeResponse, updatePermissionsResponse, UpdatePswdResponse, updateStatusResponse, VerifyEmailResponse } from './auth.types';
+import {
+    currentUserResponse, LoginUserResponse, RegisterUserResponse,
+    RemoveUserResponse, responseWithCode, SendVerificationCodeResponse,
+    updatePermissionsResponse, UpdatePswdResponse,
+    updateStatusResponse, VerifyEmailResponse
+} from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
 import { CodesDto } from './dtos/codes.dto';

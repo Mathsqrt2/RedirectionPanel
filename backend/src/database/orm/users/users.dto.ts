@@ -19,5 +19,5 @@ export class UsersDto {
 
     @IsBoolean()
     canManage: boolean;
-    
+
 }

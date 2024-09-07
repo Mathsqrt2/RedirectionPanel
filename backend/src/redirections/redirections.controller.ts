@@ -1,8 +1,8 @@
 import { Controller, Get, Inject, Ip, Param, Redirect } from "@nestjs/common";
 import { SHA256 } from 'crypto-js';
-import { Logs } from "src/database/orm/logs/logs.entity";
 import { Redirections } from "src/database/orm/redirections/redirections.entity";
 import { Requests } from "src/database/orm/requests/requests.entity";
+import { LoggerService } from "src/utils/logs.service";
 import { Repository } from "typeorm";
 
 @Controller(`:redirection`)
@@ -10,9 +10,10 @@ import { Repository } from "typeorm";
 export class RedirectionsController {
 
     constructor(
-        @Inject(`LOGS`) private logs: Repository<Logs>,
         @Inject(`REDIRECTIONS`) private redirections: Repository<Redirections>,
         @Inject(`REQUESTS`) private requests: Repository<Requests>,
+        private logger: LoggerService,
+
     ) { }
 
     private loggedRequests = [];
@@ -35,12 +36,10 @@ export class RedirectionsController {
 
         if (!this.loggedSearches.includes(requestId) && !url && redirection !== 'not-found') {
 
-            this.logs.save({
+            this.logger.fail({
                 label: `Redirection doesn't exist`,
                 description: `Nothing was found for route "${redirection}", Request time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             this.loggedSearches.push(requestId);
@@ -48,31 +47,22 @@ export class RedirectionsController {
 
         if (url) {
 
-            this.requests.save({
-                redirectionId: url.id,
-                requestIp: ip,
-                jstimestamp: Date.now(),
-            })
-
-            this.logs.save({
+            this.requests.save({ redirectionId: url.id, requestIp: ip, jstimestamp: Date.now() })
+            this.logger.completed({
                 label: `User redirected successfully`,
                 description: `Client redirected by "${redirection}" to "${url?.targetUrl}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `completed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
-            });
+                startTime
+            })
 
             return { url: url?.targetUrl, status: 302 }
         }
 
         if (!this.loggedRequests.includes(requestId) && redirection !== 'not-found') {
 
-            this.logs.save({
+            this.logger.fail({
                 label: `Error while redirecting`,
                 description: `Client couldn't be redirected to "${redirection}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Date.now() - startTime,
+                startTime,
             })
 
             this.loggedRequests.push(requestId);

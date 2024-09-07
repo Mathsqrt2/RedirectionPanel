@@ -8,7 +8,7 @@ import { RedirectionsModule } from './redirections/redirections.module';
     AuthModule,
     DatabaseModule,
     RedirectionsModule,
-  ],
+  ]
 })
 
 export class AppModule { }

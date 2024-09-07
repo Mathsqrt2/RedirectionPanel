@@ -16,7 +16,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { Users } from 'src/database/orm/users/users.entity';
 import { SHA256 } from 'crypto-js';
-import { Logs } from 'src/database/orm/logs/logs.entity';
 import { CodesDto } from './dtos/codes.dto';
 import { Codes } from './orm/codes.entity';
 import { Request } from 'express';
@@ -24,14 +23,15 @@ import config from 'src/config';
 import { UpdatePswdDTO } from './dtos/updatepswd.dto';
 import { UpdatePermissionsDTO } from './dtos/updatePermissions.dto';
 import { UpdateStatusDTO } from './dtos/updateEmailStatus.dto';
+import { LoggerService } from 'src/utils/logs.service';
 
 @Injectable()
 export class AuthService {
     constructor(
+        @Inject(`CODES`) private codes: Repository<Codes>,
+        @Inject(`USERS`) private users: Repository<Users>,
         private jwtService: JwtService,
-        @Inject(`CODES`) private readonly codes: Repository<Codes>,
-        @Inject(`USERS`) private readonly users: Repository<Users>,
-        @Inject(`LOGS`) private readonly logs: Repository<Logs>,
+        private logger: LoggerService,
     ) { }
 
     public getVerificationCode = async (code: string, req: Request): Promise<VerifyEmailResponse> => {
@@ -68,12 +68,10 @@ export class AuthService {
 
             await this.codes.save({ ...codeRead, status: false });
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `User verified`,
                 description: `User "${user.login}" has been verified with email: "${user.email}". From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `completed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return {
@@ -83,12 +81,11 @@ export class AuthService {
             }
 
         } catch (err) {
-            await this.logs.save({
+
+            await this.logger.fail({
                 label: `Couldn't verify user`,
                 description: `email verification request from: "${req?.ip}" couldn't be handled. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err
             })
 
             return {
@@ -121,12 +118,10 @@ export class AuthService {
                 email: code.email,
             }
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `Active code was found`,
                 description: `Active code was found: ${code.code}. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return {
@@ -136,13 +131,11 @@ export class AuthService {
             }
 
         } catch (err) {
-            console.log(`getActiveCode`, err);
-            await this.logs.save({
+
+            await this.logger.fail({
                 label: `Error while trying to get activeCode`,
                 description: `Active code couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err
             })
 
             return {
@@ -176,12 +169,10 @@ export class AuthService {
                 emailSent: user.emailSent,
             };
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `User data was found`,
                 description: `Data for user: "${user.login}" was found. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return {
@@ -191,13 +182,11 @@ export class AuthService {
             }
 
         } catch (err) {
-            console.log(`getCurrentUserData`, err);
-            await this.logs.save({
+
+            await this.logger.fail({
                 label: `Error while trying to get current user data`,
                 description: `Current user data couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err
             })
 
             return {
@@ -297,12 +286,10 @@ export class AuthService {
                 html: html,
             })
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `Email send`,
                 description: `User "${user.login}", Requested for email from: "${req?.ip}", The email has been sent, Time: ${new Date().toLocaleString('pl-PL')}}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return ({
@@ -311,14 +298,11 @@ export class AuthService {
             })
 
         } catch (err) {
-            console.log(`Error while trying to send email.`, err);
 
-            await this.logs.save({
+            await this.logger.fail({
                 label: `Email couldn't be send`,
                 description: `User "${user.login}" requested for email from: "${req?.ip}" The email couldn't be sent. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err
             })
 
             return ({
@@ -373,12 +357,10 @@ export class AuthService {
             const { canDelete, canUpdate, canCreate, canManage } = newUser;
             const payload = { sub: newUser.id, username: newUser?.login };
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `User registered`,
                 description: `"${login}" registered from ip: "${req?.ip}", canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return {
@@ -390,14 +372,11 @@ export class AuthService {
                 userId,
             };
         } catch (err) {
-            console.log(`registerUser`, err);
 
-            await this.logs.save({
+            await this.logger.fail({
                 label: `Error while trying to register user`,
                 description: `User couldn't be registered with login: "${login}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err
             })
 
             return {
@@ -426,13 +405,10 @@ export class AuthService {
             const accessToken = await this.jwtService.signAsync(payload);
 
             const { canDelete, canUpdate, canCreate, canManage } = user;
-
-            await this.logs.save({
+            await this.logger.completed({
                 label: `Signed in`,
                 description: `User with login: "${login}", Signed in from ip: "${req?.ip}", canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return {
@@ -444,14 +420,13 @@ export class AuthService {
                 permissions: { canDelete, canUpdate, canCreate, canManage }
             };
         } catch (err) {
-            console.log(err);
-            await this.logs.save({
+
+            await this.logger.fail({
                 label: `error while trying to sign in`,
                 description: `Someone tried to sign in as: "${login}", From ip: "${req?.ip}", Couldn't signed in. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err
             })
+
             return {
                 status: HttpStatus.BAD_REQUEST
             }
@@ -482,12 +457,10 @@ export class AuthService {
             user.password = this.securePassword(body.newPassword);
             await this.users.save({ ...user });
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `Password changed`,
                 description: `"${user.login}" password has been changed from ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return {
@@ -496,13 +469,11 @@ export class AuthService {
             }
 
         } catch (err) {
-            console.log(`registerUser`, err);
-            await this.logs.save({
+
+            await this.logger.fail({
                 label: `Error while trying to change password`,
                 description: `Password couldn't be changed for user with id: "${body.userId}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err
             })
 
             return {
@@ -529,13 +500,11 @@ export class AuthService {
 
             user = await this.users.save({ ...user, ...body });
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `Permissions have been updated`,
                 description: `User: "${user.login}" permissions was updated to: canManage: "${user.canManage}", canCreate: "${user.canCreate}",
                  canUpdate: "${user.canUpdate}", canDelete: "${user.canDelete}". Request ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return {
@@ -543,13 +512,11 @@ export class AuthService {
                 message: 'Permissions updated successfully',
             }
         } catch (err) {
-            console.log(`updatePermissions`, err);
-            await this.logs.save({
+
+            await this.logger.fail({
                 label: `Error while trying to update permissions`,
                 description: `Permissions couldn't be updated for user with id: "${body.userId}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err,
             })
 
             return {
@@ -575,12 +542,10 @@ export class AuthService {
 
             await this.users.save({ ...user });
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `User email status updated successfully`,
                 description: `User: "${user.login}" email status was updated to: ${body.emailSent}. Request ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return {
@@ -589,13 +554,11 @@ export class AuthService {
             }
 
         } catch (err) {
-            console.log(err);
-            await this.logs.save({
+
+            await this.logger.fail({
                 label: `Error while trying to update email status`,
                 description: `Email status couldn't be updated for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err,
             })
 
             return {
@@ -622,24 +585,19 @@ export class AuthService {
                 throw new UnauthorizedException(`Access denied.`);
             }
 
-            await this.logs.save({
+            await this.logger.completed({
                 label: `User removed`,
                 description: `User with login: "${login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime,
             })
 
             return { status: HttpStatus.ACCEPTED }
         } catch (err) {
-            console.log(`removeUser`, err);
 
-            await this.logs.save({
+            await this.logger.fail({
                 label: `Error while trying to remove user`,
                 description: `User with login: "${login}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
+                startTime, err,
             })
 
             return { status: HttpStatus.INTERNAL_SERVER_ERROR }

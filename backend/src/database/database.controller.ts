@@ -1,4 +1,8 @@
-import { Controller, Post, Param, Body, Get, Query, Put, Patch, Delete, HttpStatus, UseGuards } from "@nestjs/common";
+import {
+    Controller, Post, Param, Body, Get,
+    Query, Put, Patch, Delete,
+    HttpStatus, UseGuards
+} from "@nestjs/common";
 import { DatabaseService } from "./database.service";
 import { DTOs, CRUDResponse, QueryConditions } from "./database.types";
 import { AuthGuard } from "src/auth/auth.guard";

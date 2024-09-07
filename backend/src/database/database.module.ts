@@ -7,8 +7,11 @@ import { logsProviders } from "./orm/logs/logs.providers";
 import { redirectionsProviders } from "./orm/redirections/redirections.providers";
 import { requestsProviders } from "./orm/requests/requests.providers";
 import { codesProviders } from "src/auth/orm/codes.providers";
+import { LoggerService } from "src/utils/logs.service";
+
 
 const providers = [
+    LoggerService,
     DatabaseService,
     ...databaseProviders,
     ...logsProviders,
@@ -22,7 +25,7 @@ const providers = [
     controllers: [
         DatabaseController
     ],
-    providers: providers,
+    providers,
     exports: providers,
 })
 
