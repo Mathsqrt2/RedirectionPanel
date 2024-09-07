@@ -118,7 +118,7 @@ td {
 }
 
 .narrow-col {
-    padding: 4px;
+    padding: 5px;
     max-width: 155px;
     overflow: hidden;
 }
@@ -142,14 +142,19 @@ td {
     padding: 4px 12px;
     transition: all 0.4s ease-in-out;
     background-color: $accent-dark;
-    color: #ccc;
+    color: #769ae7;
     cursor: pointer;
 
     &:hover {
         transform: scale(0.95);
         background-color: $accent;
         box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+        color: white;
     }
+}
+
+.error-code {
+    color: red;
 }
 
 @media (max-width: 996px) {

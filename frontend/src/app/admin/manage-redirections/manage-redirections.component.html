@@ -22,13 +22,20 @@
             </div>
         </div>
 
+        <div *ngIf="
+        !newRedirection.get('route').valid && newRedirection.get('route').touched && 
+        newRedirection.get('route').errors['routeMustBeUnique']">
+
+            <span class="error-code">Route must be unique</span>
+        </div>
+
         <input type="submit" value="CREATE" class="confirm" [disabled]="!newRedirection.valid">
 
     </form>
 
     <hr *ngIf="this.redirections.length && this.permissions.canCreate" />
 
-    <div class="inputs-field">
+    <div class="inputs-field" *ngIf="this.categories.length < 1 || this.redirections.length > 0">
 
         <div class="control-group">
             <label for="sort-by">Sort by</label>
@@ -67,7 +74,7 @@
             <th class="medium-col" #urlCol>
                 <span>url</span>
                 <input type="button" (click)="onToggleSensitiveDataDisplay(toggler)" value={{togglerText}} id="toggler"
-                    #toggler />
+                    #toggler class="toggler" />
             </th>
             <th class="wide-col" #routeCol>route</th>
             <th class="narrow-col">category</th>
@@ -78,4 +85,8 @@
             [secret]="showSensitiveData" [permissions]="permissions">
         </tr>
     </table>
+
+    <div *ngIf="this.categories.length <= 1 && !this.permissions.canCreate">
+        <h1>There are no redirections yet!</h1>
+    </div>
 </div>

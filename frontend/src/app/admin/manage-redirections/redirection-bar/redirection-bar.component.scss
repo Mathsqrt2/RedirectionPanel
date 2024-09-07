@@ -1,11 +1,15 @@
 @import "../../../../styleset.scss";
 
-.edit {
-    width: 100%;
-    padding: 4px;
-    background-color: #222;
-    color: #ccc;
+input.edit {
+
+    &[type=text] {
+        width: 100%;
+        background-color: #222;
+        color: #ccc;
+    }
+
     border: 2px solid $accent;
+
 }
 
 .copy-link {
@@ -20,16 +24,6 @@
 
     &:hover {
         color: #ccc;
-    }
-}
-
-
-.apply {
-
-    margin-right: 5px;
-
-    &:hover {
-        background-color: green;
     }
 }
 
@@ -55,7 +49,19 @@
 
     &.delete {
         &:hover {
-            background-color: red;
+            background-color: rgb(180, 42, 42);
+        }
+    }
+
+    &.reject {
+        &:hover {
+            background-color: rgb(180, 42, 42);
+        }
+    }
+
+    &.apply {
+        &:hover {
+            background-color: green;
         }
     }
 

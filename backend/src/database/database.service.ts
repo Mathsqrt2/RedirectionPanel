@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import {
     Repository, DataSource, LessThanOrEqual,
     MoreThanOrEqual, Between
@@ -212,6 +212,53 @@ export class DatabaseService {
         }
     }
 
+
+    public createSingleElement = async ({ endpoint, data }: createSingleElementProps): Promise<DatabaseOutput> => {
+
+        const startTime = Date.now();
+        const model = this.recognizeModel(endpoint);
+
+        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+
+        try {
+
+            if (endpoint === 'redirections') {
+                const redirection = await model.findOneBy({ route: data.route });
+
+                if (redirection) {
+                    throw new ConflictException(`This redirection already exists`);
+                }
+            }
+
+            const response = await model.save({
+                ...data,
+                jstimestamp: Date.now(),
+            });
+
+            this.logger.success({
+                label: `Single item created`,
+                description: `endpoint: ${endpoint}, Time: ${new Date().toLocaleString('pl-PL')}`,
+                startTime,
+            })
+
+            return { status: HttpStatus.CREATED, content: response };
+
+        } catch (err) {
+
+            this.logger.fail({
+                label: `Error while trying to create single element`,
+                description: `Couldn't create single element on "${endpoint}". createSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                startTime, err,
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't create single element on "${endpoint}"`,
+            }
+
+        }
+    }
+
     public createMultipleElements = async ({ endpoint, dataArray }: createMultipleElementsProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
@@ -223,6 +270,22 @@ export class DatabaseService {
 
             const response = [];
             for (let item of dataArray) {
+
+                if (endpoint === 'redirections') {
+                    const redirection = await model.findOneBy({ route: item.route });
+
+                    if (redirection) {
+                        const err = new Error(`Redirection with this route already exists`)
+                        this.logger.fail({
+                            label: `Couldn't create one of multiple redirections`,
+                            description: `Couldn't create ${dataArray.length} element on "${endpoint}", data: "${JSON.stringify(item)}".
+                            createMultipleElements error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                            startTime, err,
+                        })
+                        continue;
+                    }
+                }
+
                 const content = await model.save({
                     ...item,
                     jstimestamp: Date.now()
@@ -253,44 +316,6 @@ export class DatabaseService {
 
         }
 
-    }
-
-    public createSingleElement = async ({ endpoint, data }: createSingleElementProps): Promise<DatabaseOutput> => {
-
-        const startTime = Date.now();
-        const model = this.recognizeModel(endpoint);
-
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
-
-        try {
-
-            const response = await model.save({
-                ...data,
-                jstimestamp: Date.now(),
-            });
-
-            this.logger.success({
-                label: `Single item created`,
-                description: `endpoint: ${endpoint}, Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.CREATED, content: response };
-
-        } catch (err) {
-
-            this.logger.fail({
-                label: `Error while trying to create single element`,
-                description: `Couldn't create single element on "${endpoint}". createSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
-            return {
-                status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't create single element on "${endpoint}"`,
-            }
-
-        }
     }
 
     public updateSingleElement = async ({ endpoint, id, data }: updateSingleElementProps): Promise<DatabaseOutput> => {

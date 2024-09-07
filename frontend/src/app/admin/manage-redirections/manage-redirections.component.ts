@@ -45,6 +45,15 @@ export class ManageRedirectionsComponent implements OnInit {
   ) {
   }
 
+  private isUnique = (control: FormControl): { [s: string]: boolean } => {
+
+    if (this.redirections.findIndex((item: Redirection) => item.route === control.value) >= 0) {
+      return { 'routeMustBeUnique': true }
+    } else {
+      null
+    }
+  }
+
   ngOnInit(): void {
 
     if (localStorage.getItem(`visibilitySettings`)) {
@@ -60,8 +69,8 @@ export class ManageRedirectionsComponent implements OnInit {
       });
 
     this.newRedirection = new FormGroup({
-      route: new FormControl(null, [Validators.required]),
-      targetUrl: new FormControl(null, [Validators.required]),
+      route: new FormControl(null, [Validators.required, Validators.minLength(3), this.isUnique.bind(this)]),
+      targetUrl: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       category: new FormControl(null),
     })
 
@@ -142,6 +151,6 @@ export class ManageRedirectionsComponent implements OnInit {
     localStorage.visibilitySettings = JSON.stringify({ showSensitiveData: this.showSensitiveData })
   }
 
-  
+
 
 }
