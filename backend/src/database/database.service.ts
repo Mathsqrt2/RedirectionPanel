@@ -17,15 +17,15 @@ import { Codes } from "src/auth/orm/codes.entity";
 @Injectable()
 export class DatabaseService {
 
-    private timezoneOffset = new Date().getTimezoneOffset() * -1000 * 60;
-    private offset = (-1000 * 60 * 60 * 24) + this.timezoneOffset;
+    private timezoneOffset = new Date().getTimezoneOffset() * 1000 * 60;
+    private offset = (-1000 * 60 * 60 * 24) - this.timezoneOffset;
 
     constructor(
-        @Inject(`LOGS`) private logs: Repository<Logs>,
         @Inject(`REDIRECTIONS`) private redirections: Repository<Redirections>,
         @Inject(`REQUESTS`) private requests: Repository<Requests>,
-        @Inject(`USERS`) private users: Repository<Users>,
         @Inject('CODES') private codes: Repository<Codes>,
+        @Inject(`USERS`) private users: Repository<Users>,
+        @Inject(`LOGS`) private logs: Repository<Logs>,
         private dataSource: DataSource,
     ) { }
 
@@ -51,7 +51,7 @@ export class DatabaseService {
         }
     }
 
-    getMultipleElements = async ({ endpoint, conditions }: getMultipleElementsProps): Promise<DatabaseOutput> => {
+    public getMultipleElements = async ({ endpoint, conditions }: getMultipleElementsProps): Promise<DatabaseOutput> => {
 
         const { minDate, maxDate, maxCount, offset = 0 } = conditions;
         const startTime = Date.now();
@@ -73,7 +73,7 @@ export class DatabaseService {
                 } else if (maxDate) {
                     query['jstimestamp'] = LessThanOrEqual(new Date(new Date(maxDate).getTime() - this.offset).getTime());
                 }
-                
+
                 console.log('it is');
                 response = await this.dataSource.getRepository(entity).findBy(query)
             } else {
@@ -116,7 +116,7 @@ export class DatabaseService {
         }
     }
 
-    getSingleElementById = async ({ endpoint, id }: getSingleElementByIdProps): Promise<DatabaseOutput> => {
+    public getSingleElementById = async ({ endpoint, id }: getSingleElementByIdProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -156,7 +156,7 @@ export class DatabaseService {
         }
     }
 
-    getMultipleElementsByParam = async ({ endpoint, param, value, conditions }: getMultipleElementsByParamProps): Promise<DatabaseOutput> => {
+    public getMultipleElementsByParam = async ({ endpoint, param, value, conditions }: getMultipleElementsByParamProps): Promise<DatabaseOutput> => {
 
         const { minDate, maxDate, maxCount, offset = 0 } = conditions;
         const startTime = Date.now();
@@ -229,7 +229,7 @@ export class DatabaseService {
         }
     }
 
-    createMultipleElements = async ({ endpoint, dataArray }: createMultipleElementsProps): Promise<DatabaseOutput> => {
+    public createMultipleElements = async ({ endpoint, dataArray }: createMultipleElementsProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -277,7 +277,7 @@ export class DatabaseService {
 
     }
 
-    createSingleElement = async ({ endpoint, data }: createSingleElementProps): Promise<DatabaseOutput> => {
+    public createSingleElement = async ({ endpoint, data }: createSingleElementProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -320,7 +320,7 @@ export class DatabaseService {
         }
     }
 
-    updateSingleElement = async ({ endpoint, id, data }: updateSingleElementProps): Promise<DatabaseOutput> => {
+    public updateSingleElement = async ({ endpoint, id, data }: updateSingleElementProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -362,7 +362,7 @@ export class DatabaseService {
 
     }
 
-    patchSingleElement = async ({ endpoint, id, data }: patchSingleElementProps): Promise<DatabaseOutput> => {
+    public patchSingleElement = async ({ endpoint, id, data }: patchSingleElementProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -403,7 +403,7 @@ export class DatabaseService {
         }
     }
 
-    patchMultipleElementsByParam = async ({ endpoint, param, value, data }: patchMultipleElementsByParamProps): Promise<DatabaseOutput> => {
+    public patchMultipleElementsByParam = async ({ endpoint, param, value, data }: patchMultipleElementsByParamProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -449,7 +449,7 @@ export class DatabaseService {
         }
     }
 
-    deleteSingleElementById = async ({ endpoint, id }: deleteSingleElementByIdProps): Promise<DatabaseOutput> => {
+    public deleteSingleElementById = async ({ endpoint, id }: deleteSingleElementByIdProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -491,7 +491,7 @@ export class DatabaseService {
         }
     }
 
-    deleteMultipleElementsByParam = async ({ endpoint, param, value }: deleteMultipleElementsByParamProps): Promise<DatabaseOutput> => {
+    public deleteMultipleElementsByParam = async ({ endpoint, param, value }: deleteMultipleElementsByParamProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);

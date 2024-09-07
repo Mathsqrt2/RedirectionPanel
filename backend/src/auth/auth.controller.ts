@@ -18,6 +18,91 @@ export class AuthController {
         private readonly authService: AuthService,
     ) { }
 
+    @UseGuards(AuthGuard)
+    @Get(`verifybyrequest/:code`)
+    async getVerificationCode(
+        @Param('code') code: string,
+        @Req() req: Request,
+    ): Promise<VerifyEmailResponse> {
+        try {
+            return await this.authService.getVerificationCode(code, req);
+        } catch (err) {
+            console.log('verifyEmail', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't verify request with code: ${code}`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('activecode/:userid')
+    async getActiveCode(
+        @Param(`uderid`) id: number,
+        @Req() req: Request
+    ): Promise<responseWithCode> {
+        try {
+            return await this.authService.getActiveCode(id, req);
+        } catch (err) {
+            console.log('getActiveCode', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't get active code`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Get('currentuser/:id')
+    async getCurrentUserData(
+        @Param(`id`) id: number,
+        @Req() req: Request
+    ): Promise<currentUserResponse> {
+        try {
+            return await this.authService.getCurrentUserData(id, req);
+        } catch (err) {
+            console.log('getActiveCode', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't get active code`,
+            }
+        }
+    }
+
+    @Get(`verify/:code`)
+    @Redirect(`${config.frontend.domain}/admin/profile`, 302)
+    async receiveVerificationCodeFromEmail(
+        @Param(`code`) code: string,
+        @Req() req: Request,
+    ): Promise<VerifyEmailResponse> {
+        try {
+            return await this.authService.getVerificationCode(code, req);
+        } catch (err) {
+            console.log('verifyEmail', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't verify request with code: ${code}`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Post(`getverificationemail`)
+    async sendVerificationEmail(
+        @Body() body: CodesDto,
+        @Req() req: Request,
+    ): Promise<SendVerificationCodeResponse> {
+        try {
+            return await this.authService.sendVerificationEmail(body, req);
+        } catch (err) {
+            console.log('verifyEmail', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't handle verification`,
+            }
+        }
+    }
+
     @Post(`register`)
     async registerUser(
         @Body() body: RegisterUserDto,
@@ -58,73 +143,6 @@ export class AuthController {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Couldn't login.`,
-            }
-        }
-    }
-
-    @UseGuards(AuthGuard)
-    @Delete(`remove`)
-    async removeUser(
-        @Body() body: RemoveUserDto,
-    ): Promise<RemoveUserResponse> {
-        try {
-            return await this.authService.removeUser(body);
-        } catch (err) {
-            console.log(`removeUser`, err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't removeUser.`,
-            }
-        }
-    }
-
-    @UseGuards(AuthGuard)
-    @Post(`getverificationemail`)
-    async sendVerificationEmail(
-        @Body() body: CodesDto,
-        @Req() req: Request,
-    ): Promise<SendVerificationCodeResponse> {
-        try {
-            return await this.authService.sendVerificationEmail(body, req);
-        } catch (err) {
-            console.log('verifyEmail', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't handle verification`,
-            }
-        }
-    }
-
-    @Get(`verify/:code`)
-    @Redirect(`${config.frontend.domain}/admin/profile`, 302)
-    async recieveVerificationCodeFromEmail(
-        @Param(`code`) code: string,
-        @Req() req: Request,
-    ): Promise<VerifyEmailResponse> {
-        try {
-            return await this.authService.recieveVerificationCode(code, req);
-        } catch (err) {
-            console.log('verifyEmail', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't verify request with code: ${code}`,
-            }
-        }
-    }
-
-    @UseGuards(AuthGuard)
-    @Get(`verifybyrequest/:code`)
-    async recieveVerificationCode(
-        @Param('code') code: string,
-        @Req() req: Request,
-    ): Promise<VerifyEmailResponse> {
-        try {
-            return await this.authService.recieveVerificationCode(code, req);
-        } catch (err) {
-            console.log('verifyEmail', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't verify request with code: ${code}`,
             }
         }
     }
@@ -182,35 +200,17 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard)
-    @Get('activecode/:userid')
-    async getActiveCode(
-        @Param(`uderid`) id: number,
-        @Req() req: Request
-    ): Promise<responseWithCode> {
+    @Delete(`remove`)
+    async removeUser(
+        @Body() body: RemoveUserDto,
+    ): Promise<RemoveUserResponse> {
         try {
-            return await this.authService.getActiveCode(id, req);
+            return await this.authService.removeUser(body);
         } catch (err) {
-            console.log('getActiveCode', err);
+            console.log(`removeUser`, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't get active code`,
-            }
-        }
-    }
-
-    @UseGuards(AuthGuard)
-    @Get('currentuser/:id')
-    async getCurrentUserData(
-        @Param(`id`) id: number,
-        @Req() req: Request
-    ): Promise<currentUserResponse> {
-        try {
-            return await this.authService.getCurrentUserData(id, req);
-        } catch (err) {
-            console.log('getActiveCode', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't get active code`,
+                message: `Couldn't removeUser.`,
             }
         }
     }

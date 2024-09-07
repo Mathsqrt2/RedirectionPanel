@@ -120,3 +120,17 @@ export type User = {
     email?: string,
     emailSent?: boolean,
 }
+
+
+export type transportDataType = {
+    service: string,
+    host: string,
+    port: string,
+    secure: boolean,
+    auth: smtpAuth,
+}
+
+export type smtpAuth = {
+    user: string,
+    pass: string,
+}

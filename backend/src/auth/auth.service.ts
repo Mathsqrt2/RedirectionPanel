@@ -1,20 +1,15 @@
 import {
     ConflictException, HttpStatus, Inject,
-    Injectable, NotFoundException,
-    UnauthorizedException
+    Injectable, NotFoundException, UnauthorizedException
 } from '@nestjs/common';
-
 import * as nodemailer from 'nodemailer';
 import {
-    currentUserResponse,
-    LoginUser, LoginUserResponse, RegisterUser,
+    currentUserResponse, LoginUser, LoginUserResponse, RegisterUser,
     RegisterUserResponse, RemoveUserProps, RemoveUserResponse,
-    responseWithCode, User,
-    SendVerificationCodeResponse,
-    updatePermissionsResponse,
-    UpdatePswdResponse,
-    updateStatusResponse,
-    VerifyEmailResponse,
+    responseWithCode, User, SendVerificationCodeResponse,
+    updatePermissionsResponse, UpdatePswdResponse,
+    updateStatusResponse, VerifyEmailResponse,
+    transportDataType,
 } from './auth.types';
 
 import { JwtService } from '@nestjs/jwt';
@@ -34,10 +29,304 @@ import { UpdateStatusDTO } from './dtos/updateEmailStatus.dto';
 export class AuthService {
     constructor(
         private jwtService: JwtService,
+        @Inject(`CODES`) private readonly codes: Repository<Codes>,
         @Inject(`USERS`) private readonly users: Repository<Users>,
         @Inject(`LOGS`) private readonly logs: Repository<Logs>,
-        @Inject(`CODES`) private readonly codes: Repository<Codes>
     ) { }
+
+    public getVerificationCode = async (code: string, req: Request): Promise<VerifyEmailResponse> => {
+        code = code.trim();
+        const startTime = Date.now();
+
+        try {
+
+            const codeRead = await this.codes.findOneBy({ code });
+
+            if (!codeRead) {
+                throw new ConflictException(`Code doesn't exist`);
+            }
+
+            if (Date.now() > codeRead.expireDate || !codeRead.status) {
+                throw new ConflictException(`The code ${codeRead.code} has expired`);
+            }
+
+            let user = await this.users.findOneBy({ id: codeRead.userId });
+
+            if (!user) {
+                throw new ConflictException(`User assigned to this code doesn't exist now`);
+            }
+
+            user = { ...user, email: codeRead.email, canCreate: true, canUpdate: true };
+
+            await this.users.save({ ...user });
+            const { canCreate, canUpdate, canDelete, canManage } = user;
+            const content = {
+                permissions: { canCreate, canUpdate, canDelete, canManage },
+                login: user.login,
+                userId: user.id,
+            }
+
+            await this.codes.save({ ...codeRead, status: false });
+
+            await this.logs.save({
+                label: `User verified`,
+                description: `User "${user.login}" has been verified with email: "${user.email}". From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `completed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+                message: `User ${user.login} verified successfully.`,
+                content
+            }
+
+        } catch (err) {
+            await this.logs.save({
+                label: `Couldn't verify user`,
+                description: `email verification request from: "${req?.ip}" couldn't be handled. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: `Couldn't verify user`,
+            }
+        }
+    }
+
+    public getActiveCode = async (id: number, req: Request): Promise<responseWithCode> => {
+        const startTime = Date.now();
+
+        try {
+            const code = await this.codes.findOneBy({ userId: id, status: true });
+
+            if (!code) {
+                throw new ConflictException(`Code for user with id: "${id}" doesn't exist`);
+            }
+
+            if (Date.now() > code.expireDate) {
+                throw new ConflictException(`Last code for user with id: "${id}" has expired`)
+            }
+
+            const content = {
+                id: code.id,
+                code: code.code,
+                userId: code.userId,
+                status: code.status,
+                expireDate: code.expireDate,
+                email: code.email,
+            }
+
+            await this.logs.save({
+                label: `Active code was found`,
+                description: `Active code was found: ${code.code}. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `success`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+                message: `Active code was found`,
+                content,
+            }
+
+        } catch (err) {
+            console.log(`getActiveCode`, err);
+            await this.logs.save({
+                label: `Error while trying to get activeCode`,
+                description: `Active code couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: err.message,
+            }
+        }
+
+    }
+
+    public getCurrentUserData = async (id: number, req: Request): Promise<currentUserResponse> => {
+
+        const startTime = Date.now();
+
+        try {
+
+            const user = await this.users.findOneBy({ id });
+
+            const permissions = {
+                canDelete: user.canDelete,
+                canUpdate: user.canUpdate,
+                canCreate: user.canCreate,
+                canManage: user.canManage,
+            }
+
+            const content: User = {
+                username: user.login,
+                permissions,
+                userId: user.id,
+                email: user.email,
+                emailSent: user.emailSent,
+            };
+
+            await this.logs.save({
+                label: `User data was found`,
+                description: `Data for user: "${user.login}" was found. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `success`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.OK,
+                message: `User data was found successfully`,
+                content,
+            }
+
+        } catch (err) {
+            console.log(`getCurrentUserData`, err);
+            await this.logs.save({
+                label: `Error while trying to get current user data`,
+                description: `Current user data couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: err.message,
+            }
+        }
+
+    }
+
+    private isEmailValid = (email: string): boolean => {
+        const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+        return pattern.test(email);
+    }
+
+    private randomNumber = (min: number, max: number): Number => {
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    public sendVerificationEmail = async ({ email, userId }: CodesDto, req: Request): Promise<SendVerificationCodeResponse> => {
+
+        const startTime = Date.now();
+
+        if (!email) {
+            throw new ConflictException(`Email is required`);
+        }
+
+        if (!this.isEmailValid(email)) {
+            throw new ConflictException(`incorrect email`);
+        }
+
+        if (await this.users.findOneBy({ email })) {
+            throw new ConflictException(`The email is already in use`);
+        }
+
+        if (!userId) {
+            throw new ConflictException(`User id is required`);
+        }
+
+        const user = await this.users.findOneBy({ id: userId });
+
+        if (!user) {
+            throw new NotFoundException(`User with id${userId} not found`);
+        }
+
+        if (user.email) {
+            throw new ConflictException(`The user is already verified`);
+        }
+
+        const options: nodemailer.TransportOptions & transportDataType = {
+            host: config.mailer.host,
+            port: config.mailer.port,
+            secure: false,
+            service: config.mailer.service,
+            auth: {
+                user: config.mailer.user,
+                pass: config.mailer.pass,
+            },
+        };
+
+        const transport = nodemailer.createTransport<transportDataType>(options)
+
+        let code = "";
+        for (let i = 0; i < 9; i++) {
+            code += this.randomNumber(0, 9);
+        }
+
+        try {
+            const creationTime = new Date();
+            const expireTime = new Date().setDate(creationTime.getDate() + 1);
+
+            const text = `Your verification code is: ${code}. 
+            It is active for one day, and expires: ${(new Date(expireTime)).toLocaleDateString('pl-Pl')}.
+            You can paste it in your profile or click the link <a href=${config.backend.domain}/api/auth/verify/${code}>${config.backend.domain}/verify/${code}</a>`;
+            let html = `<h1>You're welcome</h1>
+                <p>${text}</p>`;
+
+            const existingCode = await this.codes.findOneBy({ status: true });
+            if (existingCode) {
+                existingCode.status = false;
+                this.codes.save({ ...existingCode });
+            }
+
+            await this.codes.save({
+                code,
+                userId,
+                status: true,
+                email,
+                expireDate: expireTime
+            })
+
+            await transport.sendMail({
+                from: config.mailer.user,
+                to: email,
+                subject: 'Verification code in Redirection Panel Service',
+                text: text,
+                html: html,
+            })
+
+            await this.logs.save({
+                label: `Email send`,
+                description: `User "${user.login}", Requested for email from: "${req?.ip}", The email has been sent, Time: ${new Date().toLocaleString('pl-PL')}}`,
+                status: `success`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return ({
+                status: HttpStatus.OK,
+                message: `Check your email: ${email}`,
+            })
+
+        } catch (err) {
+            console.log(`Error while trying to send email.`, err);
+
+            await this.logs.save({
+                label: `Email couldn't be send`,
+                description: `User "${user.login}" requested for email from: "${req?.ip}" The email couldn't be sent. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                status: `failed`,
+                jstimestamp: Date.now(),
+                duration: Math.floor(Date.now() - startTime),
+            })
+
+            return ({
+                status: HttpStatus.BAD_REQUEST,
+                message: `Error while trying to send email. ${err}`,
+            });
+        }
+    };
 
     private securePassword = (password: string): string => {
         const salt = SHA256(Date.now()).toString();
@@ -168,239 +457,6 @@ export class AuthService {
             }
         }
 
-    }
-
-    public removeUser = async ({ login, password }: RemoveUserProps): Promise<RemoveUserResponse> => {
-
-        const startTime = Date.now();
-
-        try {
-            const user = await this.users.findOneBy({ login });
-
-            if (!user) {
-                throw new NotFoundException(`Login or password incorrect`)
-            }
-
-            if (this.comparePasswords(password, user.password)) {
-                await this.users.delete({ login, password });
-            } else {
-                throw new UnauthorizedException(`Access denied.`);
-            }
-
-            await this.logs.save({
-                label: `User removed`,
-                description: `User with login: "${login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
-            })
-
-            return { status: HttpStatus.ACCEPTED }
-        } catch (err) {
-            console.log(`removeUser`, err);
-
-            await this.logs.save({
-                label: `Error while trying to remove user`,
-                description: `User with login: "${login}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
-            })
-
-            return { status: HttpStatus.INTERNAL_SERVER_ERROR }
-        }
-
-    }
-
-    private isEmailValid = (email: string): boolean => {
-        const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-        return pattern.test(email);
-    }
-
-    private randomNumber = (min: number, max: number): Number => {
-        return Math.floor(Math.random() * (max - min)) + min;
-    }
-
-    public sendVerificationEmail = async ({ email, userId }: CodesDto, req: Request): Promise<SendVerificationCodeResponse> => {
-
-        const startTime = Date.now();
-
-        if (!email) {
-            throw new ConflictException(`Email is required`);
-        }
-
-        if (!this.isEmailValid(email)) {
-            throw new ConflictException(`incorrect email`);
-        }
-
-        if (await this.users.findOneBy({ email })) {
-            throw new ConflictException(`The email is already in use`);
-        }
-
-        if (!userId) {
-            throw new ConflictException(`User id is required`);
-        }
-
-        const user = await this.users.findOneBy({ id: userId });
-
-        if (!user) {
-            throw new NotFoundException(`User with id${userId} not found`);
-        }
-
-        if (user.email) {
-            throw new ConflictException(`The user is already verified`);
-        }
-
-        const options: nodemailer.TransportOptions & transportDataType = {
-            host: config.mailer.host,
-            port: config.mailer.port,
-            secure: false,
-            service: config.mailer.service,
-            auth: {
-                user: config.mailer.user,
-                pass: config.mailer.pass,
-            },
-        };
-
-        const transport = nodemailer.createTransport<transportDataType>(options)
-
-        let code = "";
-        for (let i = 0; i < 9; i++) {
-            code += this.randomNumber(0, 9);
-        }
-
-        try {
-            const creationTime = new Date();
-            const expireTime = new Date().setDate(creationTime.getDate() + 1);
-
-            const text = `Your verification code is: ${code}. 
-            It is active for one day, and expires: ${(new Date(expireTime)).toLocaleDateString('pl-Pl')}.
-            You can paste it in your profile or click the link <a href=${config.backend.domain}/api/auth/verify/${code}>${config.backend.domain}/verify/${code}</a>`;
-            let html = `<h1>You're welcome</h1>
-                <p>${text}</p>`;
-
-            const existingCode = await this.codes.findOneBy({ status: true });
-            if (existingCode) {
-                existingCode.status = false;
-                this.codes.save({ ...existingCode });
-            }
-
-            await this.codes.save({
-                code,
-                userId,
-                status: true,
-                email,
-                expireDate: expireTime
-            })
-
-            await transport.sendMail({
-                from: config.mailer.user,
-                to: email,
-                subject: 'Verification code in Redirection Panel Service',
-                text: text,
-                html: html,
-            })
-
-            await this.logs.save({
-                label: `Email send`,
-                description: `User "${user.login}", Requested for email from: "${req?.ip}", The email has been sent, Time: ${new Date().toLocaleString('pl-PL')}}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
-            })
-
-            return ({
-                status: HttpStatus.OK,
-                message: `Check your email: ${email}`,
-            })
-
-        } catch (err) {
-            console.log(`Error while trying to send email.`, err);
-
-            await this.logs.save({
-                label: `Email couldn't be send`,
-                description: `User "${user.login}" requested for email from: "${req?.ip}" The email couldn't be sent. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
-            })
-
-            return ({
-                status: HttpStatus.BAD_REQUEST,
-                message: `Error while trying to send email. ${err}`,
-            });
-        }
-    };
-
-    public recieveVerificationCode = async (code: string, req: Request): Promise<VerifyEmailResponse> => {
-        code = code.trim();
-        const startTime = Date.now();
-
-        try {
-
-            const codeRead = await this.codes.findOneBy({ code });
-
-            if (!codeRead) {
-                throw new ConflictException(`Code doesn't exist`);
-            }
-
-            if (Date.now() > codeRead.expireDate || !codeRead.status) {
-                throw new ConflictException(`The code ${codeRead.code} has expired`);
-            }
-
-            const user = await this.users.findOneBy({ id: codeRead.userId });
-
-            if (!user) {
-                throw new ConflictException(`User assigned to this code doesn't exist now`);
-            }
-
-            user.email = codeRead.email;
-            user.canCreate = true;
-            user.canUpdate = true;
-
-            await this.users.save({ ...user });
-
-            const content = {
-                permissions: {
-                    canCreate: user.canCreate,
-                    canUpdate: user.canUpdate,
-                    canDelete: user.canDelete,
-                    canManage: user.canManage,
-                },
-                login: user.login,
-                userId: user.id,
-            }
-
-            await this.codes.save({ ...codeRead, status: false });
-
-            await this.logs.save({
-                label: `User verified`,
-                description: `User "${user.login}" has been verified with email: "${user.email}". ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `completed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
-            })
-
-            return {
-                status: HttpStatus.OK,
-                message: `User ${user.login} verified successfully.`,
-                content
-            }
-
-        } catch (err) {
-            await this.logs.save({
-                label: `Couldn't verify user`,
-                description: `email verification request from: "${req?.ip}" couldn't be handled. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
-            })
-
-            return {
-                status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't verify user`,
-            }
-        }
     }
 
     public updatePassword = async (body: UpdatePswdDTO, req: Request): Promise<UpdatePswdResponse> => {
@@ -549,126 +605,46 @@ export class AuthService {
         }
     }
 
-    public getActiveCode = async (id: number, req: Request): Promise<responseWithCode> => {
+    public removeUser = async ({ login, password }: RemoveUserProps): Promise<RemoveUserResponse> => {
+
         const startTime = Date.now();
 
         try {
-            const code = await this.codes.findOneBy({ userId: id, status: true });
+            const user = await this.users.findOneBy({ login });
 
-            if (!code) {
-                throw new ConflictException(`Code for user with id: "${id}" doesn't exist`);
+            if (!user) {
+                throw new NotFoundException(`Login or password incorrect`)
             }
 
-            if (Date.now() > code.expireDate) {
-                throw new ConflictException(`Last code for user with id: "${id}" has expired`)
-            }
-
-            const content = {
-                id: code.id,
-                code: code.code,
-                userId: code.userId,
-                status: code.status,
-                expireDate: code.expireDate,
-                email: code.email,
+            if (this.comparePasswords(password, user.password)) {
+                await this.users.delete({ login, password });
+            } else {
+                throw new UnauthorizedException(`Access denied.`);
             }
 
             await this.logs.save({
-                label: `Active code was found`,
-                description: `Active code was found: ${code.code}. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                label: `User removed`,
+                description: `User with login: "${login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `success`,
                 jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
-            return {
-                status: HttpStatus.OK,
-                message: `Active code was found`,
-                content,
-            }
-
+            return { status: HttpStatus.ACCEPTED }
         } catch (err) {
-            console.log(`getActiveCode`, err);
+            console.log(`removeUser`, err);
+
             await this.logs.save({
-                label: `Error while trying to get activeCode`,
-                description: `Active code couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                label: `Error while trying to remove user`,
+                description: `User with login: "${login}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 status: `failed`,
                 jstimestamp: Date.now(),
                 duration: Math.floor(Date.now() - startTime),
             })
 
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: err.message,
-            }
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR }
         }
 
     }
 
-    public getCurrentUserData = async (id: number, req: Request): Promise<currentUserResponse> => {
-
-        const startTime = Date.now();
-
-        try {
-
-            const user = await this.users.findOneBy({ id });
-
-            const permissions = {
-                canDelete: user.canDelete,
-                canUpdate: user.canUpdate,
-                canCreate: user.canCreate,
-                canManage: user.canManage,
-            }
-
-            const content: User = {
-                username: user.login,
-                permissions,
-                userId: user.id,
-                email: user.email,
-                emailSent: user.emailSent,
-            };
-
-            await this.logs.save({
-                label: `User data was found`,
-                description: `Data for user: "${user.login}" was found. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `success`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
-            })
-
-            return {
-                status: HttpStatus.OK,
-                message: `User data was found successfully`,
-                content,
-            }
-
-        } catch (err) {
-            console.log(`getCurrentUserData`, err);
-            await this.logs.save({
-                label: `Error while trying to get current user data`,
-                description: `Current user data couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                status: `failed`,
-                jstimestamp: Date.now(),
-                duration: Math.floor(Date.now() - startTime),
-            })
-
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: err.message,
-            }
-        }
-
-    }
-}
-
-type transportDataType = {
-    service: string,
-    host: string,
-    port: string,
-    secure: boolean,
-    auth: smtpAuth,
-}
-
-type smtpAuth = {
-    user: string,
-    pass: string,
 }

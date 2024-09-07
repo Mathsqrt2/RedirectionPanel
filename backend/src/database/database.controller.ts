@@ -72,23 +72,6 @@ export class DatabaseController {
     }
 
     @UseGuards(AuthGuard)
-    @Post(`multiple/:endpoint`)
-    async createMultipleElements(
-        @Param(`endpoint`) endpoint: string,
-        @Body() dataArray: DTOs[],
-    ): Promise<CRUDResponse> {
-        try {
-            return await this.database.createMultipleElements({ endpoint, dataArray });
-        } catch (err) {
-            console.log(`createMultipleElements error: `, err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't create multiple elements on "${endpoint}", with values: ${JSON.stringify(dataArray)}`,
-            }
-        }
-    }
-
-    @UseGuards(AuthGuard)
     @Post(`/:endpoint`)
     async createSingleElement(
         @Param(`endpoint`) endpoint: string,
@@ -101,6 +84,23 @@ export class DatabaseController {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Couldn't create element on "${endpoint}", with values: ${JSON.stringify(data)}`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Post(`multiple/:endpoint`)
+    async createMultipleElements(
+        @Param(`endpoint`) endpoint: string,
+        @Body() dataArray: DTOs[],
+    ): Promise<CRUDResponse> {
+        try {
+            return await this.database.createMultipleElements({ endpoint, dataArray });
+        } catch (err) {
+            console.log(`createMultipleElements error: `, err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't create multiple elements on "${endpoint}", with values: ${JSON.stringify(dataArray)}`,
             }
         }
     }
