@@ -1,7 +1,7 @@
 import {
     BadRequestException, Body, Controller,
     Delete, Get, HttpStatus,
-    Param, Patch, Post, Query,
+    Param, Patch, Post,
     Redirect, Req, Res, UseGuards
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -10,6 +10,7 @@ import { LoginUserDto } from './dtos/loginUser.dto';
 import {
     CurrentUserResponse, LoginUserResponse, RegisterUserResponse,
     RemoveUserResponse, ResponseWithCode, SendVerificationCodeResponse,
+    SimpleResponse,
     UpdatePermissionsResponse, UpdatePswdResponse,
     UpdateStatusResponse, VerifyEmailResponse
 } from './auth.types';
@@ -18,9 +19,10 @@ import { Request, Response } from 'express';
 import { CodesDto } from './dtos/codes.dto';
 import { AuthGuard } from './auth.guard';
 import config from 'src/config';
-import { UpdatePswdDTO } from './dtos/updatepswd.dto';
-import { UpdatePermissionsDTO } from './dtos/updatePermissions.dto';
-import { UpdateStatusDTO } from './dtos/updateEmailStatus.dto';
+import { UpdatePswdDto } from './dtos/updatepswd.dto';
+import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
+import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
+import { RemoveEmailDto } from './dtos/removeEmail.dto';
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -160,7 +162,7 @@ export class AuthController {
     @UseGuards(AuthGuard)
     @Patch(`password`)
     async updatePassword(
-        @Body() body: UpdatePswdDTO,
+        @Body() body: UpdatePswdDto,
         @Req() req: Request,
     ): Promise<UpdatePswdResponse> {
         try {
@@ -177,7 +179,7 @@ export class AuthController {
     @UseGuards(AuthGuard)
     @Patch(`permissions`)
     async updatePermissions(
-        @Body() body: UpdatePermissionsDTO,
+        @Body() body: UpdatePermissionsDto,
         @Req() req: Request,
     ): Promise<UpdatePermissionsResponse> {
         try {
@@ -195,7 +197,7 @@ export class AuthController {
     @Patch(`emailstatus/:id`)
     async updateEmailStatus(
         @Param(`id`) id: number,
-        @Body() body: UpdateStatusDTO,
+        @Body() body: UpdateStatusDto,
         @Req() req: Request,
     ): Promise<UpdateStatusResponse> {
         try {
@@ -210,18 +212,37 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard)
-    @Delete(`remove`)
+    @Patch(`remove/email/:id`)
+    async removeEmail(
+        @Param('id') id: number,
+        @Body() body: RemoveEmailDto,
+    ): Promise<SimpleResponse> {
+        try {
+            return await this.authService.removeEmail(id, body);
+        } catch (err) {
+            console.log(`removeEmail`, err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Couldn't execute remove email`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Delete(`remove/user/:id`)
     async removeUser(
+        @Param(`id`) id: number,
         @Body() body: RemoveUserDto,
     ): Promise<RemoveUserResponse> {
         try {
-            return await this.authService.removeUser(body);
+            return await this.authService.removeUser(id, body);
         } catch (err) {
             console.log(`removeUser`, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't removeUser.`,
+                message: `Couldn't execute remove user.`,
             }
         }
     }
+
 }

@@ -3,3 +3,11 @@
     flex-direction: column;
     gap: 16px
 }
+
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
+}

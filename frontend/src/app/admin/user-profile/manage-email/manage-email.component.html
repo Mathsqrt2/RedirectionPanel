@@ -1,26 +1,55 @@
-<div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm">
+<div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm && !showEmailRemoveForm">
     <span>You're verified with email:</span>
     <span>{{currentUser.email}}</span>
-    <input type="button" class="input button" value="change" (click)="startEmailChange()" />
+    <div class="row">
+        <input type="button" class="input button" value="change" (click)="onStartEmailChange()" />
+        <input type="button" class="input button" value="remove" (click)="onStartEmailRemove()" />
+    </div>
 </div>
 
 <div class="wrapper" *ngIf="currentUser.email && showEmailChangeForm">
-    <form [formGroup]="changeEmailForm" class="updateEmailForm">
+    <form [formGroup]="changeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailChange()">
         <div class="inputs-field">
             <label for="updateEmail">New email:</label>
-            <input id="updateEmail" name="updateEmail" formControlName="updateEmail" type="email"
-                class="input field" />
+            <input id="updateEmail" name="updateEmail" formControlName="updateEmail" type="email" class="input field" />
         </div>
 
         <div class="inputs-field">
             <label for="updateEmailConfirm">Password</label>
-            <input id="updateEmailConfirm" name="updateEmailConfirm" formControl="updateEmailConfirm"
-                type="password" class="input field">
+            <input id="updateEmailConfirm" name="updateEmailConfirm" formControl="updateEmailConfirm" type="password"
+                class="input field">
         </div>
 
         <div class="buttons-field">
-            <input type="button" value="reject" class="input button" (click)="onRejectEdit()" />
-            <input type="button" value="confirm" class="input button" (click)="onConfirmEdit()" />
+            <div class="row">
+                <input type="button" value="reject" class="input button" (click)="onReject()" />
+                <input type="submit" value="confirm" class="input button" />
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="wrapper" *ngIf="currentUser.email && showEmailRemoveForm && counter > 0">
+    <form [formGroup]="removeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailRemove()">
+        <div class="inputs-field">
+            <label for="confirm-password">Password</label>
+            <div class="row">
+                <input id="confirm-password" name="confirm-password" formControlName="password" class="input"
+                    [type]="isPasswordVisible ? 'text' : 'password'" />
+                <input id="show-password" name="show-password" class="input button" type="button"
+                    [value]="isPasswordVisible ? 'hide' : 'show'" (click)="onVisibilityToggle()" />
+            </div>
+        </div>
+
+        <div class="inputs-field error-code" *ngIf="wrongPassword">
+            Wrong password try again
+        </div>
+
+        <div class="inputs-field">
+            <div class="row">
+                <input type="button" value="cancel" class="input button" (click)="onReject()" />
+                <input type="submit" value="confirm" class="input button" [disabled]="!removeEmailForm.valid" />
+            </div>
         </div>
     </form>
 </div>

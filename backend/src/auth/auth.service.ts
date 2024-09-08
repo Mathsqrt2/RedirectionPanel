@@ -9,7 +9,8 @@ import {
     ResponseWithCode, User, SendVerificationCodeResponse,
     UpdatePermissionsResponse, UpdatePswdResponse,
     UpdateStatusResponse, VerifyEmailResponse,
-    TransportDataType
+    TransportDataType,
+    SimpleResponse
 } from './auth.types';
 
 import { JwtService } from '@nestjs/jwt';
@@ -20,10 +21,12 @@ import { CodesDto } from './dtos/codes.dto';
 import { Codes } from './orm/codes.entity';
 import { Request } from 'express';
 import config from 'src/config';
-import { UpdatePswdDTO } from './dtos/updatepswd.dto';
-import { UpdatePermissionsDTO } from './dtos/updatePermissions.dto';
-import { UpdateStatusDTO } from './dtos/updateEmailStatus.dto';
+import { UpdatePswdDto } from './dtos/updatepswd.dto';
+import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
+import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
 import { LoggerService } from 'src/utils/logs.service';
+import { RemoveEmailDto } from './dtos/removeEmail.dto';
+import { RemoveUserDto } from './dtos/removeUser.dto';
 
 @Injectable()
 export class AuthService {
@@ -457,7 +460,7 @@ export class AuthService {
 
     }
 
-    public updatePassword = async (body: UpdatePswdDTO, req: Request): Promise<UpdatePswdResponse> => {
+    public updatePassword = async (body: UpdatePswdDto, req: Request): Promise<UpdatePswdResponse> => {
 
         const startTime = Date.now();
 
@@ -506,7 +509,7 @@ export class AuthService {
         }
     }
 
-    public updatePermissions = async (body: UpdatePermissionsDTO, req: Request): Promise<UpdatePermissionsResponse> => {
+    public updatePermissions = async (body: UpdatePermissionsDto, req: Request): Promise<UpdatePermissionsResponse> => {
         const startTime = Date.now();
 
         try {
@@ -549,7 +552,7 @@ export class AuthService {
         }
     }
 
-    public updateEmailStatus = async (id: number, body: UpdateStatusDTO, req: Request): Promise<UpdateStatusResponse> => {
+    public updateEmailStatus = async (id: number, body: UpdateStatusDto, req: Request): Promise<UpdateStatusResponse> => {
 
         const startTime = Date.now();
 
@@ -601,26 +604,36 @@ export class AuthService {
         }
     }
 
-    public removeUser = async ({ login, password }: RemoveUserProps): Promise<RemoveUserResponse> => {
+    public removeUser = async (id: number, { password, userId }: RemoveUserDto): Promise<RemoveUserResponse> => {
 
         const startTime = Date.now();
 
         try {
-            const user = await this.users.findOneBy({ login });
+            const admin = await this.users.findOneBy({ id: userId });
+
+            if (!admin) {
+                throw new UnauthorizedException(`Access denied.`);
+            }
+
+            if (!admin.canManage) {
+                throw new UnauthorizedException(`Access denied.`);
+            }
+
+            const user = await this.users.findOneBy({ id });
 
             if (!user) {
                 throw new NotFoundException(`Login or password incorrect`)
             }
 
-            if (this.comparePasswords(password, user.password)) {
-                await this.users.delete({ login, password });
+            if (this.comparePasswords(password, admin.password)) {
+                await this.users.delete({ ...user });
             } else {
                 throw new UnauthorizedException(`Access denied.`);
             }
 
             await this.logger.completed({
                 label: `User removed`,
-                description: `User with login: "${login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `User with login: "${user.login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
                 startTime,
             })
 
@@ -629,13 +642,49 @@ export class AuthService {
 
             await this.logger.fail({
                 label: `Error while trying to remove user`,
-                description: `User with login: "${login}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                description: `User with id: "${id}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 startTime, err,
             })
 
             return { status: HttpStatus.INTERNAL_SERVER_ERROR }
         }
 
+    }
+
+    public removeEmail = async (id: number, { password }: RemoveEmailDto): Promise<SimpleResponse> => {
+
+        const startTime = Date.now();
+
+        try {
+            const user = await this.users.findOneBy({ id });
+
+            if (!user) {
+                throw new NotFoundException(`Login or password incorrect`)
+            }
+
+            if (this.comparePasswords(password, user.password)) {
+                await this.users.save({ ...user, emailSent: false, email: null });
+            } else {
+                throw new UnauthorizedException(`Access denied.`);
+            }
+
+            await this.logger.completed({
+                label: `User removed`,
+                description: `User with login: "${user.login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
+                startTime,
+            })
+
+            return { status: HttpStatus.ACCEPTED }
+        } catch (err) {
+
+            await this.logger.fail({
+                label: `Error while trying to remove user`,
+                description: `User with id: "${id}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                startTime, err,
+            })
+
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR }
+        }
     }
 
 }

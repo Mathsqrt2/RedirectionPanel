@@ -9,15 +9,16 @@ import { ManageUsersComponent } from './admin/manage-users/manage-users.componen
 import { ManageRedirectionsComponent } from './admin/manage-redirections/manage-redirections.component';
 import { DisplayLogsComponent } from './admin/display-logs/display-logs.component';
 import { UserProfileComponent } from './admin/user-profile/user-profile.component';
+import { canDeactivateGuard } from './services/can-deactivate-guard.service';
 
 const routes: Routes = [
   { path: "login", component: LoginComponent },
   {
     path: "admin", canActivate: [AuthGuard], component: MainSectionComponent, children: [
-      { path: "profile", canActivate: [AuthGuard], component: UserProfileComponent },
+      { path: "profile", canActivate: [AuthGuard], canDeactivate: [canDeactivateGuard], component: UserProfileComponent },
       { path: "users", canActivate: [AuthGuard], component: ManageUsersComponent },
-      { path: "redirections", canActivate: [AuthGuard], component: ManageRedirectionsComponent },
-      { path: "logs", canActivate: [AuthGuard], component: DisplayLogsComponent },
+      { path: "redirections", canActivate: [AuthGuard], canDeactivate: [canDeactivateGuard], component: ManageRedirectionsComponent },
+      { path: "logs", canActivate: [AuthGuard], canDeactivate: [canDeactivateGuard], component: DisplayLogsComponent },
     ],
   },
   { path: "register", component: RegisterComponent },

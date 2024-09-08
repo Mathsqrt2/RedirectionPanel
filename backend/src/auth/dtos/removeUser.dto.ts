@@ -1,14 +1,11 @@
-import { IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export class RemoveUserDto {
 
-    @IsString()
-    login: string;
+    @IsNumber()
+    userId: number;
 
     @IsString()
     password: string;
-
-    @IsString()
-    accessToken: string
-
+    
 }

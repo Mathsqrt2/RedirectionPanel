@@ -1,6 +1,6 @@
 import { IsBoolean } from "class-validator";
 
-export class UpdateStatusDTO {
+export class UpdateStatusDto {
 
     @IsBoolean()
     emailSent: boolean;

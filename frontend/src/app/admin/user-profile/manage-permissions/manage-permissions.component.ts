@@ -44,8 +44,16 @@ export class ManagePermissionsComponent implements OnInit {
     });
   }
 
-  public onPermissionsUpdate = (): void => {
-    if (this.permissionsForm.status === 'VALID') {
+  public onPermissionsUpdate = (key: string): void => {
+    let canContinue = true;
+    if (key === 'canManage') {
+      canContinue = window.confirm(`This change might be difficult to reverse. Are you sure?`);
+      if (!canContinue) {
+        this.permissionsForm.patchValue({ canManage: true });
+      }
+    }
+
+    if (this.permissionsForm.status === 'VALID' && canContinue) {
       const { canDelete, canUpdate, canCreate, canManage } = this.permissionsForm.value;
       const body = { canDelete, canUpdate, canCreate, canManage };
 

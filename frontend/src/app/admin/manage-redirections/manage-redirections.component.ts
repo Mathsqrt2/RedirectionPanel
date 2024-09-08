@@ -3,6 +3,8 @@ import { Redirection, RedirectionsService } from '../../services/redirections.se
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../services/users.service';
 import { Permissions } from '../../services/auth.service';
+import { Observable } from 'rxjs';
+import { CanComponentDeactivate } from '../../services/can-deactivate-guard.service';
 
 @Component({
   selector: 'app-manage-redirections',
@@ -10,7 +12,7 @@ import { Permissions } from '../../services/auth.service';
   styleUrl: './manage-redirections.component.scss'
 })
 
-export class ManageRedirectionsComponent implements OnInit {
+export class ManageRedirectionsComponent implements OnInit, CanComponentDeactivate {
 
   private refreshColspan = () => {
     let colspan = 0;
@@ -78,6 +80,10 @@ export class ManageRedirectionsComponent implements OnInit {
       this.categories = data;
     })
   }
+
+  canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+    return window.confirm(`There are unfinished processes. Are you sure you want to leave now?`);
+  };
 
   sortBy() {
     const mode = this.currentSortMode.split(" ");

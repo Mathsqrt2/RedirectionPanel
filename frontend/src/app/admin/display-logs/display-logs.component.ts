@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { CanComponentDeactivate } from '../../services/can-deactivate-guard.service';
 
 @Component({
   selector: 'display-logs',
@@ -8,7 +9,7 @@ import { BehaviorSubject } from 'rxjs';
   styleUrl: './display-logs.component.scss'
 })
 
-export class DisplayLogsComponent {
+export class DisplayLogsComponent implements CanComponentDeactivate {
 
   @ViewChild('scrollContainer', { static: true }) scrollContainer: ElementRef;
 
@@ -38,6 +39,10 @@ export class DisplayLogsComponent {
     })
     this.fetchLogs();
   }
+
+  canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+    return window.confirm(`There are unfinished processes. Are you sure you want to leave now?`);
+  };
 
   private getQuery = (): string => {
     let params = '';

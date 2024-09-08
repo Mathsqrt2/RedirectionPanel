@@ -135,6 +135,6 @@ export type SmtpAuth = {
 }
 
 export type SimpleResponse = {
-    status: HttpStatus.OK | HttpStatus.INTERNAL_SERVER_ERROR,
+    status: HttpStatus.OK | HttpStatus.ACCEPTED | HttpStatus.INTERNAL_SERVER_ERROR,
     message?: string,
 }

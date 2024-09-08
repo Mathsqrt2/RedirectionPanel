@@ -1,6 +1,8 @@
 import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Redirection, RedirectionsService } from '../../../services/redirections.service';
 import { Permissions } from '../../../services/auth.service';
+import { CanComponentDeactivate } from '../../../services/can-deactivate-guard.service';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: '[redirectionBar]',
@@ -8,7 +10,7 @@ import { Permissions } from '../../../services/auth.service';
     styleUrls: ['../manage-redirections.component.scss', './redirection-bar.component.scss'],
 })
 
-export class RedirectionBarComponent implements OnChanges {
+export class RedirectionBarComponent {
 
     @Input('instance') redirection: Redirection;
     @Input('index') index: number;
@@ -26,10 +28,6 @@ export class RedirectionBarComponent implements OnChanges {
     }
     @HostListener(`mouseleave`) hide = () => {
         this.displayData = this.secret ? true : false;
-    }
-
-    ngOnChanges(changes: SimpleChanges): void {
-        this.displayData = this.secret;
     }
 
     constructor(
