@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { User, UsersService } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, first } from 'rxjs';
 
 @Component({
   selector: 'manage-email',
@@ -60,6 +60,7 @@ export class ManageEmailComponent implements OnInit {
   }
 
   public onStartEmailChange = (): void => {
+    this.showEmailRemoveForm = false;
     this.showEmailChangeForm = true;
   }
 
@@ -81,18 +82,20 @@ export class ManageEmailComponent implements OnInit {
         password: this.removeEmailForm.value.password || ``,
       }
 
-      this.http.patch(`${this.baseUrl}/remove/email/${this.currentUser?.userId}`, body, { withCredentials: true }).subscribe(
-        (response: { status: number, message?: string }) => {
-          if (response.status === 202) {
-            this.user.next({ ...this.user.getValue(), email: null, emailSent: null });
-            this.showEmailChangeForm = false;
-            this.showEmailRemoveForm = false;
-            this.wrongPassword = false;
-          } else {
-            this.counter--
-            this.wrongPassword = true;
-          }
-        })
+      this.http.patch(`${this.baseUrl}/remove/email/${this.currentUser?.userId}`, body, { withCredentials: true })
+        .pipe(first())
+        .subscribe(
+          (response: { status: number, message?: string }) => {
+            if (response.status === 202) {
+              this.user.next({ ...this.user.getValue(), email: null, emailSent: null });
+              this.showEmailChangeForm = false;
+              this.showEmailRemoveForm = false;
+              this.wrongPassword = false;
+            } else {
+              this.counter--
+              this.wrongPassword = true;
+            }
+          })
     }
   }
 
@@ -100,6 +103,5 @@ export class ManageEmailComponent implements OnInit {
     this.showEmailRemoveForm = false;
     this.showEmailChangeForm = false;
   }
-
 
 }

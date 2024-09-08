@@ -73,10 +73,6 @@ form {
     align-items: center;
 }
 
-.confirmation-field {
-    margin-top: 16px;
-}
-
 .buttons-field {
     margin-top: 10px;
     display: flex;
@@ -143,6 +139,6 @@ form {
 }
 
 .error-code {
-    margin: unset;
+    margin-top: 8px;
     color: red;
 }

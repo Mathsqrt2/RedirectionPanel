@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { User, UsersService } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'manage-permissions',
@@ -57,17 +58,19 @@ export class ManagePermissionsComponent implements OnInit {
       const { canDelete, canUpdate, canCreate, canManage } = this.permissionsForm.value;
       const body = { canDelete, canUpdate, canCreate, canManage };
 
-      this.http.patch(`${this.baseUrl}/permissions`, { ...body, userId: this.currentUser.userId }, { withCredentials: true }).subscribe(
-        (response: { status: number, message: string }) => {
-          if (response.status === 200) {
-            this.usersService.setCurrentUserPermissions(body);
-            const accessToken = localStorage.getItem(`accessToken`);
-            if (accessToken) {
-              const data = JSON.parse(accessToken);
-              localStorage.accessToken = JSON.stringify({ ...data, permissions: body });
+      this.http.patch(`${this.baseUrl}/permissions`, { ...body, userId: this.currentUser.userId }, { withCredentials: true })
+        .pipe(first())
+        .subscribe(
+          (response: { status: number, message: string }) => {
+            if (response.status === 200) {
+              this.usersService.setCurrentUserPermissions(body);
+              const accessToken = localStorage.getItem(`accessToken`);
+              if (accessToken) {
+                const data = JSON.parse(accessToken);
+                localStorage.accessToken = JSON.stringify({ ...data, permissions: body });
+              }
             }
-          }
-        });
+          });
     }
   }
 

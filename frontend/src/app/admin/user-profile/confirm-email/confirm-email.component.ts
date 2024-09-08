@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { User, UsersService } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'confirm-email',
@@ -48,21 +49,23 @@ export class ConfirmEmailComponent implements OnInit {
 
       if (!this.currentUser.email && this.currentUser.emailSent && this.isUserSynced) {
 
-        this.http.get(`${this.baseUrl}/activecode/${newValue.userId}`, { withCredentials: true }).subscribe(
-          (response: CodeResponse) => {
-            if (response.status === 200) {
-              const code = response.content;
-              if (Date.now() <= code.expireDate) {
-                this.initializeConfirmationForm(code.email);
-                this.confirmEmailWithCodeForm.value.newEmail = code.email;
-                this.emailSent = this.currentUser.emailSent;
-                this.wrongCode = false;
-              } else {
-                this.wrongCode = true;
+        this.http.get(`${this.baseUrl}/activecode/${newValue.userId}`, { withCredentials: true })
+          .pipe(first())
+          .subscribe(
+            (response: CodeResponse) => {
+              if (response.status === 200) {
+                const code = response.content;
+                if (Date.now() <= code.expireDate) {
+                  this.initializeConfirmationForm(code.email);
+                  this.confirmEmailWithCodeForm.value.newEmail = code.email;
+                  this.emailSent = this.currentUser.emailSent;
+                  this.wrongCode = false;
+                } else {
+                  this.wrongCode = true;
+                }
               }
             }
-          }
-        )
+          )
       }
 
       (response: CodeResponse) => {
@@ -85,16 +88,18 @@ export class ConfirmEmailComponent implements OnInit {
 
     if (this.confirmEmailWithCodeForm.status === 'VALID') {
       const code = this.confirmEmailWithCodeForm.value.confirmationCode;
-      this.http.get(`${this.baseUrl}/verifybyrequest/${code}`, { withCredentials: true }).subscribe(
-        (response: EmailCheck) => {
-          if (response.status === 200) {
-            this.wrongCode = false;
-            this.usersService.updateCurrentUser();
-          } else {
-            this.wrongCode = true;
+      this.http.get(`${this.baseUrl}/verifybyrequest/${code}`, { withCredentials: true })
+        .pipe(first())
+        .subscribe(
+          (response: EmailCheck) => {
+            if (response.status === 200) {
+              this.wrongCode = false;
+              this.usersService.updateCurrentUser();
+            } else {
+              this.wrongCode = true;
+            }
           }
-        }
-      );
+        );
     }
   }
 
@@ -115,18 +120,22 @@ export class ConfirmEmailComponent implements OnInit {
         email: this.confirmEmailForm.value.newEmail,
       }
 
-      this.http.post(`${this.baseUrl}/getverificationemail`, body, { withCredentials: true }).subscribe(
-        (response: { status: number, message: string }) => {
-          if (response.status === 200) {
-            this.http.patch(`${this.baseUrl}/emailstatus/${body.userId}`,
-              { emailSent: true },
-              { withCredentials: true }).subscribe(res => {
-                this.emailSent = true;
-              });
-          } else if (response.status === 400) {
-            this.confirmEmailForm.reset();
-          }
-        })
+      this.http.post(`${this.baseUrl}/getverificationemail`, body, { withCredentials: true })
+        .pipe(first())
+        .subscribe(
+          (response: { status: number, message: string }) => {
+            if (response.status === 200) {
+              this.http.patch(`${this.baseUrl}/emailstatus/${body.userId}`,
+                { emailSent: true },
+                { withCredentials: true })
+                .pipe(first())
+                .subscribe(res => {
+                  this.emailSent = true;
+                });
+            } else if (response.status === 400) {
+              this.confirmEmailForm.reset();
+            }
+          })
     }
   }
 
@@ -140,7 +149,9 @@ export class ConfirmEmailComponent implements OnInit {
     }
 
     this.http.patch(`${this.baseUrl}/emailstatus/${body.userId}`, { emailSent: false },
-      { withCredentials: true }).subscribe(res => {
+      { withCredentials: true })
+      .pipe(first())
+      .subscribe(res => {
         this.emailSent = false;
         this.usersService.updateCurrentUser();
       });

@@ -157,6 +157,4 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     localStorage.visibilitySettings = JSON.stringify({ showSensitiveData: this.showSensitiveData })
   }
 
-
-
 }

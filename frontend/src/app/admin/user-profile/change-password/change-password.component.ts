@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { User } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'change-password',
@@ -12,7 +13,7 @@ export class ChangePasswordComponent implements OnInit {
 
   @Input(`currentUser`) currentUser: User;
   @Input(`baseUrl`) baseUrl: string;
-  
+
   public unauthorizedResponse: boolean = false;
   public changePasswordForm: FormGroup;
 
@@ -26,7 +27,7 @@ export class ChangePasswordComponent implements OnInit {
 
   constructor(
     private readonly http: HttpClient,
-  ){}
+  ) { }
 
   private areEquals(control: FormControl): { [s: string]: boolean } {
     if (control?.value !== this.changePasswordForm?.value?.newPassword) {
@@ -67,16 +68,18 @@ export class ChangePasswordComponent implements OnInit {
         userId: this.currentUser.userId
       }
 
-      this.http.patch(`${this.baseUrl}/password`, body, { withCredentials: true }).subscribe(
-        (response: { status: number, message: string }) => {
-          if (response.status === 401) {
-            this.unauthorizedResponse = true;
-          }
+      this.http.patch(`${this.baseUrl}/password`, body, { withCredentials: true })
+        .pipe(first())
+        .subscribe(
+          (response: { status: number, message: string }) => {
+            if (response.status === 401) {
+              this.unauthorizedResponse = true;
+            }
 
-          if (response.status === 200) {
-            this.unauthorizedResponse = false;
-          }
-        });
+            if (response.status === 200) {
+              this.unauthorizedResponse = false;
+            }
+          });
 
       this.changePasswordForm.reset();
     }

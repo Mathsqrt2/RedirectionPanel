@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Permissions } from "./auth.service";
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, first } from "rxjs";
 
 @Injectable()
 
@@ -15,11 +15,12 @@ export class UsersService {
 
     private getUsersList = async () => {
         return new Promise(resolve => {
-            this.http.get(`${this.targetUrl}/users`, { withCredentials: true }).subscribe(
-                (response: UsersResponse) => {
-                    this.users.next(response.content);
-                }
-            )
+            this.http.get(`${this.targetUrl}/users`, { withCredentials: true }).pipe(first())
+                .subscribe(
+                    (response: UsersResponse) => {
+                        this.users.next(response.content);
+                    }
+                )
             resolve(true)
         })
     }
@@ -37,12 +38,14 @@ export class UsersService {
     }
 
     public updateCurrentUser = async () => {
-        this.http.get(`${this.targetUrl}/auth/currentuser/${this.currentUser.getValue().userId}`, { withCredentials: true }).subscribe(
-            (newState: { status: number, content: User }) => {
-                const currentUser = this.currentUser.getValue();
-                this.currentUser.next({ ...currentUser, ...newState.content });
-            }
-        );
+        this.http.get(`${this.targetUrl}/auth/currentuser/${this.currentUser.getValue().userId}`, { withCredentials: true })
+            .pipe(first())
+            .subscribe(
+                (newState: { status: number, content: User }) => {
+                    const currentUser = this.currentUser.getValue();
+                    this.currentUser.next({ ...currentUser, ...newState.content });
+                }
+            );
     }
 
     public getCurrentUser = (): BehaviorSubject<User> => {

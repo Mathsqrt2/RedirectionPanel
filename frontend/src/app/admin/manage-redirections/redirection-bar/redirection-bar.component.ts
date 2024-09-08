@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
     styleUrls: ['../manage-redirections.component.scss', './redirection-bar.component.scss'],
 })
 
-export class RedirectionBarComponent {
+export class RedirectionBarComponent implements OnChanges {
 
     @Input('instance') redirection: Redirection;
     @Input('index') index: number;
@@ -34,6 +34,9 @@ export class RedirectionBarComponent {
         private redirectionsService: RedirectionsService,
     ) { }
 
+    ngOnChanges(changes: SimpleChanges): void {
+        this.displayData = this.secret;
+    }
 
     onCopyToClipboard = () => {
         navigator.clipboard.writeText(this.redirection.targetUrl);

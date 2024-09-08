@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { UsersService } from "./users.service";
 import { Router } from "@angular/router";
 import { RegisterUserResponse } from "../../../../backend/src/auth/auth.types";
+import { first } from "rxjs/operators";
 @Injectable()
 
 export class AuthService {
@@ -71,36 +72,37 @@ export class AuthService {
         return new Promise((resolve) => {
 
             if (!this.accessToken) {
-                this.http.post(`${this.baseUrl}/auth/login`, loginForm).subscribe({
+                this.http.post(`${this.baseUrl}/auth/login`, loginForm)
+                    .pipe(first())
+                    .subscribe({
+                        next: (response: LoginResponse) => {
+                            this.setStatus(response?.accessToken);
 
-                    next: (response: LoginResponse) => {
-                        this.setStatus(response?.accessToken);
+                            if (response.accessToken) {
 
-                        if (response.accessToken) {
+                                const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+                                localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
-                            const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
-                            localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+                                this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+                                this.usersService.registerUser({
+                                    username: response.login,
+                                    permissions: response.permissions,
+                                    accessToken: response.accessToken,
+                                    userId: response.userId,
+                                    email: response.email,
+                                    emailSent: response.emailSent,
+                                });
 
-                            this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                            this.usersService.registerUser({
-                                username: response.login,
-                                permissions: response.permissions,
-                                accessToken: response.accessToken,
-                                userId: response.userId,
-                                email: response.email,
-                                emailSent: response.emailSent,
-                            });
+                                resolve(true)
+                            }
 
-                            resolve(true)
-                        }
+                            resolve(false);
+                        },
 
-                        resolve(false);
-                    },
-
-                    error: () => {
-                        resolve(false);
-                    },
-                })
+                        error: () => {
+                            resolve(false);
+                        },
+                    })
             }
         })
     }
@@ -113,32 +115,34 @@ export class AuthService {
 
     public registerNewUser = async (body: RegisterProps): Promise<boolean> => {
         return new Promise((resolve) => {
-            this.http.post(`${this.baseUrl}/auth/register`, body).subscribe({
-                next: (response: RegisterUserResponse) => {
+            this.http.post(`${this.baseUrl}/auth/register`, body)
+                .pipe(first())
+                .subscribe({
+                    next: (response: RegisterUserResponse) => {
 
-                    if (response.status === 202) {
-                        this.setStatus(response?.accessToken);
+                        if (response.status === 202) {
+                            this.setStatus(response?.accessToken);
 
-                        const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
-                        localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+                            const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+                            localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
-                        this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                        this.usersService.registerUser({
-                            username: response.login,
-                            permissions: response.permissions,
-                            accessToken: response.accessToken,
-                            userId: response.userId,
-                        });
+                            this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+                            this.usersService.registerUser({
+                                username: response.login,
+                                permissions: response.permissions,
+                                accessToken: response.accessToken,
+                                userId: response.userId,
+                            });
 
-                        resolve(true);
-                    } else {
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    },
+                    error: () => {
                         resolve(false);
                     }
-                },
-                error: () => {
-                    resolve(false);
-                }
-            });
+                });
         })
     }
 }

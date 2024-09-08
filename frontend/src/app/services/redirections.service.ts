@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, first } from "rxjs";
 
 @Injectable()
 
@@ -20,21 +20,25 @@ export class RedirectionsService {
 
     private fetchRedirections = async (): Promise<boolean> => {
         return new Promise(resolve => {
-            this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true }).subscribe(
-                (response: RedirectionsResponse) => {
-                    this.redirections.next(response.content);
-                    resolve(true)
-                })
+            this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true })
+                .pipe(first())
+                .subscribe(
+                    (response: RedirectionsResponse) => {
+                        this.redirections.next(response.content);
+                        resolve(true)
+                    })
         })
     }
 
     private fetchRequests = async (): Promise<boolean> => {
         return new Promise(resolve => {
-            this.http.get(`${this.baseUrl}/requests`, { withCredentials: true }).subscribe(
-                (response: RequestResponse) => {
-                    this.requests.next(response.content);
-                    resolve(true);
-                })
+            this.http.get(`${this.baseUrl}/requests`, { withCredentials: true })
+                .pipe(first())
+                .subscribe(
+                    (response: RequestResponse) => {
+                        this.requests.next(response.content);
+                        resolve(true);
+                    })
         })
     }
 
@@ -75,28 +79,34 @@ export class RedirectionsService {
     }
 
     public deleteRedirection(index: number) {
-        this.http.delete(`${this.baseUrl}/redirections/${index}`, { withCredentials: true }).subscribe(() => {
-            this.redirections.next([...this.redirections.getValue().filter(redirection => redirection.id !== index)]);
-            this.findCategories(this.redirections.getValue());
-        });
+        this.http.delete(`${this.baseUrl}/redirections/${index}`, { withCredentials: true })
+            .pipe(first())
+            .subscribe(() => {
+                this.redirections.next([...this.redirections.getValue().filter(redirection => redirection.id !== index)]);
+                this.findCategories(this.redirections.getValue());
+            });
     }
 
     public editRedirection(redirection: Redirection) {
-        this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true }).subscribe(
-            () => {
-                this.redirections.next([...this.redirections.getValue().map(
-                    (r: Redirection) => redirection.id === r.id ? redirection : r)],
-                );
-                this.findCategories(this.redirections.getValue())
-            })
+        this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true })
+            .pipe(first())
+            .subscribe(
+                () => {
+                    this.redirections.next([...this.redirections.getValue().map(
+                        (r: Redirection) => redirection.id === r.id ? redirection : r)],
+                    );
+                    this.findCategories(this.redirections.getValue())
+                })
     }
 
     public createRedirection(body: Redirection) {
-        this.http.post(`${this.baseUrl}/redirections`, body, { withCredentials: true }).subscribe(
-            (response: { status: number, content: Redirection }) => {
-                this.redirections.next([...this.redirections.getValue(), response.content])
-                this.findCategories(this.redirections.getValue());
-            });
+        this.http.post(`${this.baseUrl}/redirections`, body, { withCredentials: true })
+            .pipe(first())
+            .subscribe(
+                (response: { status: number, content: Redirection }) => {
+                    this.redirections.next([...this.redirections.getValue(), response.content])
+                    this.findCategories(this.redirections.getValue());
+                });
     }
 }
 

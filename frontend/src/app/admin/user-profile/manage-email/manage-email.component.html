@@ -16,20 +16,20 @@
 
         <div class="inputs-field">
             <label for="updateEmailConfirm">Password</label>
-            <input id="updateEmailConfirm" name="updateEmailConfirm" formControl="updateEmailConfirm" type="password"
+            <input id="confirmUpdateEmail" name="confirmUpdateEmail" formControl="confirmUpdateEmail" type="password"
                 class="input field">
         </div>
 
         <div class="buttons-field">
             <div class="row">
                 <input type="button" value="reject" class="input button" (click)="onReject()" />
-                <input type="submit" value="confirm" class="input button" />
+                <input type="submit" value="confirm" class="input button" [disabled]="!changeEmailForm.valid" />
             </div>
         </div>
     </form>
 </div>
 
-<div class="wrapper" *ngIf="currentUser.email && showEmailRemoveForm && counter > 0">
+<div class="wrapper" *ngIf="currentUser.email && showEmailRemoveForm &&  !showEmailChangeForm && counter > 0">
     <form [formGroup]="removeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailRemove()">
         <div class="inputs-field">
             <label for="confirm-password">Password</label>
