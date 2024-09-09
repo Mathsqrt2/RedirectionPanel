@@ -47,17 +47,17 @@ export class AuthService {
             const codeRead = await this.codes.findOneBy({ code });
 
             if (!codeRead) {
-                throw new ConflictException(`Code doesn't exist`);
+                throw new ConflictException(`The code does not exist.`);
             }
 
             if (Date.now() > codeRead.expireDate || !codeRead.status) {
-                throw new ConflictException(`The code ${codeRead.code} has expired`);
+                throw new ConflictException(`The code: "${codeRead.code}" has expired.`);
             }
 
             let user = await this.users.findOneBy({ id: codeRead.userId });
 
             if (!user) {
-                throw new ConflictException(`User assigned to this code doesn't exist now`);
+                throw new ConflictException(`The user assigned to this code no longer exists.`);
             }
 
             user = { ...user, email: codeRead.email, canCreate: true, canUpdate: true };
@@ -72,29 +72,25 @@ export class AuthService {
 
             await this.codes.save({ ...codeRead, status: false });
 
-            await this.logger.completed({
-                label: `User verified`,
-                description: `User "${user.login}" has been verified with email: "${user.email}". From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
             return {
                 status: HttpStatus.OK,
-                message: `User ${user.login} verified successfully.`,
-                content
+                content,
+                message: await this.logger.completed({
+                    label: `User has been verified.`,
+                    description: `User: "${user.login}" has been verified with email: "${user.email}". IP: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                })
             }
 
         } catch (err) {
 
-            await this.logger.fail({
-                label: `Couldn't verify user`,
-                description: `email verification request from: "${req?.ip}" couldn't be handled. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't verify user`,
+                message: await this.logger.fail({
+                    label: `User verification failed.`,
+                    description: `Email verification request from: "${req?.ip}" couldn't be processed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                }),
             }
         }
     }
@@ -128,13 +124,12 @@ export class AuthService {
             const code = await this.dataSource.getRepository(Codes).findOneBy({ userId: id, status: true });
 
             if (!code) {
-                throw new ConflictException(`Code for user with id: "${id}" doesn't exist`);
+                throw new ConflictException(`The code for user with id: "${id}" does not exist.`);
             }
 
             if (Date.now() > code.expireDate) {
-                throw new ConflictException(`Last code for user with id: "${id}" has expired`)
+                throw new ConflictException(`The last code for user with id: "${id}" has expired.`)
             }
-
 
             const content = {
                 id: code.id,
@@ -144,32 +139,27 @@ export class AuthService {
                 email: this.hideEmailDetails(code.email)
             }
 
-            await this.logger.completed({
-                label: `Active code was found`,
-                description: `Active code was found: ${code.code}. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
             return {
                 status: HttpStatus.OK,
-                message: `Active code was found`,
                 content,
+                message: await this.logger.completed({
+                    label: `Active code found.`,
+                    description: `Active code found: "${code.code}". IP: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                }),
             }
 
         } catch (err) {
 
-            await this.logger.fail({
-                label: `Error while trying to get activeCode`,
-                description: `Active code couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err
-            })
-
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: err.message,
+                message: await this.logger.fail({
+                    label: `Error retrieving active code.`,
+                    description: `Active code not found for user with id: "${id}". IP: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                }),
             }
         }
-
     }
 
     public getCurrentUserData = async (id: number, req: Request): Promise<CurrentUserResponse> => {
@@ -179,6 +169,10 @@ export class AuthService {
         try {
 
             const user = await this.users.findOneBy({ id });
+
+            if (!user) {
+                throw new NotFoundException(`User with id: "${id}" not found.`)
+            }
 
             const permissions = {
                 canDelete: user.canDelete,
@@ -195,32 +189,28 @@ export class AuthService {
                 emailSent: user.emailSent,
             };
 
-            await this.logger.completed({
-                label: `User data was found`,
-                description: `Data for user: "${user.login}" was found. From ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
             return {
                 status: HttpStatus.OK,
-                message: `User data was found successfully`,
                 content,
+                message: await this.logger.completed({
+                    label: `User data found.`,
+                    description: `Data for user: "${user.login}" was found. IP: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                }),
+
             }
 
         } catch (err) {
 
-            await this.logger.fail({
-                label: `Error while trying to get current user data`,
-                description: `Current user data couldn't be found for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err
-            })
-
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: err.message,
+                message: await this.logger.fail({
+                    label: `Error retrieving current user data.`,
+                    description: `Current user data not found for user with id: "${id}". IP: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                }),
             }
         }
-
     }
 
     private isEmailValid = (email: string): boolean => {
@@ -237,29 +227,29 @@ export class AuthService {
         const startTime = Date.now();
 
         if (!email) {
-            throw new ConflictException(`Email is required`);
+            throw new ConflictException(`Email is required.`);
         }
 
         if (!this.isEmailValid(email)) {
-            throw new ConflictException(`incorrect email`);
+            throw new ConflictException(`Incorrect email.`);
         }
 
         if (await this.users.findOneBy({ email })) {
-            throw new ConflictException(`The email is already in use`);
+            throw new ConflictException(`This email is already in use.`);
         }
 
         if (!userId) {
-            throw new ConflictException(`User id is required`);
+            throw new ConflictException(`User ID is required.`);
         }
 
         const user = await this.users.findOneBy({ id: userId });
 
         if (!user) {
-            throw new NotFoundException(`User with id${userId} not found`);
+            throw new NotFoundException(`User with ID: "${userId}" not found.`);
         }
 
         if (user.email) {
-            throw new ConflictException(`The user is already verified`);
+            throw new ConflictException(`The user is already verified.`);
         }
 
         const options: nodemailer.TransportOptions & TransportDataType = {
@@ -284,13 +274,15 @@ export class AuthService {
             const creationTime = new Date();
             const expireTime = new Date().setDate(creationTime.getDate() + 1);
 
-            const text = `Your verification code is: ${code}. 
-            It is active for one day, and expires: ${(new Date(expireTime)).toLocaleDateString('pl-Pl')}.
-            You can paste it in your profile or click the link <a href=${config.backend.domain}/api/auth/verify/${code}>${config.backend.domain}/verify/${code}</a>`;
+            const text = `Your verification code is: ${code}.
+                It is active for one day and expires on ${(new Date(expireTime)).toLocaleDateString('pl-PL')}.
+                You can paste it in your profile or click the link
+                <a href=${config.backend.domain}/api/auth/verify/${code}>${config.backend.domain}/verify/${code}</a>.`
             let html = `<h1>You're welcome</h1>
                 <p>${text}</p>`;
 
-            const existingCode = await this.codes.findOneBy({ status: true });
+            const existingCode = await this.dataSource.getRepository(Codes).findOneBy({ userId, status: true });
+
             if (existingCode) {
                 existingCode.status = false;
                 this.codes.save({ ...existingCode });
@@ -307,20 +299,19 @@ export class AuthService {
             await transport.sendMail({
                 from: config.mailer.user,
                 to: email,
-                subject: 'Verification code in Redirection Panel Service',
+                subject: 'Verification code in Redirection Panel Service.',
                 text: text,
                 html: html,
             })
 
-            await this.logger.completed({
-                label: `Email send`,
-                description: `User "${user.login}", Requested for email from: "${req?.ip}", The email has been sent, Time: ${new Date().toLocaleString('pl-PL')}}`,
-                startTime,
-            })
-
             return ({
                 status: HttpStatus.OK,
-                message: `Check your email: ${email}`,
+                message: await this.logger.completed({
+                    label: `Email sent.`,
+                    description: `User "${user.login}" requested email from IP: "${req?.ip}". 
+                        Email has been sent. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                }),
             })
 
         } catch (err) {
@@ -329,26 +320,24 @@ export class AuthService {
 
             if (user) {
                 await this.users.save({ ...user, emailSent: false });
+            } else {
+                throw new NotFoundException(`User with id: ${userId} not found`);
             }
 
             const code = await this.dataSource.getRepository(Codes).findOneBy({ userId, status: true });
 
             if (code) {
-
-                await this.dataSource.getRepository(Codes).save({ ...code });
-
+                await this.dataSource.getRepository(Codes).save({ ...code, status: false });
             }
-
-
-            await this.logger.fail({
-                label: `Email couldn't be send`,
-                description: `User "${user.login}" requested for email from: "${req?.ip}" The email couldn't be sent. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err
-            })
 
             return ({
                 status: HttpStatus.BAD_REQUEST,
-                message: `Error while trying to send email. ${err}`,
+                message: await this.logger.fail({
+                    label: `Email sending failed.`,
+                    description: `User "${user.login}" requested an email from IP: "${req?.ip}". 
+                        Email sending failed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                }),
             });
         }
     };
@@ -377,11 +366,11 @@ export class AuthService {
             const user = await this.users.findOneBy({ login });
 
             if (user) {
-                throw new ConflictException(`User already exists`);
+                throw new ConflictException(`User already exists.`);
             }
 
             if (password !== confirmPassword) {
-                throw new ConflictException(`Confirm password mismatch`);
+                throw new ConflictException(`Password confirmation does not match.`);
             }
 
             const newUser = await this.users.save<any>({
@@ -398,12 +387,6 @@ export class AuthService {
             const { canDelete, canUpdate, canCreate, canManage } = newUser;
             const payload = { sub: newUser.id, username: newUser?.login };
 
-            await this.logger.completed({
-                label: `User registered`,
-                description: `"${login}" registered from ip: "${req?.ip}", canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
             return {
                 status: HttpStatus.ACCEPTED,
                 accessToken: await this.jwtService.signAsync(payload),
@@ -411,17 +394,24 @@ export class AuthService {
                 permissions: { canDelete, canUpdate, canCreate, canManage },
                 email: user.email,
                 userId,
+                message: await this.logger.completed({
+                    label: `User registered.`,
+                    description: `"${login}" registered from IP: "${req?.ip}". 
+                        Permissions: canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}". 
+                        Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                })
             };
         } catch (err) {
 
-            await this.logger.fail({
-                label: `Error while trying to register user`,
-                description: `User couldn't be registered with login: "${login}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err
-            })
-
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: await this.logger.fail({
+                    label: `Error while trying to register the user.`,
+                    description: `User with login: "${login}" could not be registered. IP: "${req?.ip}".
+                        Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                }),
             }
         }
     }
@@ -435,22 +425,17 @@ export class AuthService {
             const user = await this.users.findOneBy({ login });
 
             if (!user) {
-                throw new UnauthorizedException(`Login or password incorrect`);
+                throw new UnauthorizedException(`Login or password is incorrect.`);
             }
 
             if (!this.comparePasswords(password, user.password)) {
-                throw new UnauthorizedException(`Login or password incorrect`);
+                throw new UnauthorizedException(`Login or password is incorrect.`);
             }
 
             const payload = { sub: user.id, username: user.login };
             const accessToken = await this.jwtService.signAsync(payload);
 
             const { canDelete, canUpdate, canCreate, canManage } = user;
-            await this.logger.completed({
-                label: `Signed in`,
-                description: `User with login: "${login}", Signed in from ip: "${req?.ip}", canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
 
             return {
                 status: HttpStatus.OK,
@@ -458,21 +443,27 @@ export class AuthService {
                 login: user.login,
                 userId: user.id,
                 email: user.email,
-                permissions: { canDelete, canUpdate, canCreate, canManage }
+                permissions: { canDelete, canUpdate, canCreate, canManage },
+                message: await this.logger.completed({
+                    label: `Signed in.`,
+                    description: `User with login: "${login}" signed in from IP: "${req?.ip}". 
+                        Permissions: canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}". 
+                        Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                })
             };
         } catch (err) {
 
-            await this.logger.fail({
-                label: `error while trying to sign in`,
-                description: `Someone tried to sign in as: "${login}", From ip: "${req?.ip}", Couldn't signed in. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err
-            })
-
             return {
-                status: HttpStatus.BAD_REQUEST
+                status: HttpStatus.BAD_REQUEST,
+                message: await this.logger.fail({
+                    label: `Failed to sign in.`,
+                    description: `Sign-in attempt failed for user "${login}" from IP: "${req?.ip}". 
+                        Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                })
             }
         }
-
     }
 
     public updatePassword = async (body: UpdatePswdDto, req: Request): Promise<UpdatePswdResponse> => {
@@ -484,42 +475,40 @@ export class AuthService {
             const user = await this.users.findOneBy({ id: body.userId });
 
             if (!user) {
-                throw new ConflictException(`User with id: ${body.userId} doesn't exist`);
+                throw new ConflictException(`User with ID: ${body.userId} doesn't exist.`);
             }
 
             if (body.newPassword !== body.confirmPassword) {
-                throw new ConflictException(`Passwords must be equal`);
+                throw new ConflictException(`Passwords must match.`);
             }
 
             if (!this.comparePasswords(body.password, user.password)) {
-                throw new UnauthorizedException(`Incorrect password`);
+                throw new UnauthorizedException(`Incorrect password.`);
             }
 
             user.password = this.securePassword(body.newPassword);
             await this.users.save({ ...user });
 
-            await this.logger.completed({
-                label: `Password changed`,
-                description: `"${user.login}" password has been changed from ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
             return {
                 status: HttpStatus.OK,
-                message: 'Password updated successfully'
+                message: await this.logger.completed({
+                    label: `Password changed.`,
+                    description: `Password for "${user.login}" has been changed from IP: "${req?.ip}".
+                        Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                })
             }
 
         } catch (err) {
 
-            await this.logger.fail({
-                label: `Error while trying to change password`,
-                description: `Password couldn't be changed for user with id: "${body.userId}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err
-            })
-
             return {
                 status: HttpStatus.UNAUTHORIZED,
-                message: err.message,
+                message: await this.logger.fail({
+                    label: `Failed to change the password.`,
+                    description: `Failed to change the password for user with ID: "${body.userId}".
+                        IP: "${req?.ip}". Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                })
             }
         }
     }
@@ -532,37 +521,35 @@ export class AuthService {
             let user = await this.users.findOneBy({ id: body.userId });
 
             if (!user) {
-                throw new NotFoundException(`User with id: ${body.userId} doesn't exist`);
+                throw new NotFoundException(`User with ID: "${body.userId}" doesn't exist.`);
             }
 
             if (!user.canManage) {
-                throw new UnauthorizedException(`Couldn't manage users. Insufficient permissions`);
+                throw new UnauthorizedException(`Unable to manage users. Insufficient permissions.`);
             }
 
             user = await this.users.save({ ...user, ...body });
 
-            await this.logger.completed({
-                label: `Permissions have been updated`,
-                description: `User: "${user.login}" permissions was updated to: canManage: "${user.canManage}", canCreate: "${user.canCreate}",
-                 canUpdate: "${user.canUpdate}", canDelete: "${user.canDelete}". Request ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
             return {
                 status: HttpStatus.OK,
-                message: 'Permissions updated successfully',
+                message: await this.logger.completed({
+                    label: `Permissions updated successfully.`,
+                    description: `User: "${user.login}" permissions were updated to: canManage: "${user.canManage}", canCreate: "${user.canCreate}",
+                        canUpdate: "${user.canUpdate}", canDelete: "${user.canDelete}". Request IP: "${req?.ip}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                }),
             }
-        } catch (err) {
 
-            await this.logger.fail({
-                label: `Error while trying to update permissions`,
-                description: `Permissions couldn't be updated for user with id: "${body.userId}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
+        } catch (err) {
 
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't update permissions`,
+                message: await this.logger.fail({
+                    label: `Error occurred during permission update.`,
+                    description: `Permissions couldn't be updated for user with ID: "${body.userId}". 
+                        IP: "${req?.ip}". Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err,
+                }),
             }
         }
     }
@@ -576,7 +563,7 @@ export class AuthService {
             const user = await this.users.findOneBy({ id })
 
             if (!user) {
-                throw new NotFoundException(`User with id: ${id} doesn't exist`);
+                throw new NotFoundException(`User with ID: ${id} doesn't exist.`);
             }
 
             user.emailSent = body.emailSent;
@@ -593,28 +580,26 @@ export class AuthService {
 
             await this.users.save({ ...user });
 
-            await this.logger.completed({
-                label: `User email status updated successfully`,
-                description: `User: "${user.login}" email status was updated to: {enailSent:${body.emailSent}}. Request ip: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
             return {
                 status: HttpStatus.OK,
-                message: "User email status updated successfully",
+                message: await this.logger.completed({
+                    label: `User email status updated successfully.`,
+                    description: `User: "${user.login}" email status was updated to: {emailSent:${body.emailSent}}. 
+                        Request IP: "${req?.ip}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                }),
             }
 
         } catch (err) {
 
-            await this.logger.fail({
-                label: `Error while trying to update email status`,
-                description: `Email status couldn't be updated for user with id: "${id}", From ip: "${req?.ip}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: err.message,
+                message: await this.logger.fail({
+                    label: `Error while trying to update email status.`,
+                    description: `Email status couldn't be updated for user with ID: "${id}". 
+                        IP: "${req?.ip}". Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err,
+                }),
             }
         }
     }
@@ -637,7 +622,7 @@ export class AuthService {
             const user = await this.users.findOneBy({ id });
 
             if (!user) {
-                throw new NotFoundException(`Login or password incorrect`)
+                throw new NotFoundException(`Login or password incorrect.`)
             }
 
             if (this.comparePasswords(password, admin.password)) {
@@ -646,24 +631,25 @@ export class AuthService {
                 throw new UnauthorizedException(`Access denied.`);
             }
 
-            await this.logger.completed({
-                label: `User removed`,
-                description: `User with login: "${user.login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.ACCEPTED }
+            return {
+                status: HttpStatus.ACCEPTED,
+                message: await this.logger.completed({
+                    label: `User removed.`,
+                    description: `User with login: "${user.login}" was removed. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                })
+            }
         } catch (err) {
 
-            await this.logger.fail({
-                label: `Error while trying to remove user`,
-                description: `User with id: "${id}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
-            return { status: HttpStatus.INTERNAL_SERVER_ERROR }
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: await this.logger.fail({
+                    label: `Error while trying to remove user.`,
+                    description: `User with ID: "${id}" couldn't be removed. Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err,
+                })
+            }
         }
-
     }
 
     public removeEmail = async (id: number, { password }: RemoveEmailDto): Promise<SimpleResponse> => {
@@ -674,7 +660,7 @@ export class AuthService {
             const user = await this.users.findOneBy({ id });
 
             if (!user) {
-                throw new NotFoundException(`Login or password incorrect`)
+                throw new NotFoundException(`Login or password incorrect.`)
             }
 
             if (this.comparePasswords(password, user.password)) {
@@ -683,23 +669,25 @@ export class AuthService {
                 throw new UnauthorizedException(`Access denied.`);
             }
 
-            await this.logger.completed({
-                label: `User removed`,
-                description: `User with login: "${user.login}" removed, Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
+            return {
+                status: HttpStatus.ACCEPTED,
+                message: await this.logger.completed({
+                    label: `User removed.`,
+                    description: `User with login: "${user.login}" was removed. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                })
+            }
 
-            return { status: HttpStatus.ACCEPTED }
         } catch (err) {
 
-            await this.logger.fail({
-                label: `Error while trying to remove email`,
-                description: `User with id: "${id}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
-            return { status: HttpStatus.INTERNAL_SERVER_ERROR }
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: await this.logger.fail({
+                    label: `Error while trying to remove email.`,
+                    description: `The email of the user with ID: "${id}" couldn't be removed. Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err,
+                })
+            }
         }
     }
-
 }

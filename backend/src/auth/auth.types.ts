@@ -15,6 +15,7 @@ export type RegisterUserResponse = {
     permissions: Permissions,
     email?: string,
     userId?: number,
+    message?: string,
 } | ErrorResponse;
 
 type ErrorResponse = {
@@ -42,6 +43,7 @@ export type LoginUserResponse = {
     userId: number,
     email?: string,
     permissions: Permissions
+    message?: string,
 } | ErrorResponse;
 
 export type LogoutUser = {
@@ -60,6 +62,7 @@ export type RemoveUserProps = {
 
 export type RemoveUserResponse = {
     status: HttpStatus.ACCEPTED | HttpStatus.UNAUTHORIZED,
+    message?: string,
 } | ErrorResponse;
 
 export type SendVerificationCodeResponse = {

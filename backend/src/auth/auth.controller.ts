@@ -39,10 +39,10 @@ export class AuthController {
         try {
             return await this.authService.getVerificationCode(code, req);
         } catch (err) {
-            console.log('verifyEmail', err);
+            console.log('verifyEmail error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't verify request with code: ${code}`,
+                message: `Verification failed for the request with code: "${code}".`,
             }
         }
     }
@@ -56,10 +56,10 @@ export class AuthController {
         try {
             return await this.authService.getActiveCode(id, req);
         } catch (err) {
-            console.log('getActiveCode', err);
+            console.log('getActiveCode error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't get active code`,
+                message: `Failed to retrieve active code.`,
             }
         }
     }
@@ -73,10 +73,10 @@ export class AuthController {
         try {
             return await this.authService.getCurrentUserData(id, req);
         } catch (err) {
-            console.log('getActiveCode', err);
+            console.log('getActiveCode error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't get active code`,
+                message: `Failed to retrieve current user data.`,
             }
         }
     }
@@ -90,10 +90,10 @@ export class AuthController {
         try {
             return await this.authService.getVerificationCode(code, req);
         } catch (err) {
-            console.log('verifyEmail', err);
+            console.log('verifyEmail error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't verify request with code: ${code}`,
+                message: `Failed to verify request with code: "${code}".`,
             }
         }
     }
@@ -107,10 +107,10 @@ export class AuthController {
         try {
             return await this.authService.sendVerificationEmail(body, req);
         } catch (err) {
-            console.log('verifyEmail', err);
+            console.log('verifyEmail error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't handle verification`,
+                message: `Verification process failed.`,
             }
         }
     }
@@ -126,10 +126,10 @@ export class AuthController {
             response.cookie('jwt', newUser.status, { httpOnly: true });
             return newUser;
         } catch (err) {
-            console.log(`registerUser`, err);
+            console.log(`registerUser error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't register new user.`,
+                message: `Failed to register new user.`,
             }
         }
     }
@@ -151,10 +151,10 @@ export class AuthController {
             return accessToken;
 
         } catch (err) {
-            console.log(`loginUser`, err);
+            console.log(`loginUser error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't login.`,
+                message: `Failed to log in.`,
             }
         }
     }
@@ -168,10 +168,10 @@ export class AuthController {
         try {
             return await this.authService.updatePassword(body, req);
         } catch (err) {
-            console.log('updatePassword', err);
+            console.log('updatePassword error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't update password`,
+                message: `Failed to update password.`,
             }
         }
     }
@@ -185,10 +185,10 @@ export class AuthController {
         try {
             return await this.authService.updatePermissions(body, req);
         } catch (err) {
-            console.log('updatePermissions', err);
+            console.log('updatePermissions error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't update permissions`,
+                message: `Failed to update permissions.`,
             }
         }
     }
@@ -203,10 +203,10 @@ export class AuthController {
         try {
             return await this.authService.updateEmailStatus(id, body, req);
         } catch (err) {
-            console.log('updateEmailStatus', err);
+            console.log('updateEmailStatus error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't update email status`,
+                message: `Failed to update email status.`,
             }
         }
     }
@@ -220,10 +220,10 @@ export class AuthController {
         try {
             return await this.authService.removeEmail(id, body);
         } catch (err) {
-            console.log(`removeEmail`, err);
+            console.log(`removeEmail error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't execute remove email`,
+                message: `Failed to remove email.`,
             }
         }
     }
@@ -237,10 +237,10 @@ export class AuthController {
         try {
             return await this.authService.removeUser(id, body);
         } catch (err) {
-            console.log(`removeUser`, err);
+            console.log(`removeUser error:`, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't execute remove user.`,
+                message: `Failed to remove user.`,
             }
         }
     }

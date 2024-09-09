@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable } from "@nestjs/common";
+import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import {
     Repository, DataSource, LessThanOrEqual,
     MoreThanOrEqual, Between
@@ -17,6 +17,7 @@ import { Redirections } from "./orm/redirections/redirections.entity";
 import { Logs } from "./orm/logs/logs.entity";
 import { Codes } from "src/auth/orm/codes.entity";
 import { LoggerService } from "src/utils/logs.service";
+import { NotFoundError } from "rxjs";
 
 @Injectable()
 export class DatabaseService {
@@ -41,7 +42,7 @@ export class DatabaseService {
             case 'requests': return Requests;
             case 'users': return Users;
             case 'codes': return Codes;
-            default: throw new Error(`Endpoint: "${endpoint}" doesn't exist.`);
+            default: throw new Error(`The endpoint "${endpoint}" does not exist.`);
         }
     }
 
@@ -52,7 +53,7 @@ export class DatabaseService {
             case 'requests': return this.requests;
             case 'users': return this.users;
             case 'codes': return this.codes;
-            default: throw new Error(`Endpoint: "${endpoint}" doesn't exist.`);
+            default: throw new Error(`The entity for "${endpoint}" does not exist.`);
         }
     }
 
@@ -67,7 +68,7 @@ export class DatabaseService {
             if (maxDate || minDate) {
                 const entity = this.getEntity(endpoint);
 
-                if (!entity) throw new Error(`Entity for ${endpoint} doesn't exist`);
+                if (!entity) throw new Error(`The entity for "${endpoint}" does not exist.`);
 
                 let query = {};
 
@@ -83,7 +84,7 @@ export class DatabaseService {
             } else {
                 const model = this.recognizeModel(endpoint);
 
-                if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+                if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
                 response = await model.find();
             }
@@ -92,25 +93,25 @@ export class DatabaseService {
                 response = response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
             }
 
-            this.logger.success({
-                label: `${response.length} elements found.`,
-                description: `endpoint: "${endpoint}", maxCount: "${maxCount}", offset: "${offset}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.FOUND, content: response };
+            return {
+                status: HttpStatus.FOUND,
+                content: response,
+                message: await this.logger.received({
+                    label: `${response.length} ${response.length > 1 ? "elements were found." : "element was found."}`,
+                    description: `Endpoint: "${endpoint}", maxCount: "${maxCount}", offset: "${offset}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to get multiple elements`,
-                description: `Couldn't get elements on: "${endpoint}", maxCount: "${maxCount}", offset: "${offset}". getMultipleElements error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't get elements on: "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Failed to retrieve elements from: "${endpoint}".`,
+                    description: `Failed to retrieve elements from: "${endpoint}", maxCount: "${maxCount}", offset: "${offset}". Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
         }
     }
@@ -120,33 +121,36 @@ export class DatabaseService {
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
 
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+        if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
         try {
 
             const response = await model.findOneBy({ id });
 
-            this.logger.success({
-                label: `Single element found`,
-                description: `endpoint: "${endpoint}", id: "${id}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
+            if (!response) {
+                throw new NotFoundError(`Item with id: "${id}" not found`);
+            }
 
-            return response
+            return {
+                status: HttpStatus.OK,
+                content: response,
+                message: await this.logger.received({
+                    label: `Single element was found.`,
+                    description: `Endpoint: "${endpoint}", ID: "${id}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            }
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to get single element`,
-                description: `Couldn't get element with id: "${id}" on: "${endpoint}". getSingleElementById error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't get element with id: "${id}" on: "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Failed to retrieve element with ID: "${id}" from "${endpoint}".`,
+                    description: `Failed to retrieve element with ID: "${id}", from "${endpoint}". Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
-
         }
     }
 
@@ -162,7 +166,7 @@ export class DatabaseService {
             if (maxDate || minDate) {
 
                 const entity = this.getEntity(endpoint);
-                if (!entity) throw new Error(`Entity for ${endpoint} doesn't exist`);
+                if (!entity) throw new Error(`The entity for "${endpoint}" does not exist.`);
 
                 if (maxDate && minDate) {
                     query['jstimestamp'] = Between(new Date(new Date(minDate).getTime() - this.timezoneOffset).getTime(), new Date(new Date(maxDate).getTime() - this.offset).getTime());
@@ -177,7 +181,7 @@ export class DatabaseService {
             } else {
 
                 const model = this.recognizeModel(endpoint);
-                if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+                if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
                 query[param] = value;
                 response = await model.findBy(query);
@@ -187,38 +191,36 @@ export class DatabaseService {
                 response = response.filter((_, i, arr) => i >= arr.length - 1 - offset - (maxCount - 1) && i <= arr.length - 1 - offset);
             }
 
-            this.logger.success({
-                label: `${response.length} items found`,
-                description: `Search on "${endpoint}", query: "{${param}:${value}}", maxCount: "${maxCount}", offset: "${offset}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.FOUND, content: response };
+            return {
+                status: HttpStatus.FOUND,
+                content: response,
+                message: await this.logger.received({
+                    label: `${response.length} items were found.`,
+                    description: `Search on "${endpoint}", query: "{${param}:${value}}", maxCount: "${maxCount}", offset: "${offset}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while geting multiple elements by param`,
-                description: `Couldn't get multiple elements by "{${param}:${value}}" on: "${endpoint}",
-                    maxCount: "${maxCount}", offset: "${offset}", getMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't get elements {${param}:${value}} on: "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Failed to retrieve elements with {${param}:${value}} from "${endpoint}".`,
+                    description: `Failed to retrieve multiple elements by "{${param}:${value}}" 
+                        from "${endpoint}", maxCount: "${maxCount}", offset: "${offset}". Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
-
         }
     }
-
 
     public createSingleElement = async ({ endpoint, data }: createSingleElementProps): Promise<DatabaseOutput> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
 
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+        if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
         try {
 
@@ -226,7 +228,7 @@ export class DatabaseService {
                 const redirection = await model.findOneBy({ route: data.route });
 
                 if (redirection) {
-                    throw new ConflictException(`This redirection already exists`);
+                    throw new ConflictException(`The redirection already exists.`);
                 }
             }
 
@@ -235,27 +237,26 @@ export class DatabaseService {
                 jstimestamp: Date.now(),
             });
 
-            this.logger.success({
-                label: `Single item created`,
-                description: `endpoint: ${endpoint}, Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.CREATED, content: response };
+            return {
+                status: HttpStatus.CREATED,
+                content: response,
+                message: await this.logger.created({
+                    label: `A single item was created.`,
+                    description: `Endpoint: "${endpoint}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to create single element`,
-                description: `Couldn't create single element on "${endpoint}". createSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't create single element on "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Failed to create a single element on "${endpoint}".`,
+                    description: `Failed to create a single element on "${endpoint}". Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
-
         }
     }
 
@@ -264,7 +265,7 @@ export class DatabaseService {
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
 
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+        if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
         try {
 
@@ -275,11 +276,11 @@ export class DatabaseService {
                     const redirection = await model.findOneBy({ route: item.route });
 
                     if (redirection) {
-                        const err = new Error(`Redirection with this route already exists`)
+                        const err = new Error(`A redirection with this route already exists.`)
                         this.logger.fail({
-                            label: `Couldn't create one of multiple redirections`,
-                            description: `Couldn't create ${dataArray.length} element on "${endpoint}", data: "${JSON.stringify(item)}".
-                            createMultipleElements error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                            label: `Failed to create one of the multiple redirections.`,
+                            description: `Failed to create ${dataArray.length} elements on "${endpoint}", 
+                                data: "${JSON.stringify(item)}". Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
                             startTime, err,
                         })
                         continue;
@@ -293,29 +294,27 @@ export class DatabaseService {
                 response.push(content);
             }
 
-            this.logger.success({
-                label: `${dataArray.length} items created`,
-                description: `endpoint: "${endpoint}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.CREATED, content: response };
+            return {
+                status: HttpStatus.CREATED,
+                content: response,
+                message: await this.logger.created({
+                    label: `${dataArray.length} elements successfully created.`,
+                    description: `Endpoint: "${endpoint}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to create multiple elements`,
-                description: `Couldn't create ${dataArray.length} elements on "${endpoint}". createMultipleElements error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't create ${dataArray.length} elements on "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Failed to create ${dataArray.length} elements on "${endpoint}".`,
+                    description: `Failed to create ${dataArray.length} elements on "${endpoint}". Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                })
             }
-
         }
-
     }
 
     public updateSingleElement = async ({ endpoint, id, data }: updateSingleElementProps): Promise<DatabaseOutput> => {
@@ -323,36 +322,40 @@ export class DatabaseService {
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
 
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+        if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
         try {
 
             const instance = await model.findOneBy({ id });
+
+            if (!instance) {
+                throw new NotFoundException(`The item with id: "${id}" not found.`);
+            }
+
             const response = await model.save({ ...instance, ...data });
 
-            this.logger.success({
-                label: `Item with id: ${id} updated`,
-                description: `endpoint: "${endpoint}", element id: "${id}", new data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.OK, content: response };
+            return {
+                status: HttpStatus.OK,
+                content: response,
+                message: await this.logger.updated({
+                    label: `Item with ID: ${id} has been updated.`,
+                    description: `Endpoint: "${endpoint}", element ID: "${id}", new data: "${JSON.stringify(data)}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to update single element`,
-                description: `Couldn't update single element with id: "${id}" on "${endpoint}". updateSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't update single element with id: "${id}" on "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Error while updating a single element.`,
+                    description: `Failed to update the single element with ID: "${id}" on "${endpoint}". 
+                        Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
-
         }
-
     }
 
     public patchSingleElement = async ({ endpoint, id, data }: patchSingleElementProps): Promise<DatabaseOutput> => {
@@ -360,34 +363,39 @@ export class DatabaseService {
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
 
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+        if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
         try {
 
             const instance = await model.findOneBy({ id });
+
+            if (!instance) {
+                throw new NotFoundException(`The item with id: "${id}" not found.`);
+            }
+
             const response = await model.save({ ...instance, ...data });
 
-            this.logger.success({
-                label: `Item with id: "${id}" patched`,
-                description: `endpoint: "${endpoint}", id: "${id}", new data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.OK, content: response };
+            return {
+                status: HttpStatus.OK,
+                content: response,
+                message: await this.logger.updated({
+                    label: `Item with ID: "${id}" has been patched.`,
+                    description: `Endpoint: "${endpoint}", ID: "${id}", new data: "${JSON.stringify(data)}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to patch single element`,
-                description: `Couldn't patch single element with id: "${id}" on "${endpoint}". patchSingleElement error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't patch single element with id: "${id}" on "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Error while patching a single element.`,
+                    description: `Failed to patch the single element with ID: "${id}" on "${endpoint}". 
+                        Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
-
         }
     }
 
@@ -396,7 +404,7 @@ export class DatabaseService {
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
 
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+        if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
         try {
             const response = [];
@@ -408,27 +416,28 @@ export class DatabaseService {
                 response.push(item);
             }
 
-            this.logger.success({
-                label: `${response.length} items patched`,
-                description: `endpoint: "${endpoint}", items: ${response.length}, query: "{${param}:${value}}". New data: "${JSON.stringify(data)}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.OK, content: response };
+            return {
+                status: HttpStatus.OK,
+                content: response,
+                message: await this.logger.updated({
+                    label: `${response.length} items have been patched.`,
+                    description: `Endpoint: "${endpoint}", items: ${response.length}, query: "{${param}:${value}}". 
+                        New data: "${JSON.stringify(data)}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to patch multiple elements`,
-                description: `Couldn't patch ${data.length} elements found by: "{${param}:${value}}" on "${endpoint}". patchMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't patch multiple elements found by: {${param}:${value}} on "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Error while patching multiple elements.`,
+                    description: `Failed to patch ${data.length} elements found by: "{${param}:${value}}" on "${endpoint}". 
+                        Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
-
         }
     }
 
@@ -437,35 +446,41 @@ export class DatabaseService {
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
 
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+        if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
         try {
 
-            const item = await model.findOneBy({ id });
+            const instance = await model.findOneBy({ id });
+
+            if (!instance) {
+                throw new NotFoundException(`The item with id: "${id}" not found.`);
+            }
+
             const status = await model.delete({ id });
-            const response = { ...status, raw: { ...item } };
+            const response = { ...status, raw: { ...instance } };
 
-            this.logger.success({
-                label: `Item with ID: ${id} deleted`,
-                description: `endpoint: "${endpoint}", item: "${JSON.stringify(response)}", id: "${id}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.OK, content: response };
+            return {
+                status: HttpStatus.OK,
+                content: response,
+                message: await this.logger.deleted({
+                    label: `Item with ID: "${id}" has been deleted.`,
+                    description: `Endpoint: "${endpoint}", item: "${JSON.stringify(response)}", 
+                        ID: "${id}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to delete single element`,
-                description: `Couldn't delete single element with id: "${id}" on "${endpoint}". deleteSingleElementById error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't delete single element with id: "${id}" on "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Error while deleting a single element.`,
+                    description: `Failed to delete the single element with ID: "${id}" on "${endpoint}". 
+                        Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
-
         }
     }
 
@@ -474,7 +489,7 @@ export class DatabaseService {
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
 
-        if (!model) throw new Error(`Model for ${endpoint} doesn't exist`);
+        if (!model) throw new Error(`The model for "${endpoint}" does not exist.`);
 
         try {
 
@@ -485,28 +500,28 @@ export class DatabaseService {
             const status = await model.delete(query);
             const response = { ...status, raw: [...item] };
 
-            this.logger.success({
-                label: `${response?.raw?.length} items deleted`,
-                description: `endpoint: "${endpoint}", items: "${JSON.stringify(response)}", query: "{${param}:${value}}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime,
-            })
-
-            return { status: HttpStatus.OK, content: response };
+            return {
+                status: HttpStatus.OK,
+                content: response,
+                message: await this.logger.deleted({
+                    label: `${response?.raw?.length} items have been deleted.`,
+                    description: `Endpoint: "${endpoint}", items: "${JSON.stringify(response)}", 
+                        query: "{${param}:${value}}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime,
+                })
+            };
 
         } catch (err) {
 
-            this.logger.fail({
-                label: `Error while trying to delete multiple element`,
-                description: `Couldn't delete multiple elements found by: "{${param}:${value}}" on "${endpoint}". deleteMultipleElementsByParam error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
-                startTime, err,
-            })
-
             return {
                 status: HttpStatus.BAD_REQUEST,
-                message: `Couldn't delete multiple elements found by {${param}:${value}} on "${endpoint}"`,
+                message: await this.logger.fail({
+                    label: `Error while deleting multiple elements.`,
+                    description: `Failed to delete multiple elements found by: "{${param}:${value}}" on "${endpoint}". 
+                        Error: "${err}", Time: "${new Date().toLocaleString('pl-PL')}".`,
+                    startTime, err,
+                }),
             }
-
         }
-
     }
 }

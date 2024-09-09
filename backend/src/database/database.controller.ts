@@ -30,7 +30,7 @@ export class DatabaseController {
             console.log(`getMultipleElements error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't get multiple elements from ${endpoint}`,
+                message: `Failed to retrieve multiple elements from: "${endpoint}".`,
             }
         }
     }
@@ -47,7 +47,7 @@ export class DatabaseController {
             console.log(`getElementById error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't get element from ${endpoint} with ID: "${id}"`,
+                message: `Failed to retrieve element from: "${endpoint}", with ID: "${id}".`,
             }
         }
     }
@@ -70,7 +70,7 @@ export class DatabaseController {
             console.log(`getMultipleElementsByParam error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't get multiple elements from ${endpoint}, by "${param}:${value}"`,
+                message: `Failed to retrieve multiple elements from: "${endpoint}", by "{${param}:${value}}".`,
             }
         }
     }
@@ -87,7 +87,7 @@ export class DatabaseController {
             console.log(`createSingleElement error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't create element on "${endpoint}", with values: ${JSON.stringify(data)}`,
+                message: `Failed to create element on: "${endpoint}", with values: ${JSON.stringify(data)}.`,
             }
         }
     }
@@ -104,7 +104,7 @@ export class DatabaseController {
             console.log(`createMultipleElements error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't create multiple elements on "${endpoint}", with values: ${JSON.stringify(dataArray)}`,
+                message: `Failed to create multiple elements on: "${endpoint}", with values: ${JSON.stringify(dataArray)}.`,
             }
         }
     }
@@ -122,7 +122,7 @@ export class DatabaseController {
             console.log(`updateSingleElement error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't update element "${id}" on "${endpoint}", with values: ${JSON.stringify(data)}`,
+                message: `Failed to update element with id: "${id}". On: "${endpoint}", with values: ${JSON.stringify(data)}.`,
             }
         }
     }
@@ -140,7 +140,7 @@ export class DatabaseController {
             console.log(`patchSingleElementById error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't patch element "${id}" on "${endpoint}", with values: ${JSON.stringify(data)}`,
+                message: `Failed to patch element with id: "${id}". On: "${endpoint}", with values: ${JSON.stringify(data)}.`,
             }
         }
     }
@@ -159,7 +159,7 @@ export class DatabaseController {
             console.log(`patchMultipleElementsByParam error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't patch multiple elements on "${endpoint}" by "${param}:${value}", with values: ${JSON.stringify(data)}`,
+                message: `Failed to patch multiple elements on "${endpoint}", By "{${param}:${value}}", with values: ${JSON.stringify(data)}.`,
             }
         }
     }
@@ -176,7 +176,7 @@ export class DatabaseController {
             console.log(`deleteSingleElementById error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't delete element on "${endpoint}" with id: "${id}"`,
+                message: `Failed to delete element on: "${endpoint}", with ID: "${id}".`,
             }
         }
     }
@@ -194,7 +194,7 @@ export class DatabaseController {
             console.log(`deleteMultipleElementsByParam error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Couldn't delete multiple elements on "${endpoint}" with "${param}:${value}"`,
+                message: `Failed to delete multiple elements on: "${endpoint}", with "{${param}:${value}}".`,
             }
         }
     }

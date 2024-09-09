@@ -37,8 +37,8 @@ export class RedirectionsController {
         if (!this.loggedSearches.includes(requestId) && !url && redirection !== 'not-found') {
 
             this.logger.fail({
-                label: `Redirection doesn't exist`,
-                description: `Nothing was found for route "${redirection}", Request time: ${new Date().toLocaleString('pl-PL')}`,
+                label: `Redirection not found`,
+                description: `No data found for route "${redirection}", Request Time: "${new Date().toLocaleString('pl-PL')}".`,
                 startTime,
             })
 
@@ -49,8 +49,8 @@ export class RedirectionsController {
 
             this.requests.save({ redirectionId: url.id, requestIp: ip, jstimestamp: Date.now() })
             this.logger.completed({
-                label: `User redirected successfully`,
-                description: `Client redirected by "${redirection}" to "${url?.targetUrl}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                label: `User successfully redirected`,
+                description: `Client redirected from "${redirection}" to "${url?.targetUrl}", Time: "${new Date().toLocaleString('pl-PL')}".`,
                 startTime
             })
 
@@ -60,8 +60,8 @@ export class RedirectionsController {
         if (!this.loggedRequests.includes(requestId) && redirection !== 'not-found') {
 
             this.logger.fail({
-                label: `Error while redirecting`,
-                description: `Client couldn't be redirected to "${redirection}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                label: `Redirection error`,
+                description: `Client could not be redirected to "${redirection}", Time: "${new Date().toLocaleString('pl-PL')}".`,
                 startTime,
             })
 

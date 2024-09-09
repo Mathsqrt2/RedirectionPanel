@@ -36,11 +36,11 @@ export class AuthGuard implements CanActivate {
             const payload = await this.jwtService.verifyAsync(token, { secret: config.secret });
 
             if (!payload) {
-                throw new UnauthorizedException(`Incorrect token`);
+                throw new UnauthorizedException(`Invalid token.`);
             }
 
             if (Date.now() > (payload?.exp * 1000)) {
-                throw new UnauthorizedException(`Token has expired`);
+                throw new UnauthorizedException(`Token expired.`);
             }
 
             const route = `${request.route.path}`;
@@ -55,27 +55,29 @@ export class AuthGuard implements CanActivate {
                 const method = request.route.methods;
 
                 if (method?.post && !user_.canCreate) {
-                    throw new UnauthorizedException(`Couldn't create. Insufficient permissions`);
+                    throw new UnauthorizedException(`Creation failed. Insufficient permissions.`);
                 }
 
                 else if (method?.delete && !user_.canDelete) {
-                    throw new UnauthorizedException(`Couldn't delete. Insufficient permissions`);
+                    throw new UnauthorizedException(`Deletion failed. Insufficient permissions.`);
                 }
 
                 else if ((method?.patch || method.put) && !user_.canUpdate) {
-                    throw new UnauthorizedException(`Couldn't update. insufficient permissions`);
+                    throw new UnauthorizedException(`Update failed. Insufficient permissions.`);
                 }
 
                 if (request.params.endpoint === 'users' && !user_.canManage && request.params?.id !== user_.id) {
-                    throw new UnauthorizedException(`Couldn't manage users. Insufficient permissions`);
+                    throw new UnauthorizedException(`User management failed. Insufficient permissions.`);
                 }
             }
 
         } catch (err) {
 
             await this.logger.fail({
-                label: `Failed to authorize in service.`,
-                description: `User: "${user.username}" with id: "${user.id}". Request: "${JSON.stringify(request.route.methods)}", Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
+                label: `Authorization failed in the service.`,
+                description: `User: "${user.username}" with ID: "${user.id}". 
+                    Request: "${JSON.stringify(request.route.methods)}". 
+                    Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
                 startTime,
             })
 
@@ -83,8 +85,10 @@ export class AuthGuard implements CanActivate {
         }
 
         await this.logger.success({
-            label: `Authorized in service.`,
-            description: `User: "${user.username}", with id: "${user.id}". Request: "${JSON.stringify(request.route.methods)}", Time: ${new Date().toLocaleString('pl-PL')}`,
+            label: `Successfully authorized in the service.`,
+            description: `User: "${user.username}" with ID: "${user.id}". 
+                Request: "${JSON.stringify(request.route.methods)}". 
+                Time: ${new Date().toLocaleString('pl-PL')}.`,
             startTime,
         })
 
