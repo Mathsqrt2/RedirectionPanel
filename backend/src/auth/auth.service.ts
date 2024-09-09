@@ -325,6 +325,21 @@ export class AuthService {
 
         } catch (err) {
 
+            const user = await this.users.findOneBy({ id: userId });
+
+            if (user) {
+                await this.users.save({ ...user, emailSent: false });
+            }
+
+            const code = await this.dataSource.getRepository(Codes).findOneBy({ userId, status: true });
+
+            if (code) {
+
+                await this.dataSource.getRepository(Codes).save({ ...code });
+
+            }
+
+
             await this.logger.fail({
                 label: `Email couldn't be send`,
                 description: `User "${user.login}" requested for email from: "${req?.ip}" The email couldn't be sent. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
@@ -678,7 +693,7 @@ export class AuthService {
         } catch (err) {
 
             await this.logger.fail({
-                label: `Error while trying to remove user`,
+                label: `Error while trying to remove email`,
                 description: `User with id: "${id}" couldn't be removed. Error: "${err}", Time: ${new Date().toLocaleString('pl-PL')}`,
                 startTime, err,
             })

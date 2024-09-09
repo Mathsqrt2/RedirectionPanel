@@ -16,8 +16,8 @@
 
         <div class="inputs-field">
             <label for="updateEmailConfirm">Password</label>
-            <input id="confirmUpdateEmail" name="confirmUpdateEmail" formControl="confirmUpdateEmail" type="password"
-                class="input field">
+            <input id="confirmUpdateEmail" name="confirmUpdateEmail" formControlName="confirmUpdateEmail"
+                type="password" class="input field">
         </div>
 
         <div class="buttons-field">
@@ -32,9 +32,9 @@
 <div class="wrapper" *ngIf="currentUser.email && showEmailRemoveForm &&  !showEmailChangeForm && counter > 0">
     <form [formGroup]="removeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailRemove()">
         <div class="inputs-field">
-            <label for="confirm-password">Password</label>
+            <label for="confirmRemoveEmail">Password</label>
             <div class="row">
-                <input id="confirm-password" name="confirm-password" formControlName="password" class="input"
+                <input id="confirmRemoveEmail" name="confirmRemoveEmail" formControlName="confirmRemoveEmail" class="input"
                     [type]="isPasswordVisible ? 'text' : 'password'" />
                 <input id="show-password" name="show-password" class="input button" type="button"
                     [value]="isPasswordVisible ? 'hide' : 'show'" (click)="onVisibilityToggle()" />

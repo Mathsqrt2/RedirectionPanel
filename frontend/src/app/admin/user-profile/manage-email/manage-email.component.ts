@@ -47,11 +47,11 @@ export class ManageEmailComponent implements OnInit {
 
     this.changeEmailForm = new FormGroup({
       updateEmail: new FormControl(null, [Validators.required, Validators.minLength(3), this.matchEmail.bind(this)]),
-      password: new FormControl(null, [Validators.required, Validators.minLength(3)]),
+      confirmUpdateEmail: new FormControl(null, [Validators.required, Validators.minLength(3)]),
     })
 
     this.removeEmailForm = new FormGroup({
-      password: new FormControl(null, [Validators.required, Validators.minLength(3)]),
+      confirmRemoveEmail: new FormControl(null, [Validators.required, Validators.minLength(3)]),
     })
   }
 
@@ -79,7 +79,7 @@ export class ManageEmailComponent implements OnInit {
     if (canRemove) {
 
       const body = {
-        password: this.removeEmailForm.value.password || ``,
+        password: this.removeEmailForm.value.confirmRemoveEmail || ``,
       }
 
       this.http.patch(`${this.baseUrl}/remove/email/${this.currentUser?.userId}`, body, { withCredentials: true })
@@ -95,6 +95,7 @@ export class ManageEmailComponent implements OnInit {
               this.counter--
               this.wrongPassword = true;
             }
+            this.removeEmailForm.reset();
           })
     }
   }
