@@ -4,7 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../services/users.service';
 import { Permissions } from '../../services/auth.service';
 import { Observable } from 'rxjs';
-import { CanComponentDeactivate } from '../../services/can-deactivate-guard.service';
+import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
 
 @Component({
   selector: 'app-manage-redirections',
@@ -42,8 +42,9 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
   maxValue: number | null = null;
 
   constructor(
-    private redirectionsService: RedirectionsService,
-    private userService: UsersService,
+    private readonly redirectionsService: RedirectionsService,
+    private readonly userService: UsersService,
+    private readonly canLeave: CanDeactivateService,
   ) {
   }
 
@@ -79,13 +80,42 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     this.redirectionsService.categories.subscribe((data) => {
       this.categories = data;
     })
+
+    this.newRedirection.valueChanges.subscribe((newState) => {
+            
+      if (newState.route !== null && newState.route !== '' ||
+        newState.targetUrl !== null && newState.targetUrl !== '' ||
+        newState.category !== null && newState.category !== ''
+      ) {
+
+        this.canLeave.getObserver('createRedirection').next(true);
+      
+      } else {
+      
+        this.canLeave.getObserver('createRedirection').next(false);
+      
+      }
+    })
   }
 
-  canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+  private confirm = (): boolean => {
     return window.confirm(`There are unfinished processes. Are you sure you want to leave now?`);
+  }
+
+  public canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+
+    if (this.canLeave.getValue('createRedirection')) {
+      return this.confirm();
+    }
+
+    if (this.canLeave.modifiedRedirectionEdits.getValue().length) {
+      return this.confirm();
+    }
+
+    return true;
   };
 
-  sortBy() {
+  private sortBy() {
     const mode = this.currentSortMode.split(" ");
     const direction = mode[1] === "(asc)" ? 1 : -1;
     if (mode[0] === 'id') {
@@ -102,22 +132,22 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
 
   }
 
-  onMaxReset() {
+  protected onMaxReset(): void {
     this.maxValue = null;
     this.onFilterResults();
   }
 
-  onMinReset() {
+  protected onMinReset(): void {
     this.minValue = null;
     this.onFilterResults();
   }
 
-  onCategoryReset() {
+  protected onCategoryReset(): void {
     this.currentCategory = 'all';
     this.onFilterResults();
   }
 
-  onFilterResults() {
+  protected onFilterResults(): void {
     this.redirections = this.redirectionsService.redirections.getValue();
 
     if (this.minValue) {
@@ -139,7 +169,7 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     }
   }
 
-  onCreate() {
+  protected onCreate(): void {
     const body = {
       targetUrl: this.newRedirection.value.targetUrl,
       route: this.newRedirection.value.route,
@@ -151,7 +181,7 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     this.newRedirection.reset();
   }
 
-  onToggleSensitiveDataDisplay(ref: HTMLInputElement) {
+  protected onToggleSensitiveDataDisplay(ref: HTMLInputElement): void {
     this.showSensitiveData = !this.showSensitiveData;
     ref.value = !this.showSensitiveData ? 'show' : 'hide';
     localStorage.visibilitySettings = JSON.stringify({ showSensitiveData: this.showSensitiveData })

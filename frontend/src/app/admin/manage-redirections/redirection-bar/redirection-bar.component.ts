@@ -1,8 +1,7 @@
 import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Redirection, RedirectionsService } from '../../../services/redirections.service';
 import { Permissions } from '../../../services/auth.service';
-import { CanComponentDeactivate } from '../../../services/can-deactivate-guard.service';
-import { Observable } from 'rxjs';
+import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 
 @Component({
     selector: '[redirectionBar]',
@@ -32,33 +31,57 @@ export class RedirectionBarComponent implements OnChanges {
 
     constructor(
         private redirectionsService: RedirectionsService,
+        private canLeave: CanDeactivateService,
     ) { }
 
-    ngOnChanges(changes: SimpleChanges): void {
+    public ngOnChanges(changes: SimpleChanges): void {
         this.displayData = this.secret;
     }
 
-    onCopyToClipboard = () => {
+    protected refreshGuard = (): void => {
+        let redirections: Redirection[] = this.canLeave.modifiedRedirectionEdits.getValue();
+
+        if ((this.routeInput !== this.redirection.route
+            || this.categoryInput !== this.redirection.category
+            || this.targetPathInput !== this.redirection.targetUrl)
+        ) {
+            if (redirections.findIndex((r: Redirection) => r.id === this.redirection.id) < 0) {
+                redirections = [...redirections, this.redirection];
+                this.canLeave.modifiedRedirectionEdits.next(redirections);
+            }
+        } else {
+            redirections = redirections.filter((r: Redirection) => r.id !== this.redirection.id);
+            this.canLeave.modifiedRedirectionEdits.next(redirections);
+        }
+    }
+
+    protected onCopyToClipboard = (): void => {
         navigator.clipboard.writeText(this.redirection.targetUrl);
     }
 
-    onRedirectTo = () => {
+    protected onRedirectTo = (): void => {
         this.redirection.clicksTotal++;
         window.open(`${this.redirectionsService.domain}/${this.redirection.route}`, '_blank');
     }
 
-    onDelete() {
+    protected onDelete = (): void => {
+        this.refreshGuard();
         this.redirectionsService.deleteRedirection(this.redirection.id);
     }
 
-    onEdit() {
+    private assignDefaultValues = (): void => {
         this.routeInput = this.redirection.route;
         this.targetPathInput = this.redirection.targetUrl;
         this.categoryInput = this.redirection.category;
+    }
+
+    protected onEdit = (): void => {
+        this.assignDefaultValues();
         this.editMode = true;
     }
 
-    onConfirmEdit() {
+    protected onConfirmEdit = (): void => {
+        this.refreshGuard();
         this.editMode = false;
         this.redirectionsService.editRedirection({
             ...this.redirection,
@@ -68,7 +91,9 @@ export class RedirectionBarComponent implements OnChanges {
         });
     }
 
-    onRejectEdit() {
-        this.editMode = false
+    protected onRejectEdit = (): void => {
+        this.assignDefaultValues();
+        this.refreshGuard();
+        this.editMode = false;
     }
 }

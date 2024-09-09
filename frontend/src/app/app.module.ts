@@ -27,6 +27,7 @@ import { ManagePermissionsComponent } from './admin/user-profile/manage-permissi
 import { ChangePasswordComponent } from './admin/user-profile/change-password/change-password.component';
 import { ManageEmailComponent } from './admin/user-profile/manage-email/manage-email.component';
 import { ConfirmEmailComponent } from './admin/user-profile/confirm-email/confirm-email.component';
+import { CanDeactivateService } from './services/can-deactivate-guard.service';
 
 @NgModule({
   declarations: [
@@ -61,6 +62,7 @@ import { ConfirmEmailComponent } from './admin/user-profile/confirm-email/confir
     AdminService,
     RedirectionsService,
     UsersService,
+    CanDeactivateService,
   ],
   bootstrap: [
     AppComponent
