@@ -26,7 +26,11 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     maxDate: new Date(Date.now() + this.timeOffset).toISOString().split('T')[0],
   }
 
-  public filters: Filters[] = ['all', 'success', 'failed', 'completed'];
+  public filters: Filters[] = [
+    `all`, `success`, `failed`,
+    `completed`, `received`, `deleted`,
+    `created`, `updated`, `authorized`
+  ];
   public filter: string = this.filters[0];
   public logs: Log[];
   public maxDateLock = new Date(Date.now() + this.timeOffset).toISOString().split('T')[0];
@@ -146,7 +150,7 @@ export type Log = {
   jstimestamp?: number,
 }
 
-type Filters = 'all' | 'success' | 'failed' | 'completed';
+type Filters = `all` | `success` | `failed` | `completed` | `received` | `deleted` | `created` | `updated` | `authorized`;
 
 type QueryParams = {
   maxCount?: number,

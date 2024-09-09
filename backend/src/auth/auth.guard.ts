@@ -84,7 +84,7 @@ export class AuthGuard implements CanActivate {
             throw new UnauthorizedException(err);
         }
 
-        await this.logger.success({
+        await this.logger.authorized({
             label: `Successfully authorized in the service.`,
             description: `User: "${user.username}" with ID: "${user.id}". 
                 Request: "${JSON.stringify(request.route.methods)}". 

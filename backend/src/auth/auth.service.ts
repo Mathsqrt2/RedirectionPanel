@@ -75,7 +75,7 @@ export class AuthService {
             return {
                 status: HttpStatus.OK,
                 content,
-                message: await this.logger.completed({
+                message: await this.logger.received({
                     label: `User has been verified.`,
                     description: `User: "${user.login}" has been verified with email: "${user.email}". IP: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime,
@@ -142,7 +142,7 @@ export class AuthService {
             return {
                 status: HttpStatus.OK,
                 content,
-                message: await this.logger.completed({
+                message: await this.logger.received({
                     label: `Active code found.`,
                     description: `Active code found: "${code.code}". IP: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime,
@@ -192,12 +192,11 @@ export class AuthService {
             return {
                 status: HttpStatus.OK,
                 content,
-                message: await this.logger.completed({
+                message: await this.logger.received({
                     label: `User data found.`,
                     description: `Data for user: "${user.login}" was found. IP: "${req?.ip}", Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime,
                 }),
-
             }
 
         } catch (err) {
@@ -394,7 +393,7 @@ export class AuthService {
                 permissions: { canDelete, canUpdate, canCreate, canManage },
                 email: user.email,
                 userId,
-                message: await this.logger.completed({
+                message: await this.logger.success({
                     label: `User registered.`,
                     description: `"${login}" registered from IP: "${req?.ip}". 
                         Permissions: canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}". 
@@ -444,7 +443,7 @@ export class AuthService {
                 userId: user.id,
                 email: user.email,
                 permissions: { canDelete, canUpdate, canCreate, canManage },
-                message: await this.logger.completed({
+                message: await this.logger.success({
                     label: `Signed in.`,
                     description: `User with login: "${login}" signed in from IP: "${req?.ip}". 
                         Permissions: canManage: "${canManage}", canCreate: "${canCreate}", canUpdate: "${canUpdate}", canDelete: "${canDelete}". 
@@ -491,7 +490,7 @@ export class AuthService {
 
             return {
                 status: HttpStatus.OK,
-                message: await this.logger.completed({
+                message: await this.logger.updated({
                     label: `Password changed.`,
                     description: `Password for "${user.login}" has been changed from IP: "${req?.ip}".
                         Time: ${new Date().toLocaleString('pl-PL')}.`,
@@ -532,7 +531,7 @@ export class AuthService {
 
             return {
                 status: HttpStatus.OK,
-                message: await this.logger.completed({
+                message: await this.logger.updated({
                     label: `Permissions updated successfully.`,
                     description: `User: "${user.login}" permissions were updated to: canManage: "${user.canManage}", canCreate: "${user.canCreate}",
                         canUpdate: "${user.canUpdate}", canDelete: "${user.canDelete}". Request IP: "${req?.ip}". Time: ${new Date().toLocaleString('pl-PL')}.`,
@@ -582,7 +581,7 @@ export class AuthService {
 
             return {
                 status: HttpStatus.OK,
-                message: await this.logger.completed({
+                message: await this.logger.updated({
                     label: `User email status updated successfully.`,
                     description: `User: "${user.login}" email status was updated to: {emailSent:${body.emailSent}}. 
                         Request IP: "${req?.ip}". Time: ${new Date().toLocaleString('pl-PL')}.`,
@@ -633,7 +632,7 @@ export class AuthService {
 
             return {
                 status: HttpStatus.ACCEPTED,
-                message: await this.logger.completed({
+                message: await this.logger.deleted({
                     label: `User removed.`,
                     description: `User with login: "${user.login}" was removed. Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime,
@@ -671,7 +670,7 @@ export class AuthService {
 
             return {
                 status: HttpStatus.ACCEPTED,
-                message: await this.logger.completed({
+                message: await this.logger.deleted({
                     label: `User removed.`,
                     description: `User with login: "${user.login}" was removed. Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime,

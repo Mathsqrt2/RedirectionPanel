@@ -80,6 +80,16 @@ export class LoggerService {
         })
     }
 
+    public authorized = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
+        return new Promise(async (resolve) => {
+            await this.logs.save({
+                label, description, status: `authorized`,
+                jstimestamp: Date.now(), duration: (Date.now() - startTime)
+            });
+            resolve(label);
+        })
+    }
+
 }
 
 type LoggerProps = {
