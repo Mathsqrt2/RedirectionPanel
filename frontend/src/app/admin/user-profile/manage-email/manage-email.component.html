@@ -1,4 +1,4 @@
-<div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm && !showEmailRemoveForm">
+<div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm && !showEmailRemoveForm && !accessLocked.status">
     <span>You're verified with email:</span>
     <span>{{currentUser.email}}</span>
     <div class="row">
@@ -7,7 +7,7 @@
     </div>
 </div>
 
-<div class="wrapper" *ngIf="currentUser.email && showEmailChangeForm">
+<div class="wrapper" *ngIf="currentUser.email && showEmailChangeForm && !accessLocked.status">
     <form [formGroup]="changeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailChange()">
         <div class="inputs-field">
             <label for="updateEmail">New email:</label>
@@ -29,13 +29,13 @@
     </form>
 </div>
 
-<div class="wrapper" *ngIf="currentUser.email && showEmailRemoveForm &&  !showEmailChangeForm && counter > 0">
+<div class="wrapper" *ngIf="currentUser.email && showEmailRemoveForm &&  !showEmailChangeForm && !accessLocked.status">
     <form [formGroup]="removeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailRemove()">
         <div class="inputs-field">
             <label for="confirmRemoveEmail">Password</label>
             <div class="row">
-                <input id="confirmRemoveEmail" name="confirmRemoveEmail" formControlName="confirmRemoveEmail" class="input"
-                    [type]="isPasswordVisible ? 'text' : 'password'" />
+                <input id="confirmRemoveEmail" name="confirmRemoveEmail" formControlName="confirmRemoveEmail"
+                    class="input" [type]="isPasswordVisible ? 'text' : 'password'" />
                 <input id="show-password" name="show-password" class="input button" type="button"
                     [value]="isPasswordVisible ? 'hide' : 'show'" (click)="onVisibilityToggle()" />
             </div>
@@ -52,4 +52,15 @@
             </div>
         </div>
     </form>
+</div>
+
+<div class="wrapper" *ngIf="accessLocked.status">
+    <span class="error-code">
+        <h3>
+            Too many attempts
+        </h3>
+        <span>
+            please try again in 5 minutes
+        </span>
+    </span>
 </div>

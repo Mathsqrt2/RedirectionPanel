@@ -21,6 +21,7 @@ export class ManageEmailComponent implements OnInit {
   public isPasswordVisible = false;
   public wrongPassword = false;
   public counter = 3;
+  protected accessLocked: { banExpires?: number, status: boolean } = { status: false }
   public changeEmailForm: FormGroup;
   public removeEmailForm: FormGroup;
 
@@ -33,8 +34,16 @@ export class ManageEmailComponent implements OnInit {
     this.user.subscribe(
       (newValue: User) => {
         this.currentUser = newValue;
+      })
+
+    if (localStorage.accessLocked) {
+      const data = JSON.parse(localStorage.accessLocked);
+      if (Date.now() > data?.banExpires) {
+        this.accessLocked.status = false;
+      } else {
+        this.accessLocked = data;
       }
-    )
+    }
   }
 
   private matchEmail(control: FormControl): { [s: string]: boolean } {
@@ -43,6 +52,24 @@ export class ManageEmailComponent implements OnInit {
       return { 'emailMustMatchPattern': true }
     }
     return null;
+  }
+
+  protected checkBanStatus = (): boolean => {
+    if (this.accessLocked.status) {
+      if (Date.now() > this.accessLocked.banExpires) {
+        this.counter = 3;
+        this.accessLocked.status = false;
+        this.accessLocked.banExpires = null;
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private setBanStatus = (banTimeInMinutes: number) => {
+    this.accessLocked.status = true;
+    this.accessLocked.banExpires = Date.now() + 1000 * 60 * banTimeInMinutes;
+    localStorage.accessLocked = JSON.stringify(this.accessLocked);
   }
 
   ngOnInit(): void {
@@ -96,7 +123,7 @@ export class ManageEmailComponent implements OnInit {
   public onEmailRemove = (): void => {
 
     let canRemove = window.confirm(`Are you sure you want to remove email?`)
-    if (canRemove) {
+    if (canRemove && this.checkBanStatus()) {
 
       const body = {
         password: this.removeEmailForm.value.confirmRemoveEmail || ``,
@@ -112,7 +139,9 @@ export class ManageEmailComponent implements OnInit {
               this.showEmailRemoveForm = false;
               this.wrongPassword = false;
             } else {
-              this.counter--
+              if (this.counter-- <= 0) {
+                this.setBanStatus(5);
+              }
               this.wrongPassword = true;
             }
             this.removeEmailForm.reset();

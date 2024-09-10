@@ -52,7 +52,6 @@ export class ConfirmEmailComponent implements OnInit {
     this.usersService.getCurrentUser().subscribe((newValue: User) => {
 
       this.currentUser = newValue;
-
       if (this.currentUser) {
         this.isUserSynced = true;
       }
