@@ -4,6 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, first } from 'rxjs';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
+import { CodeResponse } from '../confirm-email/confirm-email.component';
 
 @Component({
   selector: 'manage-email',
@@ -16,14 +17,18 @@ export class ManageEmailComponent implements OnInit {
   @Input('currentUser') currentUser: User;
   private user: BehaviorSubject<User>
 
-  public showEmailChangeForm: boolean = false;
-  public showEmailRemoveForm: boolean = false;
-  public isPasswordVisible = false;
-  public wrongPassword = false;
-  public counter = 3;
-  protected accessLocked: { banExpires?: number, status: boolean } = { status: false }
-  public changeEmailForm: FormGroup;
-  public removeEmailForm: FormGroup;
+  protected showEmailChangeForm: boolean = false;
+  protected showEmailRemoveForm: boolean = false;
+  protected emailsent: boolean = false;
+  protected isPasswordVisible = false;
+  protected wrongPassword = false;
+  protected wrongCode = false;
+  protected counter = 3;
+
+  protected accessLocked: BanTime = { status: false }
+  protected changeEmailForm: FormGroup;
+  protected removeEmailForm: FormGroup;
+  protected confirmEmailWithCodeForm: FormGroup;
 
   constructor(
     private readonly http: HttpClient,
@@ -69,10 +74,28 @@ export class ManageEmailComponent implements OnInit {
   private setBanStatus = (banTimeInMinutes: number) => {
     this.accessLocked.status = true;
     this.accessLocked.banExpires = Date.now() + 1000 * 60 * banTimeInMinutes;
+    setTimeout(this.checkBanStatus, 1000 * 60 * banTimeInMinutes + 1);
     localStorage.accessLocked = JSON.stringify(this.accessLocked);
   }
 
   ngOnInit(): void {
+
+    this.http.get(`${this.baseUrl}/activecode/${this.currentUser.userId}`, { withCredentials: true })
+      .pipe(first())
+      .subscribe(
+        (response: CodeResponse) => {
+          if (response.status === 200) {
+            const code = response.content;
+            if (Date.now() <= code.expireDate) {
+              this.initializeConfirmationForm(code.email);
+              this.confirmEmailWithCodeForm.patchValue({ newEmail: code.email });
+              console.log(this.currentUser.emailSent);
+              this.emailsent = this.currentUser.emailSent;
+              this.wrongCode = false;
+            }
+          }
+        }
+      )
 
     this.changeEmailForm = new FormGroup({
       updateEmail: new FormControl(null, [Validators.required, Validators.minLength(3), this.matchEmail.bind(this)]),
@@ -109,10 +132,29 @@ export class ManageEmailComponent implements OnInit {
   public onStartEmailChange = (): void => {
     this.showEmailRemoveForm = false;
     this.showEmailChangeForm = true;
+    this.isPasswordVisible = false;
   }
 
   public onEmailChange = (): void => {
 
+    let canChange = window.confirm(`Are you sure you want to remove email?`)
+    if (canChange && this.checkBanStatus()) {
+
+      const body = {
+        newEmail: this.changeEmailForm.value.updated,
+        password: this.changeEmailForm.value.confirmUpdateEmail,
+      }
+
+      this.http.patch(`${this.baseUrl}/update/email/${this.currentUser?.userId}`, body, { withCredentials: true })
+        .pipe(first())
+        .subscribe(
+          ((response: { status: number, message: string }) => {
+            if (response.status === 202) {
+              this.user.next({ ...this.user.getValue(), email: body.newEmail, emailSent: true });
+            }
+          })
+        )
+    }
   }
 
   public onStartEmailRemove = (): void => {
@@ -155,4 +197,26 @@ export class ManageEmailComponent implements OnInit {
     this.changeEmailForm.reset();
   }
 
+  private initializeConfirmationForm = (email?: string): void => {
+
+    this.confirmEmailWithCodeForm = new FormGroup({
+      newEmail: new FormControl({ value: email || null, disabled: true }),
+      confirmationCode: new FormControl(null, [Validators.required, Validators.minLength(6)])
+    })
+
+    this.confirmEmailWithCodeForm.valueChanges.subscribe((value) => {
+      if (value.confirmationCode !== null && value.confirmationCode !== '') {
+        this.canLeave.getSubject('emailValidation').next(true);
+      } else {
+        this.canLeave.getSubject('emailValidation').next(false);
+      }
+
+    })
+  }
+
+}
+
+export type BanTime = {
+  banExpires?: number,
+  status: boolean
 }

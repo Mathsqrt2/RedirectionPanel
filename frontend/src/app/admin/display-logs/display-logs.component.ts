@@ -22,7 +22,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
 
   protected params: QueryParams = {
     offset: 0,
-    maxCount: 100,
+    maxCount: 20,
     minDate: null,
     maxDate: new Date(Date.now() + this.timeOffset).toISOString().split('T')[0],
   }

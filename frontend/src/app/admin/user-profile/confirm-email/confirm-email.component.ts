@@ -66,7 +66,7 @@ export class ConfirmEmailComponent implements OnInit {
                 const code = response.content;
                 if (Date.now() <= code.expireDate) {
                   this.initializeConfirmationForm(code.email);
-                  this.confirmEmailWithCodeForm.value.newEmail = code.email;
+                  this.confirmEmailWithCodeForm.patchValue({ newEmail: code.email });
                   this.emailSent = this.currentUser.emailSent;
                   this.wrongCode = false;
                 } else {
@@ -76,20 +76,6 @@ export class ConfirmEmailComponent implements OnInit {
             }
           )
       }
-
-      (response: CodeResponse) => {
-        if (response.status === 200) {
-          const code = response.content;
-          if (Date.now() <= code.expireDate) {
-            this.initializeConfirmationForm(code.email);
-            this.confirmEmailWithCodeForm.value.newEmail = code.email;
-            this.emailSent = this.currentUser.emailSent;
-          }
-        } else {
-          this.emailSent = false;
-        }
-      }
-
     });
   }
 
@@ -177,7 +163,7 @@ export class ConfirmEmailComponent implements OnInit {
   }
 }
 
-type CodeResponse = {
+export type CodeResponse = {
   status: number,
   content: Code,
 }

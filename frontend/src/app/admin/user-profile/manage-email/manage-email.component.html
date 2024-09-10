@@ -1,32 +1,66 @@
-<div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm && !showEmailRemoveForm && !accessLocked.status">
+<div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm && !showEmailRemoveForm">
     <span>You're verified with email:</span>
     <span>{{currentUser.email}}</span>
     <div class="row">
-        <input type="button" class="input button" value="change" (click)="onStartEmailChange()" />
-        <input type="button" class="input button" value="remove" (click)="onStartEmailRemove()" />
+        <input type="button" class="input button" value="change" (click)="onStartEmailChange()"
+            [disabled]="accessLocked.status" />
+        <input type="button" class="input button" value="remove" (click)="onStartEmailRemove()"
+            [disabled]="accessLocked.status" />
     </div>
 </div>
 
 <div class="wrapper" *ngIf="currentUser.email && showEmailChangeForm && !accessLocked.status">
-    <form [formGroup]="changeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailChange()">
+    <form [formGroup]="changeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailChange()"
+        *ngIf="!emailsent">
         <div class="inputs-field">
             <label for="updateEmail">New email:</label>
-            <input id="updateEmail" name="updateEmail" formControlName="updateEmail" type="email" class="input field" />
+            <input id="updateEmail" name="updateEmail" formControlName="updateEmail" type="email"
+                class="input field email" placeholder="yourname@domain.com" />
         </div>
 
         <div class="inputs-field">
-            <label for="updateEmailConfirm">Password</label>
-            <input id="confirmUpdateEmail" name="confirmUpdateEmail" formControlName="confirmUpdateEmail"
-                type="password" class="input field">
+            <label for="confirmUpdateEmail">Password</label>
+            <div class="row">
+                <input id="confirmUpdateEmail" name="confirmUpdateEmail" formControlName="confirmUpdateEmail"
+                    [type]="isPasswordVisible ? 'text' : 'password'" class="input field" placeholder="verify yourself">
+                <input id="show-password" name="show-password" class="input button" type="button"
+                    [value]="isPasswordVisible ? 'hide' : 'show'" (click)="onVisibilityToggle()" />
+            </div>
         </div>
 
         <div class="buttons-field">
             <div class="row">
-                <input type="button" value="reject" class="input button" (click)="onReject()" />
+                <input type="button" value="cancel" class="input button" (click)="onReject()" />
                 <input type="submit" value="confirm" class="input button" [disabled]="!changeEmailForm.valid" />
             </div>
         </div>
     </form>
+
+    <form [formGroup]="confirmEmailWithCodeForm" class="email-form" *ngIf="emailSent"
+        (ngSubmit)="onEmailConfirm()">
+        <div class="inputs-field">
+            <label for="new-email">Verify using email</label>
+            <div class="confirm-wrapper">
+                <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
+                <input type="button" value="cancel" class="input button" (click)="onChangeEmail()" />
+            </div>
+        </div>
+
+        <div class="inputs-field" *ngIf="emailSent">
+            <label for="send-code-button">confirm code</label>
+            <div class="confirm-wrapper">
+                <input name="confirmationCode" id="confirmationCode" formControlName="confirmationCode" type="text"
+                    class="input field" placeholder="123456789" />
+                <input type="submit" value="confirm" class="input button"
+                    [disabled]="!confirmEmailWithCodeForm.valid" />
+            </div>
+
+            <div class="error-code" *ngIf="wrongCode">
+                Incorrect code!
+            </div>
+        </div>
+    </form>
+
 </div>
 
 <div class="wrapper" *ngIf="currentUser.email && showEmailRemoveForm &&  !showEmailChangeForm && !accessLocked.status">
@@ -35,7 +69,7 @@
             <label for="confirmRemoveEmail">Password</label>
             <div class="row">
                 <input id="confirmRemoveEmail" name="confirmRemoveEmail" formControlName="confirmRemoveEmail"
-                    class="input" [type]="isPasswordVisible ? 'text' : 'password'" />
+                    class="input" [type]="isPasswordVisible ? 'text' : 'password'" placeholder="verify" />
                 <input id="show-password" name="show-password" class="input button" type="button"
                     [value]="isPasswordVisible ? 'hide' : 'show'" (click)="onVisibilityToggle()" />
             </div>

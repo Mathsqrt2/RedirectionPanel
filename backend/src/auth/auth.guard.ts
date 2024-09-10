@@ -78,7 +78,7 @@ export class AuthGuard implements CanActivate {
                 description: `User: "${user.username}" with ID: "${user.id}". 
                     Request: "${JSON.stringify(request.route.methods)}". 
                     Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
-                startTime,
+                startTime, err
             })
 
             throw new UnauthorizedException(err);

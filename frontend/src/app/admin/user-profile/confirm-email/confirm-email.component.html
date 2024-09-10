@@ -1,7 +1,8 @@
 <form [formGroup]="confirmEmailForm" class="email-form" *ngIf="!emailSent" (ngSubmit)="onSendVerificationCode()">
     <div class="inputs-field">
         <label for="newEmail">Verify using email</label>
-        <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
+        <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input"
+            placeholder="yourname@domain.com" />
     </div>
 
     <div class="error-code" *ngIf="confirmEmailForm.get('newEmail').touched 
@@ -29,7 +30,7 @@
         <label for="send-code-button">confirm code</label>
         <div class="confirm-wrapper">
             <input name="confirmationCode" id="confirmationCode" formControlName="confirmationCode" type="text"
-                class="input field" />
+                class="input field" placeholder="123456789" />
             <input type="submit" value="confirm" class="input button" [disabled]="!confirmEmailWithCodeForm.valid" />
         </div>
 

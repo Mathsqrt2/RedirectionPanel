@@ -21,7 +21,7 @@ export class LoggerService {
 
     public fail = async ({ label, description, startTime, err }: LoggerProps): Promise<string> => {
         return new Promise(async (resolve) => {
-            console.log(`${label} error: `, err.message);
+            console.log(`${label} error: `, err?.message ? err.message : err);
             await this.logs.save({
                 label, description, status: `failed`,
                 jstimestamp: Date.now(), duration: (Date.now() - startTime)
