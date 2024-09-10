@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { CanComponentDeactivate } from '../../services/can-deactivate-guard.service';
+import { BehaviorSubject, first, Observable } from 'rxjs';
+import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
 
 @Component({
   selector: 'display-logs',
@@ -18,6 +18,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
   private allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
   private isDataLoading: boolean = true;
   private timeOffset = new Date().getTimezoneOffset() * -1000 * 60;
+  public downloadFilter: DownloadFilter = 'current view';
 
   protected params: QueryParams = {
     offset: 0,
@@ -37,15 +38,30 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
 
   constructor(
     private readonly http: HttpClient,
+    private readonly canLeave: CanDeactivateService,
   ) {
+    this.canLeave.getObserver('logsLoading').subscribe((newState: boolean) => {
+      this.isDataLoading = newState;
+    })
     this.allLogs.subscribe((newState: Log[]) => {
       this.logs = newState;
     })
+
+    this.canLeave.getObserver('logsLoading').next(true);
     this.fetchLogs();
   }
 
-  canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+  private confirm = (): boolean => {
     return window.confirm(`There are unfinished processes. Are you sure you want to leave now?`);
+  }
+
+  public canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+
+    if (this.canLeave.getValue('logsLoading')) {
+      return this.confirm();
+    }
+
+    return true;
   };
 
   private getQuery = (): string => {
@@ -61,24 +77,31 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
   }
 
   private fetchLogs = async (newFetch: boolean = true): Promise<void> => {
-    const req = this.filter !== 'all' ? `status/${this.filter}` : ``;
+    return new Promise(resolve => {
+      const req = this.filter !== 'all' ? `status/${this.filter}` : ``;
 
-    this.http.get(`${this.baseUrl}/logs/${req}${this.getQuery()}`, { withCredentials: true }).subscribe(
-      (response: LogRequest) => {
-        this.params.offset += this.params.maxCount + 2;
+      this.http.get(`${this.baseUrl}/logs/${req}${this.downloadFilter === 'all data' ? '' : this.getQuery()}`, { withCredentials: true })
+        .pipe(first())
+        .subscribe(
+          (response: LogRequest) => {
+            this.params.offset += this.params.maxCount + 2;
 
-        let values = newFetch ? [...response.content] : [...this.allLogs.getValue(), ...response.content];
-        values = values.sort((a: Log, b: Log) => b.id - a.id);
+            let values = newFetch ? response.content : [...this.allLogs.getValue(), ...response.content];
+            values = values.sort((a: Log, b: Log) => b.id - a.id);
 
-        this.allLogs.next(values);
-        this.isDataLoading = false;
-      })
+            this.allLogs.next(values);
+            if (this.downloadFilter !== 'all data') {
+              this.canLeave.getObserver('logsLoading').next(false);
+            }
+            resolve();
+          })
+    })
   }
 
-  onFilter = async () => {
+  protected onFilter = async () => {
     this.params.offset = 0;
     if (!this.isDataLoading) {
-      this.isDataLoading = true;
+      this.canLeave.getObserver('logsLoading').next(true);
       await this.fetchLogs();
     }
   }
@@ -88,15 +111,30 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     const condition: boolean = element.scrollHeight - element.scrollTop === element.clientHeight
 
     if (condition && !this.isDataLoading) {
-      this.isDataLoading = true;
+      this.canLeave.getObserver('logsLoading').next(true);
       await this.fetchLogs(false);
     }
-
   }
 
-  onDownload = (extension: string) => {
+  private saveFile = (data: string, extension: string, mode?: DownloadFilter) => {
+    let anchor = document.createElement('a');
+    const file = new Blob([data], { type: extension === 'json' ? 'application/json' : 'text/csv' });
+    anchor.href = URL.createObjectURL(file);
+    anchor.download = `export_${mode === 'all data' ? 'everything' : this.logs.length}_logs_${this.filter}_${new Date().toLocaleDateString('pl-PL')}.${extension}`;
+    anchor.click();
+  }
+
+  protected onDownload = async (extension: string) => {
     const heading = ['index', 'id', 'label', 'description', 'status'];
-    const logs = this.logs;
+  
+    if (this.downloadFilter === 'all data') {
+      this.canLeave.getObserver('logsLoading').next(true);
+      await this.fetchLogs(true);
+    }
+
+    let logs: Log[] = this.logs;
+    console.log(logs);
+
     let outputData = '';
 
     if (extension === 'csv') {
@@ -108,32 +146,31 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
       for (let indx in logs) {
         outputData += `"${indx}",`;
         outputData += `"${logs[indx].id}",`;
-        outputData += `"${logs[indx].label.replaceAll("\"", "")}",`;
-        outputData += `"${logs[indx].description.replaceAll("\"", "")}",`;
-        outputData += `"${logs[indx].status.replaceAll("\"", "")}",`;
+        outputData += `"${logs[indx].label?.replaceAll("\"", "")}",`;
+        outputData += `"${logs[indx].description?.replaceAll("\"", "")}",`;
+        outputData += `"${logs[indx].status?.replaceAll("\"", "")}",`;
         outputData += `\n`;
       }
+
     } else if (extension === 'json') {
       outputData = JSON.stringify(logs);
     }
 
-    let anchor = document.createElement('a');
-    const file = new Blob([outputData], { type: extension === 'json' ? 'application/json' : 'text/csv' });
-    anchor.href = URL.createObjectURL(file);
-    anchor.download = `export_${this.logs.length}_logs_${this.filter}_${new Date().toLocaleDateString('pl-PL')}.${extension}`;
-    anchor.click();
+    this.saveFile(outputData, extension, this.downloadFilter);
+    if (this.downloadFilter === 'all data') {
+      this.canLeave.getObserver('logsLoading').next(false);
+    }
   }
 
-  onMinReset = () => {
+  protected onMinReset = () => {
     this.params.minDate = undefined;
     this.onFilter();
   }
 
-  onMaxReset = () => {
+  protected onMaxReset = () => {
     this.params.maxDate = undefined;
     this.onFilter();
   }
-
 }
 
 type LogRequest = {
@@ -158,3 +195,5 @@ type QueryParams = {
   maxDate?: string,
   minDate?: string,
 }
+
+type DownloadFilter = 'current view' | 'all data';

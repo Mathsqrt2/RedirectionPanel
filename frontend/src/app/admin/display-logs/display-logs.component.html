@@ -28,6 +28,10 @@
         <div class="button-wrapper">
             <label>Download</label>
             <div class="row">
+                <select name="downloadMode" id="downloadMode" class="downloadMode" class="input" [(ngModel)]="downloadFilter">
+                    <option>current view</option>
+                    <option>all data</option>
+                </select>
                 <input type="button" class="input download" name="csv" id="csv" (click)="onDownload('csv')"
                     value="CSV" />
                 <input type="button" class="input download" name="json" id="json" (click)="onDownload('json')"

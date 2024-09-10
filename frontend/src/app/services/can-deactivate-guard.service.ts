@@ -38,7 +38,7 @@ export class CanDeactivateService {
         }
     }
 
-    public getValue(option: ObserverType): Boolean {
+    public getValue(option: ObserverType): boolean {
         return this.getObserver(option).getValue();
     }
 
