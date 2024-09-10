@@ -88,11 +88,11 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
         newState.category !== null && newState.category !== ''
       ) {
 
-        this.canLeave.getObserver('createRedirection').next(true);
+        this.canLeave.getSubject('createRedirection').next(true);
       
       } else {
       
-        this.canLeave.getObserver('createRedirection').next(false);
+        this.canLeave.getSubject('createRedirection').next(false);
       
       }
     })

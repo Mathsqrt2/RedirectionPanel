@@ -40,14 +40,14 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     private readonly http: HttpClient,
     private readonly canLeave: CanDeactivateService,
   ) {
-    this.canLeave.getObserver('logsLoading').subscribe((newState: boolean) => {
+    this.canLeave.getSubject('logsLoading').subscribe((newState: boolean) => {
       this.isDataLoading = newState;
     })
     this.allLogs.subscribe((newState: Log[]) => {
       this.logs = newState;
     })
 
-    this.canLeave.getObserver('logsLoading').next(true);
+    this.canLeave.getSubject('logsLoading').next(true);
     this.fetchLogs();
   }
 
@@ -91,7 +91,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
 
             this.allLogs.next(values);
             if (this.downloadFilter !== 'all data') {
-              this.canLeave.getObserver('logsLoading').next(false);
+              this.canLeave.getSubject('logsLoading').next(false);
             }
             resolve();
           })
@@ -101,7 +101,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
   protected onFilter = async () => {
     this.params.offset = 0;
     if (!this.isDataLoading) {
-      this.canLeave.getObserver('logsLoading').next(true);
+      this.canLeave.getSubject('logsLoading').next(true);
       await this.fetchLogs();
     }
   }
@@ -111,7 +111,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     const condition: boolean = element.scrollHeight - element.scrollTop === element.clientHeight
 
     if (condition && !this.isDataLoading) {
-      this.canLeave.getObserver('logsLoading').next(true);
+      this.canLeave.getSubject('logsLoading').next(true);
       await this.fetchLogs(false);
     }
   }
@@ -128,7 +128,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     const heading = ['index', 'id', 'label', 'description', 'status'];
   
     if (this.downloadFilter === 'all data') {
-      this.canLeave.getObserver('logsLoading').next(true);
+      this.canLeave.getSubject('logsLoading').next(true);
       await this.fetchLogs(true);
     }
 
@@ -158,7 +158,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
 
     this.saveFile(outputData, extension, this.downloadFilter);
     if (this.downloadFilter === 'all data') {
-      this.canLeave.getObserver('logsLoading').next(false);
+      this.canLeave.getSubject('logsLoading').next(false);
     }
   }
 

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { User, UsersService } from '../../services/users.service';
-import { CanComponentDeactivate } from '../../services/can-deactivate-guard.service';
+import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -16,18 +16,36 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
 
   constructor(
     private readonly usersService: UsersService,
+    private readonly canLeave: CanDeactivateService,
   ) {
     this.usersService.getCurrentUser().subscribe((newValue: User) => {
       this.currentUser = newValue;
     })
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.usersService.updateCurrentUser();
   }
 
-  canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+  private confirm = (): boolean => {
     return window.confirm(`There are unfinished processes. Are you sure you want to leave now?`);
+  }
+
+  public canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+
+    if (this.canLeave.getValue('changePassword')) {
+      return this.confirm();
+    }
+
+    if (this.canLeave.getValue('emailChange')) {
+      return this.confirm();
+    }
+
+    if (this.canLeave.getValue('emailValidation')) {
+      return this.confirm();
+    }
+
+    return true;
   };
 }
 

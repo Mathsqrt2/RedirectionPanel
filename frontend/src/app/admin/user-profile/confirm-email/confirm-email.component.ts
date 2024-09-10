@@ -3,6 +3,7 @@ import { User, UsersService } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { first } from 'rxjs/operators';
+import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 
 @Component({
   selector: 'confirm-email',
@@ -23,6 +24,7 @@ export class ConfirmEmailComponent implements OnInit {
 
   constructor(
     private readonly usersService: UsersService,
+    private readonly canLeave: CanDeactivateService,
     private readonly http: HttpClient,
   ) { }
 
@@ -38,6 +40,14 @@ export class ConfirmEmailComponent implements OnInit {
     this.confirmEmailForm = new FormGroup({
       newEmail: new FormControl(null, [Validators.required, Validators.minLength(5), this.matchEmail.bind(this)])
     });
+
+    this.confirmEmailForm.valueChanges.subscribe((value) => {
+      if (value.newEmail !== null && value.newEmail !== '') {
+        this.canLeave.getSubject('emailValidation').next(true);
+      } else {
+        this.canLeave.getSubject('emailValidation').next(false);
+      }
+    })
 
     this.usersService.getCurrentUser().subscribe((newValue: User) => {
 
@@ -104,9 +114,19 @@ export class ConfirmEmailComponent implements OnInit {
   }
 
   private initializeConfirmationForm = (email?: string): void => {
+
     this.confirmEmailWithCodeForm = new FormGroup({
       newEmail: new FormControl({ value: email || null, disabled: true }),
       confirmationCode: new FormControl(null, [Validators.required, Validators.minLength(6)])
+    })
+
+    this.confirmEmailWithCodeForm.valueChanges.subscribe((value) => {
+      if (value.confirmationCode !== null && value.confirmationCode !== '') {
+        this.canLeave.getSubject('emailValidation').next(true);
+      } else {
+        this.canLeave.getSubject('emailValidation').next(false);
+      }
+
     })
   }
 
@@ -156,7 +176,6 @@ export class ConfirmEmailComponent implements OnInit {
         this.usersService.updateCurrentUser();
       });
   }
-
 }
 
 type CodeResponse = {

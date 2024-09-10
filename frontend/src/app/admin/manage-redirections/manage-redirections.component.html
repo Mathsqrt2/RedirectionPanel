@@ -47,13 +47,13 @@
         <div class="control-group min-clicks-count">
             <label for="min-elements" (click)="onMinReset()">min clicks</label>
             <input [(ngModel)]="minValue" type="number" min="0" id="min-elements" class="input"
-                (change)="onFilterResults()" />
+                (change)="onFilterResults()" placeholder="more than" />
         </div>
 
         <div class="control-group max-clicks-count">
             <label for="max-elements" (click)="onMaxReset()">max clicks</label>
             <input [(ngModel)]="maxValue" type="number" min="0" id="max-elements" class="input"
-                (change)="onFilterResults()" />
+                (change)="onFilterResults()" placeholder="less than" />
         </div>
 
         <div class="control-group" *ngIf="categories.length > 2">

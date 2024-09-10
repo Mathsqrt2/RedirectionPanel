@@ -28,7 +28,7 @@ export class CanDeactivateService {
     private isEmailVerificationFormDirty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     private isEmailChangeFormDirty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-    public getObserver(option: ObserverType): BehaviorSubject<boolean> {
+    public getSubject(option: ObserverType): BehaviorSubject<boolean> {
         switch (option) {
             case 'createRedirection': return this.isCreateRedirectionFormDirty;
             case 'logsLoading': return this.areLogsStillLoading;
@@ -39,7 +39,7 @@ export class CanDeactivateService {
     }
 
     public getValue(option: ObserverType): boolean {
-        return this.getObserver(option).getValue();
+        return this.getSubject(option).getValue();
     }
 
 }

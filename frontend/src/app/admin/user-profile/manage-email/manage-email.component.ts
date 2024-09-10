@@ -3,6 +3,7 @@ import { User, UsersService } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, first } from 'rxjs';
+import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 
 @Component({
   selector: 'manage-email',
@@ -26,6 +27,7 @@ export class ManageEmailComponent implements OnInit {
   constructor(
     private readonly http: HttpClient,
     private readonly usersService: UsersService,
+    private readonly canLeave: CanDeactivateService,
   ) {
     this.user = this.usersService.getCurrentUser();
     this.user.subscribe(
@@ -52,6 +54,24 @@ export class ManageEmailComponent implements OnInit {
 
     this.removeEmailForm = new FormGroup({
       confirmRemoveEmail: new FormControl(null, [Validators.required, Validators.minLength(3)]),
+    })
+
+    this.changeEmailForm.valueChanges.subscribe(value => {
+      if (value.updateEmail !== null && value.updateEmail !== '' ||
+        value.confirmUpdateEmail !== null && value.confirmUpdateEmail !== ''
+      ) {
+        this.canLeave.getSubject('emailChange').next(true);
+      } else {
+        this.canLeave.getSubject('emailChange').next(false);
+      }
+    })
+
+    this.removeEmailForm.valueChanges.subscribe(value => {
+      if (value.confirmRemoveEmail !== null && value.confirmRemoveEmail !== '') {
+        this.canLeave.getSubject('emailChange').next(true);
+      } else {
+        this.canLeave.getSubject('emailChange').next(false);
+      }
     })
   }
 
@@ -103,6 +123,7 @@ export class ManageEmailComponent implements OnInit {
   public onReject = (): void => {
     this.showEmailRemoveForm = false;
     this.showEmailChangeForm = false;
+    this.changeEmailForm.reset();
   }
 
 }

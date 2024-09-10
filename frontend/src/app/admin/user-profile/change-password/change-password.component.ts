@@ -3,6 +3,7 @@ import { User } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { first } from 'rxjs/operators';
+import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 
 @Component({
   selector: 'change-password',
@@ -27,6 +28,7 @@ export class ChangePasswordComponent implements OnInit {
 
   constructor(
     private readonly http: HttpClient,
+    private readonly canLeave: CanDeactivateService,
   ) { }
 
   private areEquals(control: FormControl): { [s: string]: boolean } {
@@ -42,6 +44,18 @@ export class ChangePasswordComponent implements OnInit {
       newPassword: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       confirmPassword: new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
+
+    this.changePasswordForm.valueChanges.subscribe((value) => {
+
+      if (value.currentPassword !== null && value.currentPassword !== '' ||
+        value.newPassword !== null && value.newPassword !== '' ||
+        value.confirmPassword !== null && value.confirmPassword !== ''
+      ) {
+        this.canLeave.getSubject('changePassword').next(true);
+      } else {
+        this.canLeave.getSubject('changePassword').next(false);
+      }
+    })
   }
 
   public onToggleVisibility = (field: string): void => {

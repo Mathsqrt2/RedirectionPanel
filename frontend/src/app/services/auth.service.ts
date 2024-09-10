@@ -24,8 +24,6 @@ export class AuthService {
                     permissions: response.permissions,
                     accessToken: response.accessToken,
                     userId: response.userId,
-                    email: response.email,
-                    emailSent: response.emailSent,
                 });
                 this.setStatus(response.accessToken);
                 const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7);
