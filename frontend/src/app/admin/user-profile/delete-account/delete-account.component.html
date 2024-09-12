@@ -1,0 +1,32 @@
+<div *ngIf="!procesStarted">
+
+    <input type="button" class="input button delete-account" (click)="onStartDeleteProcess()" value="delete account" />
+
+
+</div>
+
+<div class="wrapper" *ngIf="procesStarted">
+    <form [formGroup]="deleteAccountForm" class="deleteAccountForm" (ngSubmit)="onDeleteAccount()">
+
+        <div class="inputs-field">
+            <label for="">Login</label>
+            <input type="login" class="input" formControlName="login">
+        </div>
+
+        <div class="inputs-field">
+            <label for="">Password</label>
+            <div class="row">
+                <input type="password" class="input" formControlName="password" />
+                <input type="button" class="input button" value="show" />
+            </div>
+        </div>
+
+        <div class="inputs-field">
+            <div class="row">
+                <input type="button" class="input button" value="cancel"/>
+                <input type="submit" class="input button" value="delete" />
+            </div>
+        </div>
+
+    </form>
+</div>
