@@ -23,6 +23,10 @@
             <confirm-email *ngIf="!currentUser.email" [baseUrl]="baseUrl" />
             <manage-email *ngIf="currentUser.email" [currentUser]="currentUser" [baseUrl]="baseUrl" />
 
+
+            <hr />
+
+            <delete-account />
         </div>
     </div>
 </div>

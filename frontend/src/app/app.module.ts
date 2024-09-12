@@ -28,6 +28,7 @@ import { ChangePasswordComponent } from './admin/user-profile/change-password/ch
 import { ManageEmailComponent } from './admin/user-profile/manage-email/manage-email.component';
 import { ConfirmEmailComponent } from './admin/user-profile/confirm-email/confirm-email.component';
 import { CanDeactivateService } from './services/can-deactivate-guard.service';
+import { DeleteAccountComponent } from './admin/user-profile/delete-account/delete-account.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { CanDeactivateService } from './services/can-deactivate-guard.service';
     ChangePasswordComponent,
     ManageEmailComponent,
     ConfirmEmailComponent,
+    DeleteAccountComponent,
   ],
   imports: [
     BrowserModule,

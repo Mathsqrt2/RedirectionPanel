@@ -70,7 +70,14 @@ body {
         color: #aaa;
         user-select: none;
     }
+}
 
+.row {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    justify-content: center;
+    align-items: center;
 }
 
 .error-code {
