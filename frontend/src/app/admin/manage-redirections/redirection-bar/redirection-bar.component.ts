@@ -11,21 +11,21 @@ import { CanDeactivateService } from '../../../services/can-deactivate-guard.ser
 
 export class RedirectionBarComponent implements OnChanges {
 
-    @Input('instance') redirection: Redirection;
-    @Input('index') index: number;
-    @Input('secret') secret: boolean = false;
-    @Input('permissions') permissions: Permissions;
+    @Input('instance') protected redirection: Redirection;
+    @Input('index') protected index: number;
+    @Input('secret') protected secret: boolean = false;
+    @Input('permissions') protected permissions: Permissions;
 
-    routeInput: string;
-    targetPathInput: string;
-    categoryInput: string;
-    displayData: boolean = this.secret;
-    editMode = false;
+    protected routeInput: string;
+    protected targetPathInput: string;
+    protected categoryInput: string;
+    protected displayData: boolean = this.secret;
+    protected editMode = false;
 
-    @HostListener('mouseover') show = () => {
+    @HostListener('mouseover') show = (): void => {
         this.displayData = true;
     }
-    @HostListener(`mouseleave`) hide = () => {
+    @HostListener(`mouseleave`) hide = (): void => {
         this.displayData = this.secret ? true : false;
     }
 
@@ -34,7 +34,7 @@ export class RedirectionBarComponent implements OnChanges {
         private canLeave: CanDeactivateService,
     ) { }
 
-    public ngOnChanges(changes: SimpleChanges): void {
+    public ngOnChanges(): void {
         this.displayData = this.secret;
     }
 

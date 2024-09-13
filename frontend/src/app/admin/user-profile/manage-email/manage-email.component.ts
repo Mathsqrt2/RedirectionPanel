@@ -23,9 +23,7 @@ export class ManageEmailComponent implements OnInit {
   protected isPasswordVisible = false;
   protected wrongPassword = false;
   protected wrongCode = false;
-  protected counter = 3;
 
-  protected accessLocked: BanTime = { status: false }
   protected changeEmailForm: FormGroup;
   protected removeEmailForm: FormGroup;
   protected confirmEmailWithCodeForm: FormGroup;
@@ -214,9 +212,4 @@ export class ManageEmailComponent implements OnInit {
     })
   }
 
-}
-
-export type BanTime = {
-  banExpires?: number,
-  status: boolean
 }

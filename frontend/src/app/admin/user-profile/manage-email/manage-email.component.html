@@ -1,15 +1,4 @@
-<div class="wrapper" *ngIf="currentUser.email && !showEmailChangeForm && !showEmailRemoveForm">
-    <span>You're verified with email:</span>
-    <span>{{currentUser.email}}</span>
-    <div class="row">
-        <input type="button" class="input button" value="change" (click)="onStartEmailChange()"
-            [disabled]="accessLocked.status" />
-        <input type="button" class="input button" value="remove" (click)="onStartEmailRemove()"
-            [disabled]="accessLocked.status" />
-    </div>
-</div>
-
-<div class="wrapper" *ngIf="currentUser.email && showEmailChangeForm && !accessLocked.status">
+<div class="wrapper">
     <form [formGroup]="changeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailChange()"
         *ngIf="!emailsent">
         <div class="inputs-field">
@@ -36,65 +25,7 @@
         </div>
     </form>
 
-    <form [formGroup]="confirmEmailWithCodeForm" class="email-form" *ngIf="emailSent"
-        (ngSubmit)="onEmailConfirm()">
-        <div class="inputs-field">
-            <label for="new-email">Verify using email</label>
-            <div class="confirm-wrapper">
-                <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input" />
-                <input type="button" value="cancel" class="input button" (click)="onChangeEmail()" />
-            </div>
-        </div>
-
-        <div class="inputs-field" *ngIf="emailSent">
-            <label for="send-code-button">confirm code</label>
-            <div class="confirm-wrapper">
-                <input name="confirmationCode" id="confirmationCode" formControlName="confirmationCode" type="text"
-                    class="input field" placeholder="123456789" />
-                <input type="submit" value="confirm" class="input button"
-                    [disabled]="!confirmEmailWithCodeForm.valid" />
-            </div>
-
-            <div class="error-code" *ngIf="wrongCode">
-                Incorrect code!
-            </div>
-        </div>
-    </form>
-
 </div>
 
-<div class="wrapper" *ngIf="currentUser.email && showEmailRemoveForm &&  !showEmailChangeForm && !accessLocked.status">
-    <form [formGroup]="removeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailRemove()">
-        <div class="inputs-field">
-            <label for="confirmRemoveEmail">Password</label>
-            <div class="row">
-                <input id="confirmRemoveEmail" name="confirmRemoveEmail" formControlName="confirmRemoveEmail"
-                    class="input" [type]="isPasswordVisible ? 'text' : 'password'" placeholder="verify" />
-                <input id="show-password" name="show-password" class="input button" type="button"
-                    [value]="isPasswordVisible ? 'hide' : 'show'" (click)="onVisibilityToggle()" />
-            </div>
-        </div>
 
-        <div class="inputs-field error-code" *ngIf="wrongPassword">
-            Wrong password try again
-        </div>
 
-        <div class="inputs-field">
-            <div class="row">
-                <input type="button" value="cancel" class="input button" (click)="onReject()" />
-                <input type="submit" value="confirm" class="input button" [disabled]="!removeEmailForm.valid" />
-            </div>
-        </div>
-    </form>
-</div>
-
-<div class="wrapper" *ngIf="accessLocked.status">
-    <span class="error-code">
-        <h3>
-            Too many attempts
-        </h3>
-        <span>
-            please try again in 5 minutes
-        </span>
-    </span>
-</div>

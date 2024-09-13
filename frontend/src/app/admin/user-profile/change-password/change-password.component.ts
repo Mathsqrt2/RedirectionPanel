@@ -11,7 +11,6 @@ import { CanDeactivateService } from '../../../services/can-deactivate-guard.ser
 export class ChangePasswordComponent implements OnInit {
 
   @Input(`currentUser`) currentUser: User;
-  @Input(`baseUrl`) baseUrl: string;
 
   public unauthorizedResponse: boolean = false;
   public changePasswordForm: FormGroup;

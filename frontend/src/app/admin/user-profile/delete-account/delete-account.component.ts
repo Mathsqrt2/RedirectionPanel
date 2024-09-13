@@ -1,5 +1,5 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { User } from "../../../services/users.service";
+import { Component, Input } from "@angular/core";
+import { User, UsersService } from "../../../services/users.service";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 @Component({
@@ -16,7 +16,9 @@ export class DeleteAccountComponent {
     protected deleteAccountForm: FormGroup;
     protected procesStarted: boolean = false;
 
-    constructor() {
+    constructor(
+        private readonly usersService: UsersService,
+    ) {
 
     }
     protected onStartDeleteProcess(): void {
@@ -33,7 +35,7 @@ export class DeleteAccountComponent {
 
         const canDelete = window.confirm('This action is permanent, are you sure?')
         if(canDelete) {
-
+            this.usersService.deleteCurrentUser();
         }
     }
 

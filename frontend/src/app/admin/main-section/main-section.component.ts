@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AdminService } from '../../services/admin.service';
 import { RouteModel } from '../../models/route.model';
 import { AuthService, Permissions } from '../../services/auth.service';
@@ -12,9 +12,9 @@ import { User, UsersService } from '../../services/users.service';
 })
 export class MainSectionComponent {
 
-  public menuRoutes: RouteModel[] = [];
-  public admin: string;
-  public permissions: Permissions;
+  protected menuRoutes: RouteModel[] = [];
+  protected admin: string;
+  protected permissions: Permissions;
 
   constructor(
     private routes: AdminService,
@@ -44,7 +44,7 @@ export class MainSectionComponent {
 
   }
 
-  public onLogout = async () => {
+  protected onLogout = async (): Promise<void> => {
     this.authService.logout();
     this.router.navigate(['/login']);
   }

@@ -1,0 +1,24 @@
+<div class="wrapper">
+    <form [formGroup]="removeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailRemove()">
+        <div class="inputs-field">
+            <label for="confirmRemoveEmail">Password</label>
+            <div class="row">
+                <input id="confirmRemoveEmail" name="confirmRemoveEmail" formControlName="confirmRemoveEmail"
+                    class="input" [type]="isPasswordVisible ? 'text' : 'password'" placeholder="verify" />
+                <input id="show-password" name="show-password" class="input button" type="button"
+                    [value]="isPasswordVisible ? 'hide' : 'show'" (click)="onVisibilityToggle()" />
+            </div>
+        </div>
+
+        <div class="inputs-field error-code" *ngIf="wrongPassword">
+            Wrong password try again
+        </div>
+
+        <div class="inputs-field">
+            <div class="row">
+                <input type="button" value="cancel" class="input button" (click)="onReject()" />
+                <input type="submit" value="confirm" class="input button" [disabled]="!removeEmailForm.valid" />
+            </div>
+        </div>
+    </form>
+</div>

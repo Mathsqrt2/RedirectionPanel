@@ -13,6 +13,11 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
   private domain: string = `http://localhost:3000`;
   protected baseUrl: string = `${this.domain}/api/auth`;
   protected currentUser: User;
+  protected counter = 3;
+  protected accessLocked: BanTime = { status: false }
+  protected emailSent = false;
+  protected changeProcess = false;
+  protected deleteProcess = false;
 
   constructor(
     private readonly usersService: UsersService,
@@ -25,6 +30,16 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
 
   public ngOnInit(): void {
     this.usersService.updateCurrentUser();
+
+    if (localStorage.accessLocked) {
+      const data = JSON.parse(localStorage.accessLocked);
+      if (Date.now() > data?.banExpires) {
+        this.accessLocked.status = false;
+      } else {
+        this.accessLocked = data;
+      }
+    }
+
   }
 
   private confirm = (): boolean => {
@@ -49,4 +64,7 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
   };
 }
 
-
+export type BanTime = {
+  banExpires?: number,
+  status: boolean
+}

@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Permissions } from "./auth.service";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first } from "rxjs";
+import { CodeResponse } from "../admin/user-profile/confirm-email/confirm-email.component";
 
 @Injectable()
 
@@ -115,6 +116,7 @@ export class UsersService {
                     });
         })
     }
+
     public deleteCurrentUser = async (): Promise<boolean> => {
         return new Promise(resolve => {
             try {
@@ -128,6 +130,103 @@ export class UsersService {
 
     public registerUser(newUser: User) {
         this.currentUser.next(newUser);
+    }
+
+    public sendVerificationEmail = async (body: { userId: number, email: string }): Promise<boolean> => {
+        return new Promise(resolve => {
+            try {
+                this.http.post(`${this.targetUrl}/auth/getverificationemail`, body, { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(
+                        (response: { status: number, message: string }) => {
+                            if (response.status === 200) {
+                                this.http.patch(`${this.targetUrl}/auth/emailstatus/${body.userId}`,
+                                    { emailSent: true },
+                                    { withCredentials: true })
+                                    .pipe(first())
+                                    .subscribe(({ status }: { status: number }) => {
+                                        if (status === 200) {
+                                            this.updateCurrentUser();
+                                            resolve(true);
+                                        } else {
+                                            resolve(false);
+                                        }
+                                    });
+                            } else if (response.status === 400) {
+                                resolve(false)
+                            }
+                        })
+            } catch (err) {
+                resolve(false);
+            }
+
+        })
+    }
+
+    public updateEmailSentStatus = async (status: boolean): Promise<boolean> => {
+        return new Promise(resolve => {
+            try {
+                this.http.patch(`${this.targetUrl}/auth/emailstatus/${this.currentUser.getValue().userId}`,
+                    { emailSent: status },
+                    { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(({ status }: { status: number }) => {
+                        if (status === 200) {
+                            this.updateCurrentUser();
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    });
+            } catch (err) {
+                resolve(false);
+            }
+        })
+    }
+
+    public checkIfActiveCodeExists = async (): Promise<boolean> => {
+        return new Promise(resolve => {
+            try {
+                this.http.get(`${this.targetUrl}/auth/activecode/${this.currentUser.getValue().userId}`,
+                    { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(
+                        (response: CodeResponse) => {
+                            if (response.status === 200) {
+                                const code = response.content;
+                                if (Date.now() <= code.expireDate) {
+                                    resolve(true);
+                                } else {
+                                    resolve(false);
+                                }
+                            }
+                        }
+                    )
+            } catch (err) {
+                resolve(false);
+            }
+        })
+    }
+
+    public verifyByRequest = async (code: number): Promise<boolean> => {
+
+        return new Promise(resolve => {
+            try {
+                this.http.get(`${this.targetUrl}/auth/verifybyrequest/${code}`, { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(
+                        (response: EmailCheck) => {
+                            if (response.status === 200) {
+                                this.updateCurrentUser();
+                                resolve(true);
+                            } else {
+                                resolve(false)
+                            }
+                        });
+            } catch (err) {
+                resolve(false);
+            }
+        })
     }
 }
 
@@ -150,4 +249,14 @@ export type User = {
     userId: number,
     email?: string,
     emailSent?: boolean,
+}
+
+type EmailCheck = {
+    status: number;
+    message?: string;
+    content?: {
+        permissions: Permissions;
+        login: string;
+        userId: number;
+    };
 }

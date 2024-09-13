@@ -26,20 +26,20 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     return colspan;
   }
 
-  newRedirection: FormGroup;
-  redirections: Redirection[] = [];
-  categories: string[] = [];
-  permissions: Permissions = this.userService.getCurrentUserPermissions();
+  protected newRedirection: FormGroup;
+  protected redirections: Redirection[] = [];
+  protected categories: string[] = [];
+  protected permissions: Permissions = this.userService.getCurrentUserPermissions();
 
-  sortByOptions: string[] = ['id (asc)', 'id (desc)', 'clicks (asc)', 'clicks (desc)', 'route (asc)', 'route (desc)'];
-  currentSortMode: string = this.sortByOptions[0];
-  colspan: number = this.refreshColspan();
+  protected sortByOptions: string[] = ['id (asc)', 'id (desc)', 'clicks (asc)', 'clicks (desc)', 'route (asc)', 'route (desc)'];
+  protected currentSortMode: string = this.sortByOptions[0];
+  protected colspan: number = this.refreshColspan();
 
-  showSensitiveData: boolean = true;
-  currentCategory: string = 'all';
-  togglerText = !this.showSensitiveData ? 'show' : 'hide';
-  minValue: number | null = null;
-  maxValue: number | null = null;
+  protected showSensitiveData: boolean = true;
+  protected currentCategory: string = 'all';
+  protected togglerText = !this.showSensitiveData ? 'show' : 'hide';
+  private minValue: number | null = null;
+  private maxValue: number | null = null;
 
   constructor(
     private readonly redirectionsService: RedirectionsService,
@@ -57,7 +57,7 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     }
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
 
     if (localStorage.getItem(`visibilitySettings`)) {
       const data = JSON.parse(localStorage.getItem(`visibilitySettings`));
@@ -82,18 +82,18 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     })
 
     this.newRedirection.valueChanges.subscribe((newState) => {
-            
+
       if (newState.route !== null && newState.route !== '' ||
         newState.targetUrl !== null && newState.targetUrl !== '' ||
         newState.category !== null && newState.category !== ''
       ) {
 
         this.canLeave.getSubject('createRedirection').next(true);
-      
+
       } else {
-      
+
         this.canLeave.getSubject('createRedirection').next(false);
-      
+
       }
     })
   }
@@ -115,7 +115,7 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     return true;
   };
 
-  private sortBy() {
+  private sortBy = (): void => {
     const mode = this.currentSortMode.split(" ");
     const direction = mode[1] === "(asc)" ? 1 : -1;
     if (mode[0] === 'id') {

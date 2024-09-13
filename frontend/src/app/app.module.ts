@@ -25,11 +25,13 @@ import { RedirectionBarComponent } from './admin/manage-redirections/redirection
 import { UserProfileComponent } from './admin/user-profile/user-profile.component';
 import { ManagePermissionsComponent } from './admin/user-profile/manage-permissions/manage-permissions.component';
 import { ChangePasswordComponent } from './admin/user-profile/change-password/change-password.component';
-import { ManageEmailComponent } from './admin/user-profile/manage-email/manage-email.component';
-import { ConfirmEmailComponent } from './admin/user-profile/confirm-email/confirm-email.component';
 import { CanDeactivateService } from './services/can-deactivate-guard.service';
 import { DeleteAccountComponent } from './admin/user-profile/delete-account/delete-account.component';
 import { LogsService } from './services/logs.service';
+import { EmailDeleteComponent } from './admin/user-profile/email-delete/email-delete.component';
+import { EmailConfirmComponent } from './admin/user-profile/email-confirm/email-confirm.component';
+import { EmailDisplayComponent } from './admin/user-profile/email-display/email-display.component';
+import { EmailChangeComponent } from './admin/user-profile/email-change/email-change.component';
 
 @NgModule({
   declarations: [
@@ -48,9 +50,11 @@ import { LogsService } from './services/logs.service';
     LogBarComponent,
     ManagePermissionsComponent,
     ChangePasswordComponent,
-    ManageEmailComponent,
-    ConfirmEmailComponent,
     DeleteAccountComponent,
+    EmailDeleteComponent,
+    EmailConfirmComponent,
+    EmailDisplayComponent,
+    EmailChangeComponent,
   ],
   imports: [
     BrowserModule,

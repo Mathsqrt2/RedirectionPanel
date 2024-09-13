@@ -15,11 +15,11 @@ export class LogBarComponent implements OnInit {
   public timestamp: string;
   public isExpanded: boolean = false;
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.timestamp = this.log.jstimestamp ? new Date(this.log?.jstimestamp).toLocaleString('pl-PL') : 'no data';
   }
 
-  toggleDetailsDisplay() {
+  protected toggleDetailsDisplay(): void {
     this.isExpanded = !this.isExpanded;
   } 
 

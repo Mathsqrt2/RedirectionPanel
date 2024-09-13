@@ -32,7 +32,7 @@ export class ManagePermissionsComponent implements OnInit {
       })
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     const { canUpdate, canDelete, canManage, canCreate } = this.currentUser?.permissions;
     this.permissionsForm = new FormGroup({
       canUpdate: new FormControl({ value: canUpdate, disabled: !canManage }, [Validators.required]),

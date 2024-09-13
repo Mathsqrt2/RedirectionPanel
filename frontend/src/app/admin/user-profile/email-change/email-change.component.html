@@ -1,0 +1,18 @@
+<form [formGroup]="confirmEmailForm" class="email-form" (ngSubmit)="onSendVerificationCode()">
+    <div class="inputs-field">
+        <label for="newEmail">Verify using email</label>
+        <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input"
+            placeholder="yourname@domain.com" />
+    </div>
+
+    <div class="error-code" *ngIf="confirmEmailForm.get('newEmail').touched 
+        && !confirmEmailForm.get('newEmail').valid">
+        email is incorrect!
+    </div>
+
+    <div class="inputs-field">
+        <label for="send-code-button">Send code</label>
+        <input type="submit" value="send" class="input button" [disabled]="!confirmEmailForm.valid" />
+    </div>
+
+</form>

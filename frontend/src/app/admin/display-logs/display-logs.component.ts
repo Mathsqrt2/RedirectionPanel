@@ -17,10 +17,10 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
   protected params: QueryParams;
   protected downloadFilter: DownloadFilter;
 
-  public maxDateLock = new Date(Date.now() + this.logsService.timeOffset).toISOString().split('T')[0];
-  public filters: Filters[] = [`all`, `success`, `failed`, `completed`, `received`, `deleted`, `created`, `updated`, `authorized`];
-  public filter: Filters = this.filters[0];
-  public logs: Log[];
+  protected maxDateLock = new Date(Date.now() + this.logsService.timeOffset).toISOString().split('T')[0];
+  protected filters: Filters[] = [`all`, `success`, `failed`, `completed`, `received`, `deleted`, `created`, `updated`, `authorized`];
+  protected filter: Filters = this.filters[0];
+  protected logs: Log[];
 
   constructor(
     private readonly logsService: LogsService,
@@ -49,7 +49,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     return true;
   };
 
-  protected onFilter = async () => {
+  protected onFilter = async (): Promise<void> => {
     this.params.offset = 0;
     this.scrollContainer.nativeElement.scrollTo(0, 0);
 
@@ -72,7 +72,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     }
   }
 
-  private saveFile = (data: string, extension: string, mode?: DownloadFilter) => {
+  private saveFile = (data: string, extension: string, mode?: DownloadFilter): void => {
     let anchor = document.createElement('a');
     const file = new Blob([data], { type: extension === 'json' ? 'application/json' : 'text/csv' });
     anchor.href = URL.createObjectURL(file);
@@ -80,7 +80,7 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     anchor.click();
   }
 
-  protected onDownload = async (extension: string) => {
+  protected onDownload = async (extension: string): Promise<void> => {
     const heading = ['index', 'id', 'label', 'description', 'status'];
 
     if (this.downloadFilter === 'all data') {
@@ -119,12 +119,12 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     this.logsService.downloadFilter.next(this.downloadFilter);
   }
 
-  protected onMinReset = () => {
+  protected onMinReset = (): void => {
     this.params.minDate = undefined;
     this.onFilter();
   }
 
-  protected onMaxReset = () => {
+  protected onMaxReset = (): void => {
     this.params.maxDate = undefined;
     this.onFilter();
   }

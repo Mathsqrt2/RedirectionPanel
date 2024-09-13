@@ -16,17 +16,14 @@ const routes: Routes = [
   {
     path: "admin", canActivate: [AuthGuard], component: MainSectionComponent, children: [
       { path: "profile", canActivate: [AuthGuard], canDeactivate: [canDeactivateGuard], component: UserProfileComponent },
-      { path: "users", canActivate: [AuthGuard], component: ManageUsersComponent },
+      { path: "users", canActivate: [AuthGuard], canDeactivate: [canDeactivateGuard], component: ManageUsersComponent },
       { path: "redirections", canActivate: [AuthGuard], canDeactivate: [canDeactivateGuard], component: ManageRedirectionsComponent },
       { path: "logs", canActivate: [AuthGuard], canDeactivate: [canDeactivateGuard], component: DisplayLogsComponent },
     ],
   },
   { path: "register", component: RegisterComponent },
   { path: "login", component: LoginComponent },
-
   { path: "not-found", component: NotFoundPageComponent },
-
-  { path: "redirections", redirectTo: 'login' },
   { path: "", redirectTo: 'login', pathMatch: "full" },
   { path: "**", redirectTo: 'not-found' },
 ];
