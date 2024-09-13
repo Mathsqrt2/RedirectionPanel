@@ -28,7 +28,8 @@
         <div class="button-wrapper">
             <label>Download</label>
             <div class="row">
-                <select name="downloadMode" id="downloadMode" class="downloadMode" class="input" [(ngModel)]="downloadFilter">
+                <select name="downloadMode" id="downloadMode" class="downloadMode" class="input" 
+                [(ngModel)]="downloadFilter" (change)="onUpdateDownloadFilter()">
                     <option>current view</option>
                     <option>all data</option>
                 </select>

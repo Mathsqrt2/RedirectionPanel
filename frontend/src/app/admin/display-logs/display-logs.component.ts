@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { BehaviorSubject, first, Observable } from 'rxjs';
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
+import { DownloadFilter, Filters, Log, LogsService, QueryParams } from '../../services/logs.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'display-logs',
@@ -13,42 +13,27 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
 
   @ViewChild('scrollContainer', { static: true }) scrollContainer: ElementRef;
 
-  private domain = `http://localhost:3000`;
-  private baseUrl = `${this.domain}/api`;
-  private allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
   private isDataLoading: boolean = true;
-  private timeOffset = new Date().getTimezoneOffset() * -1000 * 60;
-  public downloadFilter: DownloadFilter = 'current view';
+  protected params: QueryParams;
+  protected downloadFilter: DownloadFilter;
 
-  protected params: QueryParams = {
-    offset: 0,
-    maxCount: 20,
-    minDate: null,
-    maxDate: new Date(Date.now() + this.timeOffset).toISOString().split('T')[0],
-  }
-
-  public filters: Filters[] = [
-    `all`, `success`, `failed`,
-    `completed`, `received`, `deleted`,
-    `created`, `updated`, `authorized`
-  ];
-  public filter: string = this.filters[0];
+  public maxDateLock = new Date(Date.now() + this.logsService.timeOffset).toISOString().split('T')[0];
+  public filters: Filters[] = [`all`, `success`, `failed`, `completed`, `received`, `deleted`, `created`, `updated`, `authorized`];
+  public filter: Filters = this.filters[0];
   public logs: Log[];
-  public maxDateLock = new Date(Date.now() + this.timeOffset).toISOString().split('T')[0];
 
   constructor(
-    private readonly http: HttpClient,
+    private readonly logsService: LogsService,
     private readonly canLeave: CanDeactivateService,
   ) {
-    this.canLeave.getSubject('logsLoading').subscribe((newState: boolean) => {
-      this.isDataLoading = newState;
-    })
-    this.allLogs.subscribe((newState: Log[]) => {
-      this.logs = newState;
-    })
+    this.params = this.logsService.params.getValue();
+    this.downloadFilter = this.logsService.downloadFilter.getValue();
 
+    this.logsService.allLogs.subscribe((state: Log[]) => this.logs = state);
+    this.logsService.fetchLogs();
+
+    this.canLeave.getSubject('logsLoading').subscribe((state: boolean) => this.isDataLoading = state);
     this.canLeave.getSubject('logsLoading').next(true);
-    this.fetchLogs();
   }
 
   private confirm = (): boolean => {
@@ -64,55 +49,26 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     return true;
   };
 
-  private getQuery = (): string => {
-    let params = '';
-    let isFirst = true;
-    for (let param in this.params) {
-      if (this.params[param]) {
-        params += isFirst ? `?${param}=${this.params[param]}` : `&${param}=${this.params[param]}`;
-        isFirst = false
-      }
-    }
-    return params;
-  }
-
-  private fetchLogs = async (newFetch: boolean = true): Promise<void> => {
-    return new Promise(resolve => {
-      const req = this.filter !== 'all' ? `status/${this.filter}` : ``;
-
-      this.http.get(`${this.baseUrl}/logs/${req}${this.downloadFilter === 'all data' ? '' : this.getQuery()}`, { withCredentials: true })
-        .pipe(first())
-        .subscribe(
-          (response: LogRequest) => {
-            this.params.offset += this.params.maxCount + 2;
-
-            let values = newFetch ? response.content : [...this.allLogs.getValue(), ...response.content];
-            values = values.sort((a: Log, b: Log) => b.id - a.id);
-
-            this.allLogs.next(values);
-            if (this.downloadFilter !== 'all data') {
-              this.canLeave.getSubject('logsLoading').next(false);
-            }
-            resolve();
-          })
-    })
-  }
-
   protected onFilter = async () => {
     this.params.offset = 0;
+    this.scrollContainer.nativeElement.scrollTo(0, 0);
+
     if (!this.isDataLoading) {
       this.canLeave.getSubject('logsLoading').next(true);
-      await this.fetchLogs();
+      this.logsService.params.next(this.params);
+      this.logsService.filter.next(this.filter);
+      await this.logsService.fetchLogs(true);
     }
   }
 
-  async onScroll(): Promise<void> {
+  protected onScroll = async (): Promise<void> => {
     const element = this.scrollContainer.nativeElement;
     const condition: boolean = element.scrollHeight - element.scrollTop === element.clientHeight
 
     if (condition && !this.isDataLoading) {
       this.canLeave.getSubject('logsLoading').next(true);
-      await this.fetchLogs(false);
+      this.logsService.downloadFilter.next('current view');
+      await this.logsService.fetchLogs(false);
     }
   }
 
@@ -126,14 +82,13 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
 
   protected onDownload = async (extension: string) => {
     const heading = ['index', 'id', 'label', 'description', 'status'];
-  
+
     if (this.downloadFilter === 'all data') {
       this.canLeave.getSubject('logsLoading').next(true);
-      await this.fetchLogs(true);
+      await this.logsService.fetchLogs(true);
     }
 
-    let logs: Log[] = this.logs;
-    console.log(logs);
+    let logs: Log[] = this.logsService.downloadLogs.getValue();
 
     let outputData = '';
 
@@ -157,9 +112,11 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
     }
 
     this.saveFile(outputData, extension, this.downloadFilter);
-    if (this.downloadFilter === 'all data') {
-      this.canLeave.getSubject('logsLoading').next(false);
-    }
+    this.canLeave.getSubject('logsLoading').next(false);
+  }
+
+  protected onUpdateDownloadFilter = (): void => {
+    this.logsService.downloadFilter.next(this.downloadFilter);
   }
 
   protected onMinReset = () => {
@@ -173,27 +130,4 @@ export class DisplayLogsComponent implements CanComponentDeactivate {
   }
 }
 
-type LogRequest = {
-  status: number,
-  content: Log[],
-}
-
-export type Log = {
-  id?: number,
-  label: string,
-  description: string,
-  status: string,
-  duration: string,
-  jstimestamp?: number,
-}
-
-type Filters = `all` | `success` | `failed` | `completed` | `received` | `deleted` | `created` | `updated` | `authorized`;
-
-type QueryParams = {
-  maxCount?: number,
-  offset?: number,
-  maxDate?: string,
-  minDate?: string,
-}
-
-type DownloadFilter = 'current view' | 'all data';
+export { Log };

@@ -29,6 +29,7 @@ import { ManageEmailComponent } from './admin/user-profile/manage-email/manage-e
 import { ConfirmEmailComponent } from './admin/user-profile/confirm-email/confirm-email.component';
 import { CanDeactivateService } from './services/can-deactivate-guard.service';
 import { DeleteAccountComponent } from './admin/user-profile/delete-account/delete-account.component';
+import { LogsService } from './services/logs.service';
 
 @NgModule({
   declarations: [
@@ -64,6 +65,7 @@ import { DeleteAccountComponent } from './admin/user-profile/delete-account/dele
     AdminService,
     RedirectionsService,
     UsersService,
+    LogsService,
     CanDeactivateService,
   ],
   bootstrap: [
