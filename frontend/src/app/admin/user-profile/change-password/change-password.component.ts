@@ -1,8 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { User } from '../../../services/users.service';
+import { User, UsersService } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { first } from 'rxjs/operators';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 
 @Component({
@@ -18,16 +16,16 @@ export class ChangePasswordComponent implements OnInit {
   public unauthorizedResponse: boolean = false;
   public changePasswordForm: FormGroup;
 
-  public showCurrentPassword: boolean = false;
+  public showpassword: boolean = false;
   public showNewPassword: boolean = false;
   public showConfirmNewPassword: boolean = false;
 
-  public currentPassword: string = null;
+  public password: string = null;
   public newPassword: string = null;
   public confirmNewPassword: string = null;
 
   constructor(
-    private readonly http: HttpClient,
+    private readonly usersService: UsersService,
     private readonly canLeave: CanDeactivateService,
   ) { }
 
@@ -38,16 +36,16 @@ export class ChangePasswordComponent implements OnInit {
     return null;
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.changePasswordForm = new FormGroup({
-      currentPassword: new FormControl(null, [Validators.required]),
+      password: new FormControl(null, [Validators.required]),
       newPassword: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       confirmPassword: new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
 
     this.changePasswordForm.valueChanges.subscribe((value) => {
 
-      if (value.currentPassword !== null && value.currentPassword !== '' ||
+      if (value.password !== null && value.password !== '' ||
         value.newPassword !== null && value.newPassword !== '' ||
         value.confirmPassword !== null && value.confirmPassword !== ''
       ) {
@@ -60,8 +58,8 @@ export class ChangePasswordComponent implements OnInit {
 
   public onToggleVisibility = (field: string): void => {
 
-    if (field === 'currentPassword') {
-      this.showCurrentPassword = !this.showCurrentPassword;
+    if (field === 'password') {
+      this.showpassword = !this.showpassword;
     }
     if (field === 'newPassword') {
       this.showNewPassword = !this.showNewPassword;
@@ -72,29 +70,13 @@ export class ChangePasswordComponent implements OnInit {
 
   }
 
-  public onPasswordChange = (): void => {
+  public onPasswordChange = async (): Promise<void> => {
     if (this.changePasswordForm.status === 'VALID') {
-      const { currentPassword, newPassword, confirmPassword } = this.changePasswordForm.value;
-      const body = {
-        password: currentPassword,
-        newPassword,
-        confirmPassword,
-        userId: this.currentUser.userId
-      }
+      const { password, newPassword, confirmPassword } = this.changePasswordForm.value;
+      const body = { password, newPassword, confirmPassword };
 
-      this.http.patch(`${this.baseUrl}/password`, body, { withCredentials: true })
-        .pipe(first())
-        .subscribe(
-          (response: { status: number, message: string }) => {
-            if (response.status === 401) {
-              this.unauthorizedResponse = true;
-            }
-
-            if (response.status === 200) {
-              this.unauthorizedResponse = false;
-            }
-          });
-
+      const response = await this.usersService.changeCurrentUserPassword(body);
+      this.unauthorizedResponse = !response;
       this.changePasswordForm.reset();
     }
   }

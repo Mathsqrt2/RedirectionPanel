@@ -77,9 +77,43 @@ export class UsersService {
         this.currentUser.next({ ...user, email });
     }
 
-    public setCurrentUserPermissions = (permissions: Permissions): void => {
-        const user = this.currentUser.getValue();
-        this.currentUser.next({ ...user, permissions });
+    public setCurrentUserPermissions = async (permissions: Permissions): Promise<boolean> => {
+        return new Promise(resolve => {
+            this.http.patch(`${this.targetUrl}/auth/permissions`, { ...permissions, userId: this.currentUser.getValue().userId }, { withCredentials: true })
+                .pipe(first())
+                .subscribe(
+                    (response: { status: number, message: string }) => {
+                        if (response.status === 200) {
+
+                            const user = this.currentUser.getValue();
+                            this.currentUser.next({ ...user, permissions });
+
+                            const accessToken = localStorage.getItem(`accessToken`);
+                            if (accessToken) {
+                                const data = JSON.parse(accessToken);
+                                localStorage.accessToken = JSON.stringify({ ...data, permissions });
+                            }
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    });
+        })
+    }
+
+    public changeCurrentUserPassword = async (body: ChangePasswordProps): Promise<boolean> => {
+        return new Promise(resolve => {
+            this.http.patch(`${this.targetUrl}/auth/password`, { ...body, userId: this.currentUser.getValue().userId }, { withCredentials: true })
+                .pipe(first())
+                .subscribe(
+                    (response: { status: number, message: string }) => {
+                        if (response.status === 200) {
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    });
+        })
     }
 
     public registerUser(newUser: User) {
@@ -90,6 +124,13 @@ export class UsersService {
 type UsersResponse = {
     status: number,
     content: User[],
+}
+
+type ChangePasswordProps = {
+    password: string,
+    newPassword: string,
+    confirmPassword: string,
+    userId?: number,
 }
 
 export type User = {
