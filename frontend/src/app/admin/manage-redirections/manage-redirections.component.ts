@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Redirection, RedirectionsService } from '../../services/redirections.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { UsersService } from '../../services/users.service';
+import { UsersService, User } from '../../services/users.service';
 import { Permissions } from '../../services/auth.service';
 import { Observable } from 'rxjs';
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
@@ -26,10 +26,11 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     return colspan;
   }
 
+  private currentUser: User;
   protected newRedirection: FormGroup;
   protected redirections: Redirection[] = [];
   protected categories: string[] = [];
-  protected permissions: Permissions = this.userService.getCurrentUserPermissions();
+  protected permissions: Permissions = this.userService.getCurrentUser().getValue().permissions;
 
   protected sortByOptions: string[] = ['id (asc)', 'id (desc)', 'clicks (asc)', 'clicks (desc)', 'route (asc)', 'route (desc)'];
   protected currentSortMode: string = this.sortByOptions[0];
@@ -46,6 +47,9 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
     private readonly userService: UsersService,
     private readonly canLeave: CanDeactivateService,
   ) {
+    this.userService.getCurrentUser().subscribe((state: User) => {
+      this.currentUser = state;
+    })
   }
 
   private isUnique = (control: FormControl): { [s: string]: boolean } => {
@@ -174,7 +178,7 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
       targetUrl: this.newRedirection.value.targetUrl,
       route: this.newRedirection.value.route,
       category: this.newRedirection.value.category,
-      userId: this.userService.getCurrentUserId(),
+      userId: this.currentUser.userId,
     }
 
     this.redirectionsService.createRedirection(body);

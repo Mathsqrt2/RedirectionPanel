@@ -13,9 +13,9 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
   private domain: string = `http://localhost:3000`;
   protected baseUrl: string = `${this.domain}/api/auth`;
   protected currentUser: User;
-  protected counter = 3;
   protected accessLocked: BanTime = { status: false }
-  protected emailSent = false;
+  protected counter = 3;
+
   protected changeProcess = false;
   protected deleteProcess = false;
 
@@ -23,9 +23,16 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
     private readonly usersService: UsersService,
     private readonly canLeave: CanDeactivateService,
   ) {
-    this.usersService.getCurrentUser().subscribe((newValue: User) => {
-      this.currentUser = newValue;
-    })
+    this.usersService.getCurrentUser().subscribe((state: User) => this.currentUser = state);
+    this.usersService.deleteEmailProcess.subscribe((state: boolean) => {
+      if (state) { this.usersService.changeEmailProcess.next(false) };
+      this.deleteProcess = state;
+    }
+    );
+    this.usersService.changeEmailProcess.subscribe((state: boolean) => {
+      if (state) { this.usersService.deleteEmailProcess.next(false) };
+      this.changeProcess
+    });
   }
 
   public ngOnInit(): void {
@@ -39,7 +46,25 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
         this.accessLocked = data;
       }
     }
+  }
 
+  protected checkBanStatus = (): boolean => {
+    if (this.accessLocked.status) {
+      if (Date.now() > this.accessLocked.banExpires) {
+        this.counter = 3;
+        this.accessLocked.status = false;
+        this.accessLocked.banExpires = null;
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private setBanStatus = (banTimeInMinutes: number) => {
+    this.accessLocked.status = true;
+    this.accessLocked.banExpires = Date.now() + 1000 * 60 * banTimeInMinutes;
+    setTimeout(this.checkBanStatus, 1000 * 60 * banTimeInMinutes + 1);
+    localStorage.accessLocked = JSON.stringify(this.accessLocked);
   }
 
   private confirm = (): boolean => {

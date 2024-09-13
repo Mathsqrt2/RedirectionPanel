@@ -5,7 +5,7 @@ import { BanTime } from '../user-profile.component';
 @Component({
   selector: 'app-email-display',
   templateUrl: './email-display.component.html',
-  styleUrl: './email-display.component.scss'
+  styleUrls: ['./email-display.component.scss', '../user-profile.component.scss']
 })
 export class EmailDisplayComponent {
 

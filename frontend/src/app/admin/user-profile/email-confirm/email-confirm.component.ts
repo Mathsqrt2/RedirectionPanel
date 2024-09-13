@@ -6,7 +6,7 @@ import { CanDeactivateService } from '../../../services/can-deactivate-guard.ser
 @Component({
   selector: 'app-email-confirm',
   templateUrl: './email-confirm.component.html',
-  styleUrl: './email-confirm.component.scss'
+  styleUrls: ['./email-confirm.component.scss', '../user-profile.component.scss']
 })
 export class EmailConfirmComponent implements OnInit {
 
@@ -20,9 +20,8 @@ export class EmailConfirmComponent implements OnInit {
   ) { }
 
   public ngOnInit(): void {
-
     this.confirmEmailWithCodeForm = new FormGroup({
-      newEmail: new FormControl({ value: this.usersService.getCurrentUserEmail() || null, disabled: true }),
+      newEmail: new FormControl({ value: this.currentUser.email || null, disabled: true }),
       confirmationCode: new FormControl(null, [Validators.required, Validators.minLength(6)])
     })
 

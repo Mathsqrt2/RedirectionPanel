@@ -8,7 +8,7 @@ import { User } from "./users.service";
 
 export class AuthGuard implements CanActivate, CanActivateChild {
 
-    private permissions: Permissions = this.userService.getCurrentUserPermissions();
+    private permissions: Permissions = this.userService.getCurrentUser().getValue().permissions;
 
     constructor(
         private authService: AuthService,

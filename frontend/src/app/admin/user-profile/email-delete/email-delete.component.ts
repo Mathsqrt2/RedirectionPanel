@@ -6,7 +6,7 @@ import { CanDeactivateService } from '../../../services/can-deactivate-guard.ser
 @Component({
   selector: 'app-email-delete',
   templateUrl: './email-delete.component.html',
-  styleUrl: './email-delete.component.scss'
+  styleUrls: ['./email-delete.component.scss','../user-profile.component.scss']
 })
 export class EmailDeleteComponent implements OnInit {
 

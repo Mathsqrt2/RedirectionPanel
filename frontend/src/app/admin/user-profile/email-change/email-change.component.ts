@@ -6,7 +6,7 @@ import { CanDeactivateService } from '../../../services/can-deactivate-guard.ser
 @Component({
   selector: 'app-email-change',
   templateUrl: './email-change.component.html',
-  styleUrl: './email-change.component.scss'
+  styleUrls: ['./email-change.component.scss', '../user-profile.component.scss']
 })
 export class EmailChangeComponent implements OnInit {
 
