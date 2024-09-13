@@ -229,13 +229,13 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard)
-    @Delete(`remove/user/:id`)
-    async removeUser(
+    @Patch(`deactivate/user/:id`)
+    async deactivateUser(
         @Param(`id`) id: number,
         @Body() body: RemoveUserDto,
     ): Promise<RemoveUserResponse> {
         try {
-            return await this.authService.removeUser(id, body);
+            return await this.authService.deactivateUser(id, body);
         } catch (err) {
             console.log(`removeUser error:`, err);
             return {

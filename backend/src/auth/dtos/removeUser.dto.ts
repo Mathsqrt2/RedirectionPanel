@@ -1,9 +1,9 @@
-import { IsNumber, IsString } from "class-validator";
+import { IsString } from "class-validator";
 
 export class RemoveUserDto {
 
-    @IsNumber()
-    userId: number;
+    @IsString()
+    login :string;
 
     @IsString()
     password: string;

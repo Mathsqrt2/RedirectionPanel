@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Permissions } from "./auth.service";
+import { AuthService, Permissions } from "./auth.service";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first } from "rxjs";
 
@@ -58,13 +58,18 @@ export class UsersService {
     public updateCurrentUser = async (): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.get(`${this.targetUrl}/auth/currentuser/${this.currentUser.getValue().userId}`, { withCredentials: true })
+                const currentUser = this.currentUser.getValue();
+                this.http.get(`${this.targetUrl}/auth/currentuser/${currentUser.userId}`,
+                    { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (newState: { status: number, content: User }) => {
-                            const currentUser = this.currentUser.getValue();
-                            this.currentUser.next({ ...currentUser, ...newState.content });
-                            resolve(true);
+                        ({ status, content }: { status: number, content: User }) => {
+                            if (status === 200) {
+                                this.currentUser.next({ ...currentUser, ...content });
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
                         }
                     );
             } catch (err) {
@@ -124,11 +129,27 @@ export class UsersService {
         })
     }
 
-    public deleteCurrentUser = async (): Promise<boolean> => {
+    private deleteCookie = (name: string, path: string = "/"): void => {
+        document.cookie = `${decodeURIComponent(name)}=;path=${path}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
+    }
+
+    public deactivateCurrentUser = async (body: { login: string, password: string }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-
-                resolve(true);
+                const user = this.currentUser.getValue();
+                this.http.patch(`${this.targetUrl}/auth/deactivate/user/${user.userId}`, body, { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(({ status }: { status: number }) => {
+                        if (status === 202) {
+                            const users = this.users.getValue();
+                            this.users.next({ ...users.filter((user: User) => user.userId !== user.userId) });
+                            this.deleteCookie('jwt');
+                            localStorage.removeItem('accessToken');
+                            resolve(true);
+                        } else {
+                            resolve(false)
+                        }
+                    })
             } catch (err) {
                 resolve(false);
             }

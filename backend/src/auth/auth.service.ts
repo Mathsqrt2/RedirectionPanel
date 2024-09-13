@@ -601,29 +601,23 @@ export class AuthService {
         }
     }
 
-    public removeUser = async (id: number, { password, userId }: RemoveUserDto): Promise<RemoveUserResponse> => {
+    public deactivateUser = async (id: number, { password, login }: RemoveUserDto): Promise<RemoveUserResponse> => {
 
         const startTime = Date.now();
 
         try {
-            const admin = await this.users.findOneBy({ id: userId });
-
-            if (!admin) {
-                throw new UnauthorizedException(`Access denied.`);
-            }
-
-            if (!admin.canManage) {
-                throw new UnauthorizedException(`Access denied.`);
-            }
-
             const user = await this.users.findOneBy({ id });
 
             if (!user) {
                 throw new NotFoundException(`Login or password incorrect.`)
             }
 
-            if (this.comparePasswords(password, admin.password)) {
-                await this.users.delete({ ...user });
+            if (user.login !== login) {
+                throw new UnauthorizedException(`You're not allowed to manage users`);
+            }
+
+            if (this.comparePasswords(password, user.password)) {
+                await this.users.delete({ login: user.login });
             } else {
                 throw new UnauthorizedException(`Access denied.`);
             }

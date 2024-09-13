@@ -36,7 +36,6 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
   }
 
   public ngOnInit(): void {
-    this.usersService.updateCurrentUser();
 
     if (localStorage.accessLocked) {
       const data = JSON.parse(localStorage.accessLocked);

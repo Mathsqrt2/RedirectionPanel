@@ -4,6 +4,7 @@ import { UsersService } from "./users.service";
 import { Router } from "@angular/router";
 import { RegisterUserResponse } from "../../../../backend/src/auth/auth.types";
 import { first } from "rxjs/operators";
+
 @Injectable()
 
 export class AuthService {
@@ -46,6 +47,7 @@ export class AuthService {
     private deleteCookie = (name: string, path: string = "/"): void => {
         document.cookie = `${decodeURIComponent(name)}=;path=${path}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
     }
+
     private setStatus = (token?: string): void => {
         if (token) {
             this.accessToken = token;

@@ -2,29 +2,46 @@
 
     <input type="button" class="input button delete-account" (click)="onStartDeleteProcess()" value="delete account" />
 
-
 </div>
 
 <div class="wrapper" *ngIf="procesStarted">
     <form [formGroup]="deleteAccountForm" class="deleteAccountForm" (ngSubmit)="onDeleteAccount()">
 
         <div class="inputs-field">
-            <label for="">Login</label>
-            <input type="login" class="input" formControlName="login">
+            <label for="confirmDeleteWithLogin">Login</label>
+            <input type="login" class="input login" name="confirmDeleteWithLogin" id="confirmDeleteWithLogin"
+                formControlName="confirmDeleteWithLogin" placeholder="confirm your login">
+        </div>
+
+        <div class="error-code" *ngIf="deleteAccountForm.get('confirmDeleteWithLogin').touched 
+            && !deleteAccountForm.get('confirmDeleteWithLogin').valid">
+            login is required!
         </div>
 
         <div class="inputs-field">
-            <label for="">Password</label>
+            <label for="confirmDeleteWithPassword">Password</label>
             <div class="row">
-                <input type="password" class="input" formControlName="password" />
-                <input type="button" class="input button" value="show" />
+                <input [type]="isPasswordVisible ? 'text' : 'password'" class="input" id="confirmDeleteWithPassword"
+                    name="confirmDeleteWithPassword" formControlName="confirmDeleteWithPassword"
+                    placeholder="password" />
+                <input type="button" class="input button" [value]="isPasswordVisible ? 'hide' : 'show'"
+                    (click)="togglePasswordVisibility()" />
             </div>
         </div>
 
+        <div class="error-code" *ngIf="deleteAccountForm.get('confirmDeleteWithPassword').touched 
+        && !deleteAccountForm.get('confirmDeleteWithPassword').valid">
+            password is required!
+        </div>
+
+        <div class="error-code" *ngIf="error">
+            incorrect password or email
+        </div>
+
         <div class="inputs-field">
             <div class="row">
-                <input type="button" class="input button" value="cancel"/>
-                <input type="submit" class="input button" value="delete" />
+                <input type="button" class="input button" value="cancel" (click)="onCancel()" />
+                <input type="submit" class="input button delete" value="delete" />
             </div>
         </div>
 
