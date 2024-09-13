@@ -15,29 +15,31 @@ export class RegisterComponent implements OnInit {
     private router: Router,
   ) { }
 
-  accountAlreadyExist: boolean = false;
-  registerForm: FormGroup;
+  protected isPasswordVisible = false;
+  protected isConfirmationVisible = false;
+  protected accountAlreadyExist: boolean = false;
+  protected registerForm: FormGroup;
 
-  areEquals(control: FormControl): { [s: string]: boolean } {
+  private areEquals(control: FormControl): { [s: string]: boolean } {
     if (control?.value !== this.registerForm?.value?.password) {
       return { 'passwordMustMatch': true };
     }
     return null;
   }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.registerForm = new FormGroup({
       'login': new FormControl(null, [Validators.required, Validators.minLength(3)]),
       'password': new FormControl(null, [Validators.required, Validators.minLength(3)]),
-      'password-confirm': new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
+      'confirmPassword': new FormControl(null, [Validators.required, this.areEquals.bind(this)]),
     });
   };
 
   async onSubmit(): Promise<void> {
     const body = {
       login: this.registerForm.value.login,
-      password: this.registerForm.value.login,
-      confirmPassword: this.registerForm.value.login,
+      password: this.registerForm.value.password,
+      confirmPassword: this.registerForm.value.confirmPassword,
     }
 
     if (this.registerForm.status === "VALID") {
@@ -50,5 +52,13 @@ export class RegisterComponent implements OnInit {
       }
     }
   };
+
+  protected togglePasswordVisibility = (choose: boolean): void =>{
+    if(choose) {
+      this.isPasswordVisible = !this.isPasswordVisible;
+    } else {
+      this.isConfirmationVisible = !this.isConfirmationVisible;
+    }
+  } 
 
 }

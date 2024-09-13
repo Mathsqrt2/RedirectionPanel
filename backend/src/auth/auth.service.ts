@@ -5,7 +5,7 @@ import {
 import * as nodemailer from 'nodemailer';
 import {
     CurrentUserResponse, LoginUser, LoginUserResponse, RegisterUser,
-    RegisterUserResponse, RemoveUserProps, RemoveUserResponse,
+    RegisterUserResponse, RemoveUserResponse,
     ResponseWithCode, User, SendVerificationCodeResponse,
     UpdatePermissionsResponse, UpdatePswdResponse,
     UpdateStatusResponse, VerifyEmailResponse,
@@ -342,7 +342,8 @@ export class AuthService {
     };
 
     private securePassword = (password: string): string => {
-        const salt = SHA256(Date.now()).toString();
+        const seed = `${Date.now()}`;
+        const salt = SHA256(seed).toString();
         return `${salt}$${SHA256(`${password}$${salt}`).toString()}`;
     }
 
@@ -372,7 +373,7 @@ export class AuthService {
                 throw new ConflictException(`Password confirmation does not match.`);
             }
 
-            const newUser = await this.users.save<any>({
+            const newUser = await this.users.save({
                 login,
                 password: this.securePassword(password),
                 canDelete: false,
@@ -380,8 +381,6 @@ export class AuthService {
                 canCreate: false,
                 canManage: false,
             })
-
-            const userId = (await this.users.findOneBy({ login })).id;
 
             const { canDelete, canUpdate, canCreate, canManage } = newUser;
             const payload = { sub: newUser.id, username: newUser?.login };
@@ -391,8 +390,7 @@ export class AuthService {
                 accessToken: await this.jwtService.signAsync(payload),
                 login: newUser.login,
                 permissions: { canDelete, canUpdate, canCreate, canManage },
-                email: user.email,
-                userId,
+                userId: newUser.id,
                 message: await this.logger.success({
                     label: `User registered.`,
                     description: `"${login}" registered from IP: "${req?.ip}". 

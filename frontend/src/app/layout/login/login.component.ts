@@ -17,10 +17,11 @@ export class LoginComponent implements OnInit {
         private readonly router: Router,
     ) { }
 
-    accessDenied: boolean = false;
-    loginForm: FormGroup;
+    protected accessDenied: boolean = false;
+    protected loginForm: FormGroup;
+    protected isPasswordVisible = false;
 
-    ngOnInit(): void {
+    public ngOnInit(): void {
         this.loginForm = new FormGroup({
             login: new FormControl(null, [Validators.required]),
             password: new FormControl(null, [Validators.required]),
@@ -38,6 +39,10 @@ export class LoginComponent implements OnInit {
             }
         }
     };
+
+    protected togglePasswordVisibility() {
+        this.isPasswordVisible = !this.isPasswordVisible;
+    }
 }
 
 export type User = {

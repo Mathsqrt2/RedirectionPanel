@@ -3,37 +3,45 @@
     <h3>REGISTER</h3>
     <div class="form-group">
         <label for="login">Login</label>
-        <input type="text" name="login" id="login" class="form-input" formControlName="login">
+        <input type="text" name="login" id="login" class="input" formControlName="login">
+    </div>
 
-        <div *ngIf="registerForm.get('login').touched && !registerForm.get('login').valid">
-            <span class="error-code">The login is required</span>
-        </div>
-
+    <div *ngIf="registerForm.get('login').touched && !registerForm.get('login').valid">
+        <span class="error-code">The login is required</span>
     </div>
 
     <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" name="password" id="password" class="form-input" formControlName="password">
-
-        <div *ngIf="registerForm.get('password').touched && !registerForm.get('password').valid">
-            <span class="error-code">The password is required</span>
+        <div class="row">
+            <input [type]="isPasswordVisible ?'text' : 'password'" name="password" id="password" class="input" formControlName="password">
+            <input type="button" name="showAndHide" id="showAndHide" class="input button"
+                [value]="isPasswordVisible ? 'hide' : 'show'" (click)="togglePasswordVisibility(true)">
         </div>
+
+    </div>
+
+    <div *ngIf="registerForm.get('password').touched && !registerForm.get('password').valid">
+        <span class="error-code">The password is required</span>
     </div>
 
     <div class="form-group">
-        <label for="password-confirm">Confirm password</label>
-        <input type="password" name="password-confirm" id="password-confirm" class="form-input"
-            formControlName="password-confirm">
+        <label for="confirmPassword">Confirm password</label>
+        <div class="row">
+            <input [type]="isConfirmationVisible ?'text' : 'password'" name="confirmPassword" id="confirmPassword" class="input"
+                formControlName="confirmPassword">
+            <input type="button" name="showAndHide" id="showAndHide" class="input button"
+                [value]="isConfirmationVisible ? 'hide' : 'show'" (click)="togglePasswordVisibility(false)">
+        </div>
+    </div>
 
-        <div *ngIf="registerForm.get('password-confirm').touched && !registerForm.get('password-confirm').dirty">
-            <span class="error-code">The password is required</span>
-        </div>
-        
-        <div *ngIf="registerForm.get('password-confirm').touched 
-            && !registerForm.get('password-confirm').valid 
-            && registerForm.get('password-confirm').errors['passwordMustMatch']">
-            <span class="error-code">Passwords must match</span>
-        </div>
+    <div *ngIf="registerForm.get('confirmPassword').touched && !registerForm.get('confirmPassword').dirty">
+        <span class="error-code">The password is required</span>
+    </div>
+
+    <div *ngIf="registerForm.get('confirmPassword').touched 
+        && !registerForm.get('confirmPassword').valid 
+        && registerForm.get('confirmPassword').errors['passwordMustMatch']">
+        <span class="error-code">Passwords must match</span>
     </div>
 
     <div class="buttons-field">
