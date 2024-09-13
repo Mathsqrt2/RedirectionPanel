@@ -2,7 +2,6 @@ import { Injectable } from "@angular/core";
 import { Permissions } from "./auth.service";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first } from "rxjs";
-import { CodeResponse } from "../admin/user-profile/confirm-email/confirm-email.component";
 
 @Injectable()
 
@@ -47,6 +46,10 @@ export class UsersService {
                     this.currentUser.next({ ...currentUser, ...newState.content });
                 }
             );
+    }
+
+    public restoreCurrentUserData(newUser: User) {
+        this.currentUser.next(newUser);
     }
 
     public getCurrentUser = (): BehaviorSubject<User> => {
@@ -128,10 +131,6 @@ export class UsersService {
         })
     }
 
-    public registerUser(newUser: User) {
-        this.currentUser.next(newUser);
-    }
-
     public sendVerificationEmail = async (body: { userId: number, email: string }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
@@ -184,7 +183,50 @@ export class UsersService {
         })
     }
 
-    public checkIfActiveCodeExists = async (): Promise<boolean> => {
+    public updateEmailValue = async (body: any): Promise<boolean> => {
+        return new Promise(resolve => {
+            try {
+                this.http.patch(`${this.targetUrl}/auth/update/email/${this.currentUser.getValue().userId}`, body, { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(
+                        ((response: { status: number, message: string }) => {
+                            if (response.status === 202) {
+                                this.currentUser.next({ ...this.currentUser.getValue(), email: body.newEmail, emailSent: true });
+                                this.updateCurrentUser();
+                                resolve(true);
+                            } else {
+                                resolve(false)
+                            }
+                        })
+                    )
+            } catch (err) {
+                resolve(false);
+            }
+        })
+    }
+
+    public removeEmailValue = async (body: { password: string }): Promise<boolean> => {
+        return new Promise(resolve => {
+            try {
+                this.http.patch(`${this.targetUrl}/auth/remove/email/${this.currentUser.getValue().userId}`, body, { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(
+                        (response: { status: number, message?: string }) => {
+                            if (response.status === 202) {
+                                this.currentUser.next({ ...this.currentUser.getValue(), email: null, emailSent: null });
+                                this.updateCurrentUser();
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
+                        })
+            } catch (err) {
+                resolve(false);
+            }
+        })
+    }
+
+    public checkIfActiveCodeExists = async (): Promise<boolean | Code> => {
         return new Promise(resolve => {
             try {
                 this.http.get(`${this.targetUrl}/auth/activecode/${this.currentUser.getValue().userId}`,
@@ -195,7 +237,7 @@ export class UsersService {
                             if (response.status === 200) {
                                 const code = response.content;
                                 if (Date.now() <= code.expireDate) {
-                                    resolve(true);
+                                    resolve(code);
                                 } else {
                                     resolve(false);
                                 }
@@ -259,4 +301,17 @@ type EmailCheck = {
         login: string;
         userId: number;
     };
+}
+
+export type CodeResponse = {
+    status: number,
+    content: Code,
+}
+
+type Code = {
+    id: number,
+    userId: number,
+    status: boolean,
+    expireDate: number,
+    email: string,
 }

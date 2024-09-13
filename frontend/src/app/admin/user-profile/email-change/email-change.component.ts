@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { User, UsersService } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 
 @Component({
   selector: 'app-email-change',
@@ -9,11 +10,13 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 })
 export class EmailChangeComponent implements OnInit {
 
-  @Input('currentUser') protected confirmEmailForm: FormGroup;
+  @Input('currentUser') protected setNewEmailForm: FormGroup;
 
   protected currentUser: User;
   constructor(
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
+    private readonly canLeave: CanDeactivateService,
+
   ) { }
 
   private matchEmail(control: FormControl): { [s: string]: boolean } {
@@ -25,23 +28,54 @@ export class EmailChangeComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    this.confirmEmailForm = new FormGroup({
-      newEmail: new FormControl(null, [Validators.required, Validators.minLength(5), this.matchEmail.bind(this)])
+    this.setNewEmailForm = new FormGroup({
+      newEmail: new FormControl(null, [Validators.required, Validators.minLength(3), this.matchEmail.bind(this)]),
+      confirmNewEmail: new FormControl(null, [Validators.required, Validators.minLength(3)]),
+    })
+
+    this.setNewEmailForm.valueChanges.subscribe((value) => {
+      if (value.newEmail !== null && value.newEmail !== '') {
+        this.canLeave.getSubject('emailValidation').next(true);
+      } else {
+        this.canLeave.getSubject('emailValidation').next(false);
+      }
     });
   }
 
   public onSendVerificationCode = async (): Promise<void> => {
 
-    if (this.confirmEmailForm.status === 'VALID') {
-
+    if (this.setNewEmailForm.status === 'VALID') {
       const body = {
         userId: this.currentUser.userId,
-        email: this.confirmEmailForm.value.newEmail,
+        email: this.setNewEmailForm.value.newEmail,
       }
 
       await this.usersService.sendVerificationEmail(body);
-      this.confirmEmailForm.reset();
+      this.setNewEmailForm.reset();
     }
   }
 
+  protected onChangeEmail() {
+    this.currentUser.emailSent = false;
+    this.setNewEmailForm.value.newEmail = null;
+
+    const body = {
+      userId: this.currentUser.userId,
+      newEmail: this.setNewEmailForm.value.newEmail,
+      password: this.setNewEmailForm.value.confirmNewEmail,
+    }
+
+
+  }
+
+  public onEmailChange = (): void => {
+
+    let canChange = window.confirm(`Are you sure you want to remove email?`)
+    if (canChange) {
+
+
+
+
+    }
+  }
 }

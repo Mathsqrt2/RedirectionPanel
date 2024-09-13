@@ -1,5 +1,6 @@
 <div class="wrapper">
     <form [formGroup]="removeEmailForm" class="updateEmailForm" (ngSubmit)="onEmailRemove()">
+        
         <div class="inputs-field">
             <label for="confirmRemoveEmail">Password</label>
             <div class="row">
@@ -20,5 +21,6 @@
                 <input type="submit" value="confirm" class="input button" [disabled]="!removeEmailForm.valid" />
             </div>
         </div>
+        
     </form>
 </div>

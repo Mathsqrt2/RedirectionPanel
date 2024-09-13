@@ -19,7 +19,7 @@ export class AuthService {
             if (Date.now() > response.expireDate) {
                 localStorage.removeItem(`accessToken`);
             } else {
-                this.usersService.registerUser({
+                this.usersService.restoreCurrentUserData({
                     username: response.login,
                     permissions: response.permissions,
                     accessToken: response.accessToken,
@@ -80,7 +80,7 @@ export class AuthService {
                                 localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
                                 this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                                this.usersService.registerUser({
+                                this.usersService.restoreCurrentUserData({
                                     username: response.login,
                                     permissions: response.permissions,
                                     accessToken: response.accessToken,
@@ -124,7 +124,7 @@ export class AuthService {
                             localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
                             this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                            this.usersService.registerUser({
+                            this.usersService.restoreCurrentUserData({
                                 username: response.login,
                                 permissions: response.permissions,
                                 accessToken: response.accessToken,
