@@ -56,7 +56,7 @@ export class AuthService {
         }
     }
 
-    public isAuthenticated = () => {
+    public isAuthenticated = async (): Promise<boolean> => {
         return new Promise((resolve) => {
             if (this.isLoggedIn) {
                 resolve(true);
@@ -68,7 +68,6 @@ export class AuthService {
     public login = async (loginForm: { userLogin: string, userPassword: string }): Promise<boolean> => {
 
         return new Promise((resolve) => {
-
             if (!this.accessToken) {
                 this.http.post(`${this.baseUrl}/auth/login`, loginForm)
                     .pipe(first())
@@ -76,8 +75,7 @@ export class AuthService {
                         next: (response: LoginResponse) => {
                             this.setStatus(response?.accessToken);
 
-                            if (response.accessToken) {
-
+                            if (response?.accessToken) {
                                 const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
                                 localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
@@ -90,7 +88,6 @@ export class AuthService {
                                     email: response.email,
                                     emailSent: response.emailSent,
                                 });
-
                                 resolve(true)
                             }
 
@@ -101,11 +98,14 @@ export class AuthService {
                             resolve(false);
                         },
                     })
+            } else {
+                resolve(true);
             }
         })
+
     }
 
-    public logout() {
+    public logout = (): void => {
         this.setStatus();
         this.deleteCookie("jwt");
         localStorage.removeItem('accessToken');
@@ -117,7 +117,6 @@ export class AuthService {
                 .pipe(first())
                 .subscribe({
                     next: (response: RegisterUserResponse) => {
-
                         if (response.status === 202) {
                             this.setStatus(response?.accessToken);
 

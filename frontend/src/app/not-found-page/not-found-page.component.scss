@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+span{
+    font-size: 32px;
+    color: rgb(180, 180, 180);
+    text-shadow: 0 0 32px black;
+}
+
+h1{
+    margin: unset;
+    font-size: 120px;
+    text-shadow: 0 0 32px black;
+    color: rgb(180, 180, 180);
+}
+
+.wrapper{
+    margin-top: 50px;
+}
+
+.button{
+    font-size: 24px;
+    padding: 16px 32px;
+    border-radius: 8px;
+}

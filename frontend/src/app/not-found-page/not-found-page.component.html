@@ -1,1 +1,9 @@
-<p>not-found-page works!</p>
+<div class="container">
+    <span> Sorry, page not found :(</span>
+    <h1> 404</h1>
+
+    <div class="wrapper">
+        <input type="button" [routerLink]="isLoggedIn ? '/admin' : '/login'"
+            [value]="isLoggedIn ?'back to the panel' : 'sign in'" class="input button"/>
+    </div>
+</div>

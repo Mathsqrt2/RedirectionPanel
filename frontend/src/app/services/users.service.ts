@@ -115,6 +115,16 @@ export class UsersService {
                     });
         })
     }
+    public deleteCurrentUser = async (): Promise<boolean> => {
+        return new Promise(resolve => {
+            try {
+
+                resolve(true);
+            } catch (err) {
+                resolve(false);
+            }
+        })
+    }
 
     public registerUser(newUser: User) {
         this.currentUser.next(newUser);

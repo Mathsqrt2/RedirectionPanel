@@ -35,7 +35,7 @@ export class RegisterComponent implements OnInit {
     });
   };
 
-  async onSubmit(): Promise<void> {
+  protected async onSubmit(): Promise<void> {
     const body = {
       login: this.registerForm.value.login,
       password: this.registerForm.value.password,
@@ -53,12 +53,12 @@ export class RegisterComponent implements OnInit {
     }
   };
 
-  protected togglePasswordVisibility = (choose: boolean): void =>{
-    if(choose) {
+  protected togglePasswordVisibility = (choose: boolean): void => {
+    if (choose) {
       this.isPasswordVisible = !this.isPasswordVisible;
     } else {
       this.isConfirmationVisible = !this.isConfirmationVisible;
     }
-  } 
+  }
 
 }

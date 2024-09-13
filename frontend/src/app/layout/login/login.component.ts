@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
         })
     };
 
-    async onSubmit(): Promise<void> {
+    protected async onSubmit(): Promise<void> {
         if (this.loginForm.status === 'VALID') {
             const request = await this.authService.login(this.loginForm.value);
             this.loginForm.reset();
@@ -40,7 +40,7 @@ export class LoginComponent implements OnInit {
         }
     };
 
-    protected togglePasswordVisibility() {
+    protected togglePasswordVisibility = (): void => {
         this.isPasswordVisible = !this.isPasswordVisible;
     }
 }
