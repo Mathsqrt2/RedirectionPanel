@@ -10,7 +10,7 @@ export class UsersService {
     private domain: string = `http://localhost:3000`;
     private targetUrl: string = `${this.domain}/api`;
     private currentUser: BehaviorSubject<User> = new BehaviorSubject<User>({} as User);
-    private users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
+    public users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
 
     public deleteEmailProcess: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
     public changeEmailProcess: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
@@ -18,17 +18,15 @@ export class UsersService {
     constructor(
         private readonly http: HttpClient,
     ) {
-        this.currentUser
-            .pipe(first())
-            .subscribe(
-                (newValue: User) => {
-                    if (!this.users.getValue() && newValue.userId && newValue.permissions.canManage) {
-                        this.getUsersList();
-                    }
-                })
+        this.currentUser.pipe(first()).subscribe(
+            (newValue: User) => {
+                if (!this.users.getValue() && newValue.userId && newValue.permissions.canManage) {
+                    this.getUsersList();
+                }
+            })
     }
 
-    public getUsersList = async (): Promise<boolean> => {
+    private getUsersList = async (): Promise<boolean> => {
         return new Promise(resolve => {
             try {
                 this.http.get(`${this.targetUrl}/users`, { withCredentials: true }).pipe(first())
@@ -295,11 +293,6 @@ export class UsersService {
             }
         })
     }
-}
-
-type Body = {
-    emailSent: boolean,
-    newEmail?: string,
 }
 
 type UsersResponse = {

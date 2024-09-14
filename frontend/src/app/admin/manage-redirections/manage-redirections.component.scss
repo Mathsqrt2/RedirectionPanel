@@ -1,6 +1,7 @@
 @import "./../../../styleset.scss";
 
-.redirection-field {
+.redirection-field,
+.users-management-field {
     display: flex;
     flex-direction: column;
     justify-content: center;

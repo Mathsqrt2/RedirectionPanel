@@ -32,6 +32,7 @@ import { EmailDeleteComponent } from './admin/user-profile/email-delete/email-de
 import { EmailConfirmComponent } from './admin/user-profile/email-confirm/email-confirm.component';
 import { EmailDisplayComponent } from './admin/user-profile/email-display/email-display.component';
 import { EmailChangeComponent } from './admin/user-profile/email-change/email-change.component';
+import { UserBarComponent } from './admin/manage-users/user-bar/user-bar.component';
 
 @NgModule({
   declarations: [
@@ -55,6 +56,7 @@ import { EmailChangeComponent } from './admin/user-profile/email-change/email-ch
     EmailConfirmComponent,
     EmailDisplayComponent,
     EmailChangeComponent,
+    UserBarComponent,
   ],
   imports: [
     BrowserModule,

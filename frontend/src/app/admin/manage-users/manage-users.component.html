@@ -1,20 +1,52 @@
 <div class="users-management-field">
 
     <div class="create-user-field">
-        <form class="form-field">
-            <h3>STWÓRZ UŻYTKOWNIKA</h3>
-            <div class="inputs-field"></div>
+        <form class="form-field" [formGroup]="createNewUser" (ngSubmit)="onUserCreate()">
+            <h1>CREATE USER</h1>
+            <div class="inputs-field">
+                <div class="control-group">
+                    <label for="">Login</label>
+                    <input type="text" class="input" id="login" name="login" placeholder="login"
+                        formControlName="login" />
+                </div>
+                <div class="control-group">
+                    <label for="">Password</label>
+                    <input type="password" class="input" id="password" name="password" placeholder="password"
+                        formControlName="password">
+                </div>
+                <div class="control-group">
+                    <label for="email">Email</label>
+                    <input type="email" class="input" id="email" name="email" placeholder="name@domain.com"
+                        formControlName="email" />
+                </div>
+            </div>
+
+            <div class="inputs-field">
+                <label><input type="checkbox" class="input">canCreate</label>
+                <label><input type="checkbox" class="input">canUpdate</label>
+                <label><input type="checkbox" class="input">canDelete</label>
+                <label><input type="checkbox" class="input">canManage</label>
+            </div>
+
+            <div *ngIf="createNewUser.touched && !createNewUser.valid">
+                <span class="error-code">Something is wrong</span>
+            </div>
+
+            <input type="submit" value="CREATE" class="confirm" [disabled]="!createNewUser.valid" />
+
         </form>
     </div>
 
     <div class="users-table">
         <table>
             <tr>
-                <th>id</th>
-                <th>nickname</th>
-                <th>save</th>
-                <th>modify</th>
-                <th>remove</th>
+                <th class="narrow-col">indx</th>
+                <th class="narrow-col">id</th>
+                <th>login</th>
+                <th>password</th>
+                <th>permissions</th>
+                <th>email</th>
+                <th>email sent</th>
                 <th colspan="2"></th>
             </tr>
             <tr>
