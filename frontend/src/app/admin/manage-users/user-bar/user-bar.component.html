@@ -1,18 +1,21 @@
-<td class="narrow-col">
-    {{index+1}}
+<td class="narrow-col" (click)="onCopyToClipboard()">
+    <span class="copy"> {{index+1}}</span>
 </td>
 
-<td class="narrow-col">
-    {{user.id}}
+<td class="narrow-col" (click)="onCopyToClipboard('id')">
+    <span class="copy">{{user.id}}</span>
 </td>
 
 <td class="medium-col">
-    {{user.login}}
+    <span *ngIf="!editMode" class="copy" (click)="onCopyToClipboard('login')"> {{user.login}}</span>
+    <input *ngIf="editMode" type="text" [value]="user.login" class="edit" />
 </td>
 
 <td class="medium-col password">
-    {{user.password}}
+    <span *ngIf="!editMode" class="copy" (click)="onCopyToClipboard('password')"> {{user.password}} </span>
+    <input *ngIf="editMode" type="text" [value]="user.password" class="edit" />
 </td>
+
 <td class="medium-col permissions">
     <div class="row">
         <div class="permissions-wrapper">
@@ -35,11 +38,13 @@
 </td>
 
 <td class="medium-col">
-    {{user.email ? user.email : 'none'}}
+    <span *ngIf="!editMode" class="copy" (click)="onCopyToClipboard('email')">{{user.email ? user.email :
+        'none'}}</span>
+    <input *ngIf="editMode" type="text" [value]="user.email ? user.email : 'none'" class="edit" />
 </td>
 
-<td class="email-sent">
-    {{user.emailSent ? 'sent' : 'none'}}
+<td class="email-sent" (click)="onCopyToClipboard('emailSent')">
+    <span class="copy">{{user.emailSent ? 'sent' : 'none'}}</span>
 </td>
 
 <td *ngIf="editMode">

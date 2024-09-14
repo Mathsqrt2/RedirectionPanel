@@ -3,14 +3,14 @@
 </td>
 
 <td class="medium-col">
-    <span *ngIf="!editMode" (click)="onRedirectTo()" class="copy-link">
+    <span *ngIf="!editMode" (click)="onRedirectTo()" class="copy">
         {{displayData ? redirection.route : '***** ***'}}</span>
     <input *ngIf="editMode" type="text" value={{redirection.route}} class="edit" [(ngModel)]="routeInput"
         (keydown.escape)="onRejectEdit()" (keydown.enter)="onConfirmEdit()" (input)="refreshGuard()">
 </td>
 
 <td class="wide-col">
-    <span *ngIf="!editMode" (click)="onCopyToClipboard()" class="copy-link">
+    <span *ngIf="!editMode" (click)="onCopyToClipboard()" class="copy">
         {{displayData ? redirection.targetUrl : '***** ***'}}</span>
     <input *ngIf="editMode" type="text" value={{redirection.targetUrl}} class="edit" [(ngModel)]="targetPathInput"
         (keydown.escape)="onRejectEdit()" (keydown.enter)="onConfirmEdit()" (input)="refreshGuard()">

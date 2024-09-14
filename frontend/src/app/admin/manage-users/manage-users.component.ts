@@ -39,11 +39,11 @@ export class ManageUsersComponent implements CanComponentDeactivate {
 
   public canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
 
-    if (this.canLeave.getValue('createRedirection')) {
+    if (this.canLeave.getValue('createUser')) {
       return this.confirm();
     }
 
-    if (this.canLeave.modifiedRedirectionEdits.getValue().length) {
+    if (this.canLeave.modifiedUsers.getValue().length) {
       return this.confirm();
     }
 

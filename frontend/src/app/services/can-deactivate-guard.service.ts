@@ -29,6 +29,7 @@ export class CanDeactivateService {
     private isPasswordChangeFormDirty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     private isEmailVerificationFormDirty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     private isEmailChangeFormDirty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    private isCreateUserFormDirty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
     public getSubject(option: ObserverType): BehaviorSubject<boolean> {
         switch (option) {
@@ -37,6 +38,7 @@ export class CanDeactivateService {
             case 'changePassword': return this.isPasswordChangeFormDirty;
             case 'emailValidation': return this.isEmailVerificationFormDirty;
             case 'emailChange': return this.isEmailChangeFormDirty;
+            case 'createUser': return this.isCreateUserFormDirty;
         }
     }
 
@@ -46,4 +48,4 @@ export class CanDeactivateService {
 
 }
 
-type ObserverType = `createRedirection` | `logsLoading` | `changePassword` | `emailValidation` | `emailChange`;
+type ObserverType = `createRedirection` | `logsLoading` | `changePassword` | `emailValidation` | `emailChange` | `createUser`;

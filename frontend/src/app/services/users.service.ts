@@ -57,6 +57,7 @@ export class UsersService {
         return new Promise(resolve => {
             try {
                 const currentUser = this.currentUser.getValue();
+                console.log(currentUser)
                 this.http.get(`${this.targetUrl}/auth/currentuser/${currentUser.id}`,
                     { withCredentials: true })
                     .pipe(first())
