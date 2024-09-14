@@ -25,7 +25,7 @@ export class MainSectionComponent {
     this.userService.getCurrentUser().subscribe(
       (newValue: User) => {
         this.permissions = newValue.permissions;
-        this.admin = newValue.username;
+        this.admin = newValue.login;
         this.menuRoutes = this.routes.getRoutes().filter(
           (route: RouteModel) => {
             if (route.getRoute() === 'logs') {

@@ -12,7 +12,7 @@ export class AuthService {
     constructor(
         private readonly http: HttpClient,
         private readonly router: Router,
-        private usersService: UsersService,
+        private readonly usersService: UsersService,
     ) {
 
         if (localStorage.getItem(`accessToken`)) {
@@ -21,10 +21,10 @@ export class AuthService {
                 localStorage.removeItem(`accessToken`);
             } else {
                 this.usersService.restoreCurrentUserData({
-                    username: read.login,
+                    login: read.login,
                     permissions: read.permissions,
                     accessToken: read.accessToken,
-                    userId: read.userId,
+                    id: read.id,
                 });
                 this.usersService.updateCurrentUser();
                 this.setStatus(read.accessToken);
@@ -84,10 +84,10 @@ export class AuthService {
 
                                 this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
                                 this.usersService.restoreCurrentUserData({
-                                    username: response.login,
+                                    login: response.login,
                                     permissions: response.permissions,
                                     accessToken: response.accessToken,
-                                    userId: response.userId,
+                                    id: response.userId,
                                     email: response.email,
                                     emailSent: response.emailSent,
                                 });
@@ -129,10 +129,10 @@ export class AuthService {
 
                             this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
                             this.usersService.restoreCurrentUserData({
-                                username: response.login,
+                                login: response.login,
                                 permissions: response.permissions,
                                 accessToken: response.accessToken,
-                                userId: response.userId,
+                                id: response.userId,
                             });
                             this.usersService.updateCurrentUser();
 

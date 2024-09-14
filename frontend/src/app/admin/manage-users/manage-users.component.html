@@ -22,14 +22,18 @@
             </div>
 
             <div class="inputs-field">
-                <label><input type="checkbox" class="input">canCreate</label>
-                <label><input type="checkbox" class="input">canUpdate</label>
-                <label><input type="checkbox" class="input">canDelete</label>
-                <label><input type="checkbox" class="input">canManage</label>
+                <label><input type="checkbox" class="input" id="canUpdate" name="canUpdate"
+                        formControlName="canUpdate">canUpdate</label>
+                <label><input type="checkbox" class="input" id="canDelete" name="canDelete"
+                        formControlName="canDelete">canDelete</label>
+                <label><input type="checkbox" class="input" id="canCreate" name="canCreate"
+                        formControlName="canCreate">canCreate</label>
+                <label><input type="checkbox" class="input" id="canManage" name="canManage"
+                        formControlName="canManage">canManage</label>
             </div>
 
             <div *ngIf="createNewUser.touched && !createNewUser.valid">
-                <span class="error-code">Something is wrong</span>
+                <span class="error-code"></span>
             </div>
 
             <input type="submit" value="CREATE" class="confirm" [disabled]="!createNewUser.valid" />
@@ -37,10 +41,12 @@
         </form>
     </div>
 
+    <hr *ngIf="this.users.length" />
+
     <div class="users-table">
         <table>
             <tr>
-                <th class="narrow-col">indx</th>
+                <th>indx</th>
                 <th class="narrow-col">id</th>
                 <th>login</th>
                 <th>password</th>
@@ -49,14 +55,7 @@
                 <th>email sent</th>
                 <th colspan="2"></th>
             </tr>
-            <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+            <tr *ngFor="let user of users; index as i" [user-bar] [user]="user" [index]="i">
             </tr>
         </table>
     </div>

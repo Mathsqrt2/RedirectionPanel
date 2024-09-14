@@ -1,0 +1,95 @@
+@import '../../../../styleset.scss';
+
+.password {
+    max-width: 420px;
+}
+
+.narrow-col {
+    max-width: 50px !important;
+}
+
+.permissions {
+    padding: 0 10px !important;
+}
+
+.permissions-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    label {
+        margin: unset
+    }
+}
+
+input.edit {
+
+    &[type=text] {
+        width: 100%;
+        background-color: #222;
+        color: #ccc;
+    }
+
+    border: 2px solid $accent;
+
+}
+
+.copy-link {
+    cursor: pointer;
+    color: white;
+    transition: all 0.2s ease-in-out;
+    text-decoration: none;
+
+    &:visited {
+        color: white;
+    }
+
+    &:hover {
+        color: #ccc;
+    }
+}
+
+.link-field {
+    cursor: pointer;
+}
+
+
+.button {
+    display: inline-block;
+    padding: 4px 12px;
+    margin: 2px;
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+
+    background-color: $accent;
+    color: white;
+
+    outline: none;
+    border: none;
+
+    border-radius: 4px;
+
+    &.delete {
+        &:hover {
+            background-color: rgb(180, 42, 42);
+        }
+    }
+
+    &.reject {
+        &:hover {
+            background-color: rgb(180, 42, 42);
+        }
+    }
+
+    &.apply {
+        &:hover {
+            background-color: green;
+        }
+    }
+
+    &:hover {
+        transform: scale(0.94);
+        background-color: $accent-hover;
+    }
+}

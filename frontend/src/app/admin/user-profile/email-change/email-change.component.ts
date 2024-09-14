@@ -70,7 +70,7 @@ export class EmailChangeComponent implements OnInit {
 
     if (this.setNewEmailForm.status === 'VALID') {
       const body = {
-        userId: this.currentUser.userId,
+        id: this.currentUser.id,
         email: this.setNewEmailForm.value.newEmail,
       }
 

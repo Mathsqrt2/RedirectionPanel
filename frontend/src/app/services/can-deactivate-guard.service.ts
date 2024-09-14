@@ -4,6 +4,7 @@ import {
 } from "@angular/router";
 import { BehaviorSubject, Observable } from "rxjs";
 import { Redirection } from "./redirections.service";
+import { User } from "./users.service";
 
 export interface CanComponentDeactivate {
     canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
@@ -21,6 +22,7 @@ export const canDeactivateGuard: CanDeactivateFn<CanComponentDeactivate> = (
 
 export class CanDeactivateService {
 
+    public modifiedUsers: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([])
     public modifiedRedirectionEdits: BehaviorSubject<Redirection[]> = new BehaviorSubject<Redirection[]>([]);
     private isCreateRedirectionFormDirty: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     private areLogsStillLoading: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);

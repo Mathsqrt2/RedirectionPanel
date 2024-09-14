@@ -1,7 +1,58 @@
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td>edit</td>
-<td>delete</td>
+<td class="narrow-col">
+    {{index+1}}
+</td>
+
+<td class="narrow-col">
+    {{user.id}}
+</td>
+
+<td class="medium-col">
+    {{user.login}}
+</td>
+
+<td class="medium-col password">
+    {{user.password}}
+</td>
+<td class="medium-col permissions">
+    <div class="row">
+        <div class="permissions-wrapper">
+            <input type="checkbox" [checked]="user.canCreate" />
+            <label>cre</label>
+        </div>
+        <div class="permissions-wrapper">
+            <input type="checkbox" [checked]="user.canUpdate" />
+            <label>upd</label>
+        </div>
+        <div class="permissions-wrapper">
+            <input type="checkbox" [checked]="user.canDelete" />
+            <label>del</label>
+        </div>
+        <div class="permissions-wrapper">
+            <input type="checkbox" [checked]="user.canManage" />
+            <label>man</label>
+        </div>
+    </div>
+</td>
+
+<td class="medium-col">
+    {{user.email ? user.email : 'none'}}
+</td>
+
+<td class="email-sent">
+    {{user.emailSent ? 'sent' : 'none'}}
+</td>
+
+<td *ngIf="editMode">
+
+    <input class="button apply" type="button" value="confirm" (click)="onConfirmEdit()" />
+    <input class="button reject" type="button" value="reject" (click)="onRejectEdit()" />
+
+</td>
+
+<td *ngIf="!editMode">
+    <input type="button" class="button edit" value="edit" (click)="onEdit()" />
+</td>
+
+<td>
+    <input type="button" class="button delete" value="X" (click)="onDelete()" />
+</td>

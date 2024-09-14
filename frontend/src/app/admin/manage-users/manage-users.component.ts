@@ -11,7 +11,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 })
 export class ManageUsersComponent implements CanComponentDeactivate {
 
-  protected users: User[]
+  protected users: User[] = []
   protected createNewUser: FormGroup;
 
   constructor(
@@ -21,10 +21,15 @@ export class ManageUsersComponent implements CanComponentDeactivate {
     this.createNewUser = new FormGroup({
       login: new FormControl(null, [Validators.required, Validators.minLength(3)]),
       password: new FormControl(null, [Validators.required, , Validators.minLength(3)]),
-      email: new FormControl(null)
+      email: new FormControl(null),
+      canCreate: new FormControl(false, [Validators.required]),
+      canUpdate: new FormControl(false, [Validators.required]),
+      canDelete: new FormControl(false, [Validators.required]),
+      canManage: new FormControl(false, [Validators.required]),
     })
 
     this.usersService.users.subscribe((state: User[]) => console.log(state));
+    this.usersService.users.subscribe((state: User[]) => this.users = state);
     this.usersService.updateUsersList();
   }
 
