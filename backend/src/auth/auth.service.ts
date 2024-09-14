@@ -417,8 +417,13 @@ export class AuthService {
         const startTime = Date.now();
 
         try {
+            let user;
 
-            const user = await this.users.findOneBy({ login });
+            if (login.includes('@')) {
+                user = await this.users.findOneBy({ email: login });
+            } else {
+                user = await this.users.findOneBy({ login });
+            }
 
             if (!user) {
                 throw new UnauthorizedException(`Login or password is incorrect.`);
