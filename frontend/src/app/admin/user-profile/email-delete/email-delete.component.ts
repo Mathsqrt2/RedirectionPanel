@@ -6,7 +6,7 @@ import { CanDeactivateService } from '../../../services/can-deactivate-guard.ser
 @Component({
   selector: 'app-email-delete',
   templateUrl: './email-delete.component.html',
-  styleUrls: ['./email-delete.component.scss','../user-profile.component.scss']
+  styleUrls: ['./email-delete.component.scss', '../user-profile.component.scss']
 })
 export class EmailDeleteComponent implements OnInit {
 
@@ -34,11 +34,11 @@ export class EmailDeleteComponent implements OnInit {
     })
   }
 
-  public onVisibilityToggle = (): void => {
+  protected onVisibilityToggle = (): void => {
     this.isPasswordVisible = !this.isPasswordVisible;
   }
 
-  public onEmailRemove = (): void => {
+  protected onEmailRemove = (): void => {
 
     let canRemove = window.confirm(`Are you sure you want to remove email?`)
     if (canRemove) {
@@ -52,7 +52,8 @@ export class EmailDeleteComponent implements OnInit {
     }
   }
 
-  public onReject = (): void => {
+  protected onCancel = (): void => {
+    this.usersService.deleteEmailProcess.next(false);
     this.removeEmailForm.reset();
   }
 }

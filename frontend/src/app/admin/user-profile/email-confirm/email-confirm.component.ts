@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { User, UsersService } from '../../../services/users.service';
+import { User, UsersService, Code } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 
@@ -12,14 +12,17 @@ export class EmailConfirmComponent implements OnInit {
 
   @Input('currentUser') protected currentUser: User;
   protected confirmEmailWithCodeForm: FormGroup;
-  public wrongCode: boolean = false;
+  protected emailFromCode: string = null;
+  protected wrongCode: boolean = false;
 
   constructor(
     private readonly usersService: UsersService,
     private readonly canLeave: CanDeactivateService,
-  ) { }
+  ) {
+    this.usersService.getCurrentUser().subscribe((state: User) => this.currentUser = state);
+  }
 
-  public ngOnInit(): void {
+  public async ngOnInit(): Promise<void> {
     this.confirmEmailWithCodeForm = new FormGroup({
       newEmail: new FormControl({ value: this.currentUser.email || null, disabled: true }),
       confirmationCode: new FormControl(null, [Validators.required, Validators.minLength(6)])
@@ -32,16 +35,25 @@ export class EmailConfirmComponent implements OnInit {
         this.canLeave.getSubject('emailValidation').next(false);
       }
     })
-  }
 
-  protected onEmailConfirm = (): void => {
-
-    if (this.confirmEmailWithCodeForm.status === 'VALID') {
-      const code = this.confirmEmailWithCodeForm.value.confirmationCode;
+    const code = await this.usersService.checkIfActiveCodeExists();
+    if (code.email) {
+      this.confirmEmailWithCodeForm.patchValue({ newEmail: code.email });
     }
   }
 
-  protected onChangeEmail = (): void => {
+  protected onEmailConfirm = async (): Promise<void> => {
 
+    if (this.confirmEmailWithCodeForm.status === 'VALID') {
+      const code = this.confirmEmailWithCodeForm.value.confirmationCode;
+      this.wrongCode = await this.usersService.verifyByRequest(code);
+    }
+  }
+
+  protected onCancel = async (): Promise<void> => {
+    const response = await this.usersService.updateEmailValue({ emailSent: false });
+    if (response) {
+      this.usersService.changeEmailProcess.next(false);
+    }
   }
 }

@@ -4,21 +4,36 @@
         <input type="email" name="newEmail" id="newEmail" formControlName="newEmail" class="input"
             placeholder="yourname@domain.com" />
     </div>
-    
-    <div class="inputs-field">
-        <label for="newEmail">confirm new email</label>
-        <input type="email" name="confirmNewEmail" id="confirmNewEmail" formControlName="confirmNewEmail" class="input"
-            placeholder="yourname@domain.com" />
-    </div>
 
     <div class="error-code" *ngIf="setNewEmailForm.get('newEmail').touched 
-        && !setNewEmailForm.get('newEmail').valid">
+    && !setNewEmailForm.get('newEmail').valid
+    && setNewEmailForm.get('newEmail')?.errors['emailMustMatchPattern']">
         email is incorrect!
     </div>
 
     <div class="inputs-field">
-        <label for="send-code-button">Send code</label>
-        <input type="submit" value="send" class="input button" [disabled]="!setNewEmailForm.valid" />
+        <label for="confirmNewEmail">confirm new email</label>
+        <input type="email" name="confirmNewEmail" id="confirmNewEmail" formControlName="confirmNewEmail" class="input"
+            placeholder="yourname@domain.com" />
+    </div>
+
+    <div class="error-code" *ngIf="setNewEmailForm.get('confirmNewEmail').touched 
+        && !setNewEmailForm.get('confirmNewEmail').valid
+        && setNewEmailForm.get('confirmNewEmail')?.errors['emailMustMatchPattern']">
+        email is incorrect!
+    </div>
+
+    <div class="error-code" *ngIf="setNewEmailForm.get('confirmNewEmail').touched
+    && !setNewEmailForm.valid
+    && setNewEmailForm.get('confirmNewEmail')?.errors['emailsMustMatch']">
+        The emails must match!
+    </div>
+
+    <div class="inputs-field">
+        <div class="row">
+            <input type="button" value="cancel" class="input button" *ngIf="changeEmail" (click)="onCancel()" />
+            <input type="submit" value="send code" class="input button" [disabled]="!setNewEmailForm.valid" />
+        </div>
     </div>
 
 </form>

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { AuthService, Permissions } from "./auth.service";
+import { Permissions } from "./auth.service";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first } from "rxjs";
 
@@ -63,9 +63,10 @@ export class UsersService {
                     { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        ({ status, content }: { status: number, content: User }) => {
+                        ({ status, content }: { status: number, content?: User }) => {
                             if (status === 200) {
                                 this.currentUser.next({ ...currentUser, ...content });
+                                localStorage.accessToken = JSON.stringify(this.currentUser.getValue());
                                 resolve(true);
                             } else {
                                 resolve(false);
@@ -157,14 +158,14 @@ export class UsersService {
     }
 
     public sendVerificationEmail = async (body: { userId: number, email: string }): Promise<boolean> => {
-        return new Promise(resolve => {
+        return new Promise(async resolve => {
             try {
                 this.http.post(`${this.targetUrl}/auth/getverificationemail`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: { status: number, message: string }) => {
                             if (response.status === 200) {
-                                this.http.patch(`${this.targetUrl}/auth/emailstatus/${body.userId}`,
+                                this.http.patch(`${this.targetUrl}/auth/update/email/${body.userId}`,
                                     { emailSent: true },
                                     { withCredentials: true })
                                     .pipe(first())
@@ -208,23 +209,27 @@ export class UsersService {
         })
     }
 
-    public updateEmailValue = async (body: any): Promise<boolean> => {
+    public updateEmailValue = async (values: { newEmail?: string, emailSent: boolean }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
+                const body: Body = { emailSent: values.emailSent };
                 this.http.patch(`${this.targetUrl}/auth/update/email/${this.currentUser.getValue().userId}`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         ((response: { status: number, message: string }) => {
-                            if (response.status === 202) {
-                                this.currentUser.next({ ...this.currentUser.getValue(), email: body.newEmail, emailSent: true });
+                            if (response.status === 200) {
+                                console.log('zadzialo sie true')
+                                this.currentUser.next({ ...this.currentUser.getValue(), email: body?.newEmail || null, emailSent: values.emailSent });
                                 this.updateCurrentUser();
                                 resolve(true);
                             } else {
-                                resolve(false)
+                                console.log('zadzial sie elese');
+                                resolve(false);
                             }
                         })
                     )
             } catch (err) {
+                console.log('zadzial sie erro')
                 resolve(false);
             }
         })
@@ -251,7 +256,7 @@ export class UsersService {
         })
     }
 
-    public checkIfActiveCodeExists = async (): Promise<boolean | Code> => {
+    public checkIfActiveCodeExists = async (): Promise<Code> => {
         return new Promise(resolve => {
             try {
                 this.http.get(`${this.targetUrl}/auth/activecode/${this.currentUser.getValue().userId}`,
@@ -264,19 +269,18 @@ export class UsersService {
                                 if (Date.now() <= code.expireDate) {
                                     resolve(code);
                                 } else {
-                                    resolve(false);
+                                    resolve(null);
                                 }
                             }
                         }
                     )
             } catch (err) {
-                resolve(false);
+                resolve(null);
             }
         })
     }
 
     public verifyByRequest = async (code: number): Promise<boolean> => {
-
         return new Promise(resolve => {
             try {
                 this.http.get(`${this.targetUrl}/auth/verifybyrequest/${code}`, { withCredentials: true })
@@ -295,6 +299,11 @@ export class UsersService {
             }
         })
     }
+}
+
+type Body = {
+    emailSent: boolean,
+    newEmail?: string,
 }
 
 type UsersResponse = {
@@ -333,7 +342,7 @@ export type CodeResponse = {
     content: Code,
 }
 
-type Code = {
+export type Code = {
     id: number,
     userId: number,
     status: boolean,

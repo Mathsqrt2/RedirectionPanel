@@ -2,9 +2,9 @@
     <span>You're verified with email:</span>
     <span>{{currentUser.email}}</span>
     <div class="row">
-        <input type="button" class="input button" value="change" (click)="onStartEmailChange()"
+        <input type="button" class="input button" value="change" (click)="onStartChangeEmailProcess()"
             [disabled]="accessLocked.status" />
-        <input type="button" class="input button" value="remove" (click)="onStartEmailRemove()"
+        <input type="button" class="input button" value="remove" (click)="onStartDeleteEmailProcess()"
             [disabled]="accessLocked.status" />
     </div>
 </div>

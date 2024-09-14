@@ -60,7 +60,7 @@ export class AuthService {
                 throw new ConflictException(`The user assigned to this code no longer exists.`);
             }
 
-            user = { ...user, email: codeRead.email, canCreate: true, canUpdate: true };
+            user = { ...user, email: codeRead.email, emailSent: null, canCreate: true, canUpdate: true };
 
             await this.users.save({ ...user });
             const { canCreate, canUpdate, canDelete, canManage } = user;
@@ -565,6 +565,10 @@ export class AuthService {
 
             user.emailSent = body.emailSent;
 
+            if (body.newEmail) {
+                user.email = body.newEmail;
+            }
+
             if (body.emailSent === false) {
                 user.email = null;
                 const code = await this.dataSource.getRepository(Codes).findOneBy({ userId: user.id, status: true });
@@ -575,7 +579,7 @@ export class AuthService {
                 }
             }
 
-            await this.users.save({ ...user });
+            await this.users.save(user);
 
             return {
                 status: HttpStatus.OK,

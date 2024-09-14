@@ -31,12 +31,32 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
     );
     this.usersService.changeEmailProcess.subscribe((state: boolean) => {
       if (state) { this.usersService.deleteEmailProcess.next(false) };
-      this.changeProcess
+      this.changeProcess = state;
     });
   }
 
-  public ngOnInit(): void {
+  private confirm = (): boolean => {
+    return window.confirm(`There are unfinished processes. Are you sure you want to leave now?`);
+  }
 
+  public canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
+
+    if (this.canLeave.getValue('changePassword')) {
+      return this.confirm();
+    }
+
+    if (this.canLeave.getValue('emailChange')) {
+      return this.confirm();
+    }
+
+    if (this.canLeave.getValue('emailValidation')) {
+      return this.confirm();
+    }
+
+    return true;
+  }
+
+  public ngOnInit(): void {
     if (localStorage.accessLocked) {
       const data = JSON.parse(localStorage.accessLocked);
       if (Date.now() > data?.banExpires) {
@@ -66,26 +86,6 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
     localStorage.accessLocked = JSON.stringify(this.accessLocked);
   }
 
-  private confirm = (): boolean => {
-    return window.confirm(`There are unfinished processes. Are you sure you want to leave now?`);
-  }
-
-  public canDeactivate = (): Observable<boolean> | Promise<boolean> | boolean => {
-
-    if (this.canLeave.getValue('changePassword')) {
-      return this.confirm();
-    }
-
-    if (this.canLeave.getValue('emailChange')) {
-      return this.confirm();
-    }
-
-    if (this.canLeave.getValue('emailValidation')) {
-      return this.confirm();
-    }
-
-    return true;
-  };
 }
 
 export type BanTime = {

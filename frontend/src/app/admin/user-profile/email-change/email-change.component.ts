@@ -10,14 +10,31 @@ import { CanDeactivateService } from '../../../services/can-deactivate-guard.ser
 })
 export class EmailChangeComponent implements OnInit {
 
-  @Input('currentUser') protected setNewEmailForm: FormGroup;
+  @Input('currentUser') protected currentUser: User;
+  protected setNewEmailForm: FormGroup;
+  protected changeEmail: boolean;
 
-  protected currentUser: User;
   constructor(
     private readonly usersService: UsersService,
     private readonly canLeave: CanDeactivateService,
+  ) {
+    this.setNewEmailForm = new FormGroup({
+      newEmail: new FormControl(null, [
+        Validators.required,
+        Validators.minLength(3),
+        this.matchEmail.bind(this)
+      ]),
+      confirmNewEmail: new FormControl(null, [
+        Validators.required,
+        Validators.minLength(3),
+        this.matchEmail.bind(this),
+        this.areEquals.bind(this)
+      ]),
+    })
 
-  ) { }
+    this.usersService.changeEmailProcess.subscribe((state: boolean) => this.changeEmail = state);
+    this.usersService.getCurrentUser().subscribe((state: User) => this.currentUser = state);
+  }
 
   private matchEmail(control: FormControl): { [s: string]: boolean } {
     const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -27,12 +44,14 @@ export class EmailChangeComponent implements OnInit {
     return null;
   }
 
-  public ngOnInit(): void {
-    this.setNewEmailForm = new FormGroup({
-      newEmail: new FormControl(null, [Validators.required, Validators.minLength(3), this.matchEmail.bind(this)]),
-      confirmNewEmail: new FormControl(null, [Validators.required, Validators.minLength(3)]),
-    })
+  private areEquals(control: FormControl): { [s: string]: boolean } {
+    if (control?.value !== this.setNewEmailForm?.value?.newEmail) {
+      return { 'emailsMustMatch': true };
+    }
+    return null;
+  }
 
+  public ngOnInit(): void {
     this.setNewEmailForm.valueChanges.subscribe((value) => {
       if (value.newEmail !== null && value.newEmail !== '') {
         this.canLeave.getSubject('emailValidation').next(true);
@@ -64,18 +83,13 @@ export class EmailChangeComponent implements OnInit {
       newEmail: this.setNewEmailForm.value.newEmail,
       password: this.setNewEmailForm.value.confirmNewEmail,
     }
-
-
   }
 
-  public onEmailChange = (): void => {
-
-    let canChange = window.confirm(`Are you sure you want to remove email?`)
-    if (canChange) {
-
-
-
-
+  protected onCancel = async (): Promise<void> => {
+    const response = await this.usersService.updateEmailValue({ emailSent: false });
+    console.log(response);
+    if (response) {
+      this.usersService.changeEmailProcess.next(false);
     }
   }
 }

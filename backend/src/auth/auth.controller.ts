@@ -194,7 +194,7 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard)
-    @Patch(`emailstatus/:id`)
+    @Patch(`update/email/:id`)
     async updateEmailStatus(
         @Param(`id`) id: number,
         @Body() body: UpdateStatusDto,

@@ -20,16 +20,18 @@
 
             <hr />
 
-            <div *ngIf="!accessLocked.status">
-                <app-email-display [currentUser]="currentUser" [accessLocked]="accessLocked"
-                    *ngIf="currentUser.email" />
-                <app-email-change [currentUser]="currentUser" [accessLocked]="accessLocked"
-                    *ngIf="(!currentUser.email && !emailSent) || changeProcess" />
-                <app-email-confirm [currentUser]="currentUser" [accessLocked]="accessLocked"
-                    *ngIf="!currentUser && emailSent" />
-                <app-email-delete [currentUser]="currentUser" [accessLocked]="accessLocked"
-                    *ngIf="currentUser.email && deleteProcess" />
-            </div>
+            <app-email-display [currentUser]="currentUser" [accessLocked]="accessLocked"
+                *ngIf="currentUser.email && !changeProcess && !deleteProcess" />
+
+            <app-email-change [currentUser]="currentUser" [accessLocked]="accessLocked"
+                *ngIf="(!currentUser.email && !currentUser.emailSent) || changeProcess" />
+
+            <app-email-confirm [currentUser]="currentUser" [accessLocked]="accessLocked"
+                *ngIf="(!currentUser.email && currentUser.emailSent) || (currentUser.emailSent && changeProcess)" />
+
+            <app-email-delete [currentUser]="currentUser" [accessLocked]="accessLocked"
+                *ngIf="currentUser.email && deleteProcess" />
+
 
             <div class="wrapper" *ngIf="accessLocked.status">
                 <span class="error-code">
@@ -45,6 +47,7 @@
             <hr />
 
             <delete-account />
+
         </div>
     </div>
 </div>

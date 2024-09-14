@@ -11,16 +11,17 @@ export class EmailDisplayComponent {
 
   @Input('currentUser') protected currentUser: User;
   @Input('accessLocked') protected accessLocked: BanTime = null;
+  
   constructor(
     private readonly usersService: UsersService
   ) {
   }
 
-  public onStartEmailChange = (): void => {
-
+  protected onStartDeleteEmailProcess = (): void => {
+    this.usersService.deleteEmailProcess.next(true);
   }
-
-  public onStartEmailRemove = (): void => {
-
+  
+  protected onStartChangeEmailProcess = (): void => {
+    this.usersService.changeEmailProcess.next(true);
   }
 }

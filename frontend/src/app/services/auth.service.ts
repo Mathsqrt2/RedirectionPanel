@@ -16,19 +16,20 @@ export class AuthService {
     ) {
 
         if (localStorage.getItem(`accessToken`)) {
-            const response = JSON.parse(localStorage.getItem(`accessToken`));
-            if (Date.now() > response.expireDate) {
+            const read = JSON.parse(localStorage.getItem(`accessToken`));
+            if (Date.now() > read.expireDate) {
                 localStorage.removeItem(`accessToken`);
             } else {
                 this.usersService.restoreCurrentUserData({
-                    username: response.login,
-                    permissions: response.permissions,
-                    accessToken: response.accessToken,
-                    userId: response.userId,
+                    username: read.login,
+                    permissions: read.permissions,
+                    accessToken: read.accessToken,
+                    userId: read.userId,
                 });
-                this.setStatus(response.accessToken);
+                this.usersService.updateCurrentUser();
+                this.setStatus(read.accessToken);
                 const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7);
-                localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+                localStorage.accessToken = JSON.stringify({ ...read, expireDate });
                 this.router.navigate(['/admin/profile'])
             }
         }
@@ -90,6 +91,7 @@ export class AuthService {
                                     email: response.email,
                                     emailSent: response.emailSent,
                                 });
+                                this.usersService.updateCurrentUser();
                                 resolve(true)
                             }
 
@@ -132,6 +134,7 @@ export class AuthService {
                                 accessToken: response.accessToken,
                                 userId: response.userId,
                             });
+                            this.usersService.updateCurrentUser();
 
                             resolve(true);
                         } else {
