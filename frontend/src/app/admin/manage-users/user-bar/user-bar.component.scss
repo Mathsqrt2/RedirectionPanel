@@ -1,4 +1,27 @@
-@import "../../../../styleset.scss";
+@import '../../../../styleset.scss';
+
+.password {
+    max-width: 420px;
+}
+
+.narrow-col {
+    max-width: 50px !important;
+}
+
+.permissions {
+    padding: 0 10px !important;
+}
+
+.permissions-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+
+    label {
+        margin: unset
+    }
+}
 
 input.edit {
 

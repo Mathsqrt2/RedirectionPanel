@@ -116,9 +116,9 @@ export type CurrentUserResponse = {
 }
 
 export type User = {
-    username: string,
+    login: string,
     permissions: Permissions,
-    userId: number,
+    id: number,
     email?: string,
     emailSent?: boolean,
 }

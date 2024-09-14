@@ -182,9 +182,9 @@ export class AuthService {
             }
 
             const content: User = {
-                username: user.login,
+                login: user.login,
                 permissions,
-                userId: user.id,
+                id: user.id,
                 email: user.email,
                 emailSent: user.emailSent,
             };

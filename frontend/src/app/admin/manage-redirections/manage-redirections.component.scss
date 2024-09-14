@@ -1,6 +1,7 @@
 @import "./../../../styleset.scss";
 
-.redirection-field {
+.redirection-field,
+.users-management-field {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -100,7 +101,7 @@ hr {
 
 th {
     background-color: $accent;
-    padding: 12px 32px !important;
+    padding: 10px !important;
 }
 
 td {

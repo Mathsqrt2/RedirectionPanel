@@ -10,7 +10,7 @@ export class UsersService {
     private domain: string = `http://localhost:3000`;
     private targetUrl: string = `${this.domain}/api`;
     private currentUser: BehaviorSubject<User> = new BehaviorSubject<User>({} as User);
-    private users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
+    public users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
 
     public deleteEmailProcess: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
     public changeEmailProcess: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
@@ -18,17 +18,15 @@ export class UsersService {
     constructor(
         private readonly http: HttpClient,
     ) {
-        this.currentUser
-            .pipe(first())
-            .subscribe(
-                (newValue: User) => {
-                    if (!this.users.getValue() && newValue.userId && newValue.permissions.canManage) {
-                        this.getUsersList();
-                    }
-                })
+        this.currentUser.pipe(first()).subscribe(
+            (newValue: User) => {
+                if (!this.users.getValue() && newValue.id && newValue.permissions.canManage) {
+                    this.getUsersList();
+                }
+            })
     }
 
-    public getUsersList = async (): Promise<boolean> => {
+    private getUsersList = async (): Promise<boolean> => {
         return new Promise(resolve => {
             try {
                 this.http.get(`${this.targetUrl}/users`, { withCredentials: true }).pipe(first())
@@ -59,7 +57,8 @@ export class UsersService {
         return new Promise(resolve => {
             try {
                 const currentUser = this.currentUser.getValue();
-                this.http.get(`${this.targetUrl}/auth/currentuser/${currentUser.userId}`,
+                console.log(currentUser)
+                this.http.get(`${this.targetUrl}/auth/currentuser/${currentUser.id}`,
                     { withCredentials: true })
                     .pipe(first())
                     .subscribe(
@@ -90,7 +89,7 @@ export class UsersService {
     public setCurrentUserPermissions = async (permissions: Permissions): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/permissions`, { ...permissions, userId: this.currentUser.getValue().userId }, { withCredentials: true })
+                this.http.patch(`${this.targetUrl}/auth/permissions`, { ...permissions, userId: this.currentUser.getValue().id }, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: { status: number, message: string }) => {
@@ -117,7 +116,7 @@ export class UsersService {
 
     public changeCurrentUserPassword = async (body: ChangePasswordProps): Promise<boolean> => {
         return new Promise(resolve => {
-            this.http.patch(`${this.targetUrl}/auth/password`, { ...body, userId: this.currentUser.getValue().userId }, { withCredentials: true })
+            this.http.patch(`${this.targetUrl}/auth/password`, { ...body, userId: this.currentUser.getValue().id }, { withCredentials: true })
                 .pipe(first())
                 .subscribe(
                     (response: { status: number, message: string }) => {
@@ -138,12 +137,12 @@ export class UsersService {
         return new Promise(resolve => {
             try {
                 const user = this.currentUser.getValue();
-                this.http.patch(`${this.targetUrl}/auth/deactivate/user/${user.userId}`, body, { withCredentials: true })
+                this.http.patch(`${this.targetUrl}/auth/deactivate/user/${user.id}`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(({ status }: { status: number }) => {
                         if (status === 202) {
                             const users = this.users.getValue();
-                            this.users.next({ ...users.filter((user: User) => user.userId !== user.userId) });
+                            this.users.next({ ...users.filter((user: User) => user.id !== user.id) });
                             this.deleteCookie('jwt');
                             localStorage.removeItem('accessToken');
                             resolve(true);
@@ -157,7 +156,7 @@ export class UsersService {
         })
     }
 
-    public sendVerificationEmail = async (body: { userId: number, email: string }): Promise<boolean> => {
+    public sendVerificationEmail = async (body: { id: number, email: string }): Promise<boolean> => {
         return new Promise(async resolve => {
             try {
                 this.http.post(`${this.targetUrl}/auth/getverificationemail`, body, { withCredentials: true })
@@ -165,7 +164,7 @@ export class UsersService {
                     .subscribe(
                         (response: { status: number, message: string }) => {
                             if (response.status === 200) {
-                                this.http.patch(`${this.targetUrl}/auth/update/email/${body.userId}`,
+                                this.http.patch(`${this.targetUrl}/auth/update/email/${body.id}`,
                                     { emailSent: true },
                                     { withCredentials: true })
                                     .pipe(first())
@@ -191,7 +190,7 @@ export class UsersService {
     public updateEmailSentStatus = async (status: boolean): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/emailstatus/${this.currentUser.getValue().userId}`,
+                this.http.patch(`${this.targetUrl}/auth/emailstatus/${this.currentUser.getValue().id}`,
                     { emailSent: status },
                     { withCredentials: true })
                     .pipe(first())
@@ -212,7 +211,7 @@ export class UsersService {
     public updateEmailValue = async (values: { newEmail?: string, emailSent: boolean }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/update/email/${this.currentUser.getValue().userId}`, values, { withCredentials: true })
+                this.http.patch(`${this.targetUrl}/auth/update/email/${this.currentUser.getValue().id}`, values, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         ((response: { status: number, message: string }) => {
@@ -234,7 +233,7 @@ export class UsersService {
     public removeEmailValue = async (body: { password: string }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/remove/email/${this.currentUser.getValue().userId}`, body, { withCredentials: true })
+                this.http.patch(`${this.targetUrl}/auth/remove/email/${this.currentUser.getValue().id}`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: { status: number, message?: string }) => {
@@ -255,7 +254,7 @@ export class UsersService {
     public checkIfActiveCodeExists = async (): Promise<Code> => {
         return new Promise(resolve => {
             try {
-                this.http.get(`${this.targetUrl}/auth/activecode/${this.currentUser.getValue().userId}`,
+                this.http.get(`${this.targetUrl}/auth/activecode/${this.currentUser.getValue().id}`,
                     { withCredentials: true })
                     .pipe(first())
                     .subscribe(
@@ -297,11 +296,6 @@ export class UsersService {
     }
 }
 
-type Body = {
-    emailSent: boolean,
-    newEmail?: string,
-}
-
 type UsersResponse = {
     status: number,
     content: User[],
@@ -315,12 +309,13 @@ type ChangePasswordProps = {
 }
 
 export type User = {
-    username: string,
-    permissions: Permissions,
-    accessToken?: string,
-    userId: number,
     email?: string,
     emailSent?: boolean,
+    id: number,
+    login: string,
+    password?: string,
+    permissions: Permissions,
+    accessToken?: string,
 }
 
 type EmailCheck = {

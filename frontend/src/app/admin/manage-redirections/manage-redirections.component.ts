@@ -178,7 +178,7 @@ export class ManageRedirectionsComponent implements OnInit, CanComponentDeactiva
       targetUrl: this.newRedirection.value.targetUrl,
       route: this.newRedirection.value.route,
       category: this.newRedirection.value.category,
-      userId: this.currentUser.userId,
+      userId: this.currentUser.id,
     }
 
     this.redirectionsService.createRedirection(body);
