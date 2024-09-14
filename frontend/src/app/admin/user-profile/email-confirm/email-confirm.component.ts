@@ -14,12 +14,23 @@ export class EmailConfirmComponent implements OnInit {
   protected confirmEmailWithCodeForm: FormGroup;
   protected emailFromCode: string = null;
   protected wrongCode: boolean = false;
+  private codeChecked: boolean = false;
 
   constructor(
     private readonly usersService: UsersService,
     private readonly canLeave: CanDeactivateService,
   ) {
-    this.usersService.getCurrentUser().subscribe((state: User) => this.currentUser = state);
+    this.usersService.getCurrentUser().subscribe(async (state: User) => {
+      this.currentUser = state
+
+      if (!this.codeChecked) {
+        const code = await this.usersService.checkIfActiveCodeExists();
+        this.codeChecked = true;
+        if (code.email) {
+          this.confirmEmailWithCodeForm.patchValue({ newEmail: code.email });
+        }
+      }
+    });
   }
 
   public async ngOnInit(): Promise<void> {
@@ -36,10 +47,7 @@ export class EmailConfirmComponent implements OnInit {
       }
     })
 
-    const code = await this.usersService.checkIfActiveCodeExists();
-    if (code.email) {
-      this.confirmEmailWithCodeForm.patchValue({ newEmail: code.email });
-    }
+
   }
 
   protected onEmailConfirm = async (): Promise<void> => {

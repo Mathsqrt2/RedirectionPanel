@@ -169,7 +169,7 @@ export class UsersService {
                                     { emailSent: true },
                                     { withCredentials: true })
                                     .pipe(first())
-                                    .subscribe(({ status }: { status: number }) => {
+                                    .subscribe(async ({ status }: { status: number }) => {
                                         if (status === 200) {
                                             this.updateCurrentUser();
                                             resolve(true);
@@ -212,24 +212,20 @@ export class UsersService {
     public updateEmailValue = async (values: { newEmail?: string, emailSent: boolean }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                const body: Body = { emailSent: values.emailSent };
-                this.http.patch(`${this.targetUrl}/auth/update/email/${this.currentUser.getValue().userId}`, body, { withCredentials: true })
+                this.http.patch(`${this.targetUrl}/auth/update/email/${this.currentUser.getValue().userId}`, values, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         ((response: { status: number, message: string }) => {
                             if (response.status === 200) {
-                                console.log('zadzialo sie true')
-                                this.currentUser.next({ ...this.currentUser.getValue(), email: body?.newEmail || null, emailSent: values.emailSent });
+                                this.currentUser.next({ ...this.currentUser.getValue(), email: values?.newEmail || null, emailSent: values.emailSent });
                                 this.updateCurrentUser();
                                 resolve(true);
                             } else {
-                                console.log('zadzial sie elese');
                                 resolve(false);
                             }
                         })
                     )
             } catch (err) {
-                console.log('zadzial sie erro')
                 resolve(false);
             }
         })

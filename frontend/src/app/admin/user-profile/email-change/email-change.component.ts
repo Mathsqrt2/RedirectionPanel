@@ -53,7 +53,9 @@ export class EmailChangeComponent implements OnInit {
 
   public ngOnInit(): void {
     this.setNewEmailForm.valueChanges.subscribe((value) => {
-      if (value.newEmail !== null && value.newEmail !== '') {
+      if (value.newEmail !== null && value.newEmail !== '' ||
+        value.confirmNewEmail !== null && value.confirmNewEmail !== ''
+      ) {
         this.canLeave.getSubject('emailValidation').next(true);
       } else {
         this.canLeave.getSubject('emailValidation').next(false);
@@ -63,33 +65,52 @@ export class EmailChangeComponent implements OnInit {
 
   public onSendVerificationCode = async (): Promise<void> => {
 
+    const canRemove = window.confirm(`This action will remove the existing email. Are you sure?`);
+    this.usersService.changeEmailProcess.next(false);
+
     if (this.setNewEmailForm.status === 'VALID') {
       const body = {
         userId: this.currentUser.userId,
         email: this.setNewEmailForm.value.newEmail,
       }
 
-      await this.usersService.sendVerificationEmail(body);
-      this.setNewEmailForm.reset();
-    }
-  }
 
-  protected onChangeEmail() {
-    this.currentUser.emailSent = false;
-    this.setNewEmailForm.value.newEmail = null;
+      if (this.currentUser.email) {
+        if (canRemove) {
+          this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
+          await this.usersService.sendVerificationEmail(body);
+          this.setNewEmailForm.reset();
+        }
+      } else {
+        this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
+        await this.usersService.sendVerificationEmail(body);
+        this.setNewEmailForm.reset();
+      }
 
-    const body = {
-      userId: this.currentUser.userId,
-      newEmail: this.setNewEmailForm.value.newEmail,
-      password: this.setNewEmailForm.value.confirmNewEmail,
     }
   }
 
   protected onCancel = async (): Promise<void> => {
-    const response = await this.usersService.updateEmailValue({ emailSent: false });
-    console.log(response);
-    if (response) {
+
+    const canLeave = this.canLeave.getSubject('emailValidation').getValue();
+
+    if (this.currentUser.email) {
+      if (canLeave) {
+        const canCancel = window.confirm(`There are unsaved values, Are you sure?`);
+        if (canCancel) {
+          this.usersService.changeEmailProcess.next(false);
+        }
+      } else {
+        this.usersService.changeEmailProcess.next(false);
+      }
+
       this.usersService.changeEmailProcess.next(false);
+    } else {
+      const response = await this.usersService.updateEmailValue({ emailSent: false });
+      if (response) {
+        this.usersService.changeEmailProcess.next(false);
+        this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: false })
+      }
     }
   }
 }

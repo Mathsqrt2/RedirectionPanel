@@ -247,9 +247,8 @@ export class AuthService {
             throw new NotFoundException(`User with ID: "${userId}" not found.`);
         }
 
-        if (user.email) {
-            throw new ConflictException(`The user is already verified.`);
-        }
+        await this.users.save({ ...user, email: null });
+
 
         const options: nodemailer.TransportOptions & TransportDataType = {
             host: config.mailer.host,
