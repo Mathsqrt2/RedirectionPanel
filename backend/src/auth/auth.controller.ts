@@ -18,7 +18,7 @@ import {
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
 import { CodesDto } from './dtos/codes.dto';
-import { AuthGuard } from './auth.guard';
+import { SoftAuthGuard, StrictAuthGuard } from './auth.guard';
 import config from 'src/config';
 import { UpdatePswdDto } from './dtos/updatepswd.dto';
 import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
@@ -33,7 +33,7 @@ export class AuthController {
         private readonly authService: AuthService,
     ) { }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Get(`verifybyrequest/:code`)
     async getVerificationCode(
         @Param('code') code: string,
@@ -50,7 +50,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Get('activecode/:userid')
     async getActiveCode(
         @Param(`userid`) id: number,
@@ -67,7 +67,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Get('currentuser/:id')
     async getCurrentUserData(
         @Param(`id`) id: number,
@@ -101,7 +101,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Post(`getverificationemail`)
     async sendVerificationEmail(
         @Body() body: CodesDto,
@@ -118,7 +118,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(StrictAuthGuard)
     @Post(`create`)
     async createUserByPanel(
         @Body() body: CreateUserByPanelDto,
@@ -132,7 +132,6 @@ export class AuthController {
             }
         }
     }
-
 
     @Post(`register`)
     async registerUser(
@@ -178,7 +177,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Patch(`password`)
     async updatePassword(
         @Body() body: UpdatePswdDto,
@@ -195,7 +194,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Patch(`permissions`)
     async updatePermissions(
         @Body() body: UpdatePermissionsDto,
@@ -212,7 +211,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Patch(`update/email/:id`)
     async updateEmailStatus(
         @Param(`id`) id: number,
@@ -230,7 +229,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Patch(`remove/email/:id`)
     async removeEmail(
         @Param('id') id: number,
@@ -247,7 +246,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Patch(`deactivate/user/:id`)
     async deactivateUser(
         @Param(`id`) id: number,
@@ -264,7 +263,7 @@ export class AuthController {
         }
     }
 
-    @UseGuards(AuthGuard)
+    @UseGuards(StrictAuthGuard)
     @Patch(`user/:id`)
     async updateWholeUser(
         @Param(`id`) id: number,
