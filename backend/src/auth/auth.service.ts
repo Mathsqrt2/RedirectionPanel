@@ -10,7 +10,9 @@ import {
     UpdatePermissionsResponse, UpdatePswdResponse,
     UpdateStatusResponse, VerifyEmailResponse,
     TransportDataType,
-    SimpleResponse
+    SimpleResponse,
+    UpdateUserResponse,
+    CreateUserByPanelResponse
 } from './auth.types';
 
 import { JwtService } from '@nestjs/jwt';
@@ -27,6 +29,8 @@ import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
 import { LoggerService } from 'src/utils/logs.service';
 import { RemoveEmailDto } from './dtos/removeEmail.dto';
 import { RemoveUserDto } from './dtos/removeUser.dto';
+import { UpdateWholeUserDto } from './dtos/updateUser.dto';
+import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
 
 @Injectable()
 export class AuthService {
@@ -606,6 +610,72 @@ export class AuthService {
                     startTime, err,
                 }),
             }
+        }
+    }
+
+    public updateUser = async (id: number, body: UpdateWholeUserDto, req: Request): Promise<UpdateUserResponse | SendVerificationCodeResponse> => {
+
+        const startTime = Date.now();
+
+        try {
+
+            const payload = await this.jwtService.verifyAsync(body.adminToken, { secret: config.secret });
+
+            if (!payload) {
+                throw new UnauthorizedException(`Invalid token.`);
+            }
+
+            if (Date.now() > (payload?.exp * 1000)) {
+                throw new UnauthorizedException(`Token expired.`);
+            }
+
+            const admin = await this.users.findOneBy({ id: payload.sub });
+
+            if (!admin) {
+                throw new UnauthorizedException(`Invalid token.`);
+            }
+
+            const user = await this.users.findOneBy({ id });
+
+            if (body.newLogin) {
+                user.login = body.newLogin;
+            }
+
+            if (body.newPassword) {
+                user.password = this.securePassword(body.newPassword);
+            }
+
+            if (body.newEmail) {
+                return await this.sendVerificationEmail({ email: body.newEmail, userId: id }, req);
+            }
+
+            return {
+                status: HttpStatus.ACCEPTED,
+                message: await this.logger.updated({
+                    label: `User updated.`,
+                    description: `User ${1}`,
+                    startTime,
+                })
+            }
+        } catch (err) {
+            return {
+                status: HttpStatus.BAD_REQUEST,
+                message: await this.logger.fail({
+                    label: `Error while trying to update user`,
+                    description: `User with id: ${id} couldn't be updated`,
+                    startTime, err,
+                })
+            }
+        }
+    }
+
+    public createUserByPanel = async (body: CreateUserByPanelDto, req: Request): Promise<CreateUserByPanelResponse | SendVerificationCodeResponse> => {
+        const startTime = Date.now();
+
+        try {
+
+        } catch (err) {
+            return
         }
     }
 

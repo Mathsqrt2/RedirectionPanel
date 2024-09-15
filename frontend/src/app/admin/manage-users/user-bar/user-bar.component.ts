@@ -18,7 +18,6 @@ export class UserBarComponent implements OnChanges, OnInit {
   protected emailInput: string;
   protected emailSentInput: boolean;
 
-  protected editUserForm: FormGroup;
   protected editMode: boolean = false;
 
   constructor(
@@ -39,6 +38,10 @@ export class UserBarComponent implements OnChanges, OnInit {
 
   protected onRejectEdit = async (): Promise<void> => {
     this.editMode = false;
+    this.loginInput = this.user.login;
+    this.passwordInput = this.user.password;
+    this.emailInput = this.user.email;
+    this.emailSentInput = this.user.emailSent;
   }
 
   protected onConfirmEdit = async (): Promise<void> => {
@@ -46,6 +49,11 @@ export class UserBarComponent implements OnChanges, OnInit {
   }
 
   protected onDelete = async (): Promise<void> => {
+
+    const confirmDelete = window.confirm(`This action is permanent, are you sure?`)
+    if (confirmDelete) {
+
+    }
 
   }
 

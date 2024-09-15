@@ -8,6 +8,17 @@ export type RegisterUser = {
     req?: Request,
 }
 
+export type CreateUserByPanelResponse = {
+    status: HttpStatus.ACCEPTED | HttpStatus.INTERNAL_SERVER_ERROR | HttpStatus.BAD_REQUEST,
+    message?: string,
+}
+
+export type UpdateUserResponse = {
+    status: HttpStatus.ACCEPTED | HttpStatus.INTERNAL_SERVER_ERROR | HttpStatus.BAD_REQUEST,
+    message?: string,
+    content?: User,
+}
+
 export type RegisterUserResponse = {
     status: HttpStatus.ACCEPTED | HttpStatus.OK,
     accessToken: string,

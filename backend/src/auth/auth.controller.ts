@@ -8,11 +8,12 @@ import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
 import {
+    CreateUserByPanelResponse,
     CurrentUserResponse, LoginUserResponse, RegisterUserResponse,
     RemoveUserResponse, ResponseWithCode, SendVerificationCodeResponse,
     SimpleResponse,
     UpdatePermissionsResponse, UpdatePswdResponse,
-    UpdateStatusResponse, VerifyEmailResponse
+    UpdateStatusResponse, UpdateUserResponse, VerifyEmailResponse
 } from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
@@ -23,6 +24,8 @@ import { UpdatePswdDto } from './dtos/updatepswd.dto';
 import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
 import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
 import { RemoveEmailDto } from './dtos/removeEmail.dto';
+import { UpdateWholeUserDto } from './dtos/updateUser.dto';
+import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -114,6 +117,22 @@ export class AuthController {
             }
         }
     }
+
+    @UseGuards(AuthGuard)
+    @Post(`create`)
+    async createUserByPanel(
+        @Body() body: CreateUserByPanelDto,
+        @Req() req: Request,
+    ): Promise<CreateUserByPanelResponse | SendVerificationCodeResponse> {
+        try {
+            return await this.authService.createUserByPanel(body, req);
+        } catch (err) {
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+            }
+        }
+    }
+
 
     @Post(`register`)
     async registerUser(
@@ -241,6 +260,23 @@ export class AuthController {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Failed to remove user.`,
+            }
+        }
+    }
+
+    @UseGuards(AuthGuard)
+    @Patch(`user/:id`)
+    async updateWholeUser(
+        @Param(`id`) id: number,
+        @Body() body: UpdateWholeUserDto,
+        @Req() req: Request,
+    ): Promise<UpdateUserResponse | SendVerificationCodeResponse> {
+        try {
+            return await this.authService.updateUser(id, body, req);
+        } catch (err) {
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Failed to update user ${id}.`
             }
         }
     }
