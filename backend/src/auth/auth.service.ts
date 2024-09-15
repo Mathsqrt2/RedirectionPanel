@@ -31,6 +31,7 @@ import { RemoveEmailDto } from './dtos/removeEmail.dto';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { UpdateWholeUserDto } from './dtos/updateUser.dto';
 import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
+import { last } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -225,7 +226,7 @@ export class AuthService {
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    public sendVerificationEmail = async ({ email, userId }: CodesDto, req: Request): Promise<SendVerificationCodeResponse> => {
+    public sendVerificationEmail = async ({ email, id }: CodesDto, req: Request): Promise<SendVerificationCodeResponse> => {
 
         const startTime = Date.now();
 
@@ -241,14 +242,14 @@ export class AuthService {
             throw new ConflictException(`This email is already in use.`);
         }
 
-        if (!userId) {
+        if (!id) {
             throw new ConflictException(`User ID is required.`);
         }
 
-        const user = await this.users.findOneBy({ id: userId });
+        const user = await this.users.findOneBy({ id });
 
         if (!user) {
-            throw new NotFoundException(`User with ID: "${userId}" not found.`);
+            throw new NotFoundException(`User with ID: "${id}" not found.`);
         }
 
         await this.users.save({ ...user, email: null });
@@ -283,7 +284,7 @@ export class AuthService {
             let html = `<h1>You're welcome</h1>
                 <p>${text}</p>`;
 
-            const existingCode = await this.dataSource.getRepository(Codes).findOneBy({ userId, status: true });
+            const existingCode = await this.dataSource.getRepository(Codes).findOneBy({ id, status: true });
 
             if (existingCode) {
                 existingCode.status = false;
@@ -292,7 +293,7 @@ export class AuthService {
 
             await this.codes.save({
                 code,
-                userId,
+                userId: id,
                 status: true,
                 email,
                 expireDate: expireTime
@@ -318,15 +319,15 @@ export class AuthService {
 
         } catch (err) {
 
-            const user = await this.users.findOneBy({ id: userId });
+            const user = await this.users.findOneBy({ id });
 
             if (user) {
                 await this.users.save({ ...user, emailSent: false });
             } else {
-                throw new NotFoundException(`User with id: ${userId} not found`);
+                throw new NotFoundException(`User with id: ${id} not found`);
             }
 
-            const code = await this.dataSource.getRepository(Codes).findOneBy({ userId, status: true });
+            const code = await this.dataSource.getRepository(Codes).findOneBy({ id, status: true });
 
             if (code) {
                 await this.dataSource.getRepository(Codes).save({ ...code, status: false });
@@ -646,7 +647,7 @@ export class AuthService {
             }
 
             if (body.newEmail) {
-                return await this.sendVerificationEmail({ email: body.newEmail, userId: id }, req);
+                return await this.sendVerificationEmail({ email: body.newEmail, id }, req);
             }
 
             return {
@@ -662,7 +663,7 @@ export class AuthService {
                 status: HttpStatus.BAD_REQUEST,
                 message: await this.logger.fail({
                     label: `Error while trying to update user`,
-                    description: `User with id: ${id} couldn't be updated`,
+                    description: `User with id: ${id} couldn't be updated. IP: "${req?.ip}". Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime, err,
                 })
             }
@@ -670,13 +671,58 @@ export class AuthService {
     }
 
     public createUserByPanel = async (body: CreateUserByPanelDto, req: Request): Promise<CreateUserByPanelResponse | SendVerificationCodeResponse> => {
+
         const startTime = Date.now();
 
         try {
 
+            const checkLogin = await this.users.findOneBy({ login: body.login });
+
+            if (checkLogin) {
+                throw new ConflictException(`This login is already in use.`);
+            }
+
+            const newUser = {
+                login: body.login,
+                password: this.securePassword(body.password),
+                canCreate: body.canCreate,
+                email: null,
+                emailSent: false,
+                canUpdate: body.canUpdate,
+                canDelete: body.canDelete,
+                canManage: body.canManage,
+                jstimestamp: Date.now(),
+            }
+
+            const instance = await this.users.save(newUser);
+            const checkEmail = await this.users.findOneBy({ email: body.email });
+
+            if (checkEmail) {
+                const email = await this.sendVerificationEmail({ email: body.email, id: instance.id }, req);
+                if (email.status === 200) {
+                    await this.users.save({ ...instance, emailSent: true });
+                }
+            }
+
+            return {
+                status: HttpStatus.OK,
+                message: await this.logger.completed({
+                    label: `User created successfully`,
+                    description: `User ${instance.login} was created., Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}`,
+                    startTime,
+                })
+            }
         } catch (err) {
-            return
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: await this.logger.fail({
+                    label: `Failed to create user from panel`,
+                    description: `Failed to create user from IP: ${req.ip}, params: ${JSON.stringify(body)}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                })
+            }
         }
+
     }
 
     public deactivateUser = async (id: number, { password, login }: RemoveUserDto): Promise<RemoveUserResponse> => {

@@ -1,6 +1,6 @@
 import {
     BadRequestException, Body, Controller,
-    Delete, Get, HttpStatus,
+    Get, HttpStatus,
     Param, Patch, Post,
     Redirect, Req, Res, UseGuards
 } from '@nestjs/common';
@@ -76,7 +76,7 @@ export class AuthController {
         try {
             return await this.authService.getCurrentUserData(id, req);
         } catch (err) {
-            console.log('getActiveCode error: ', err);
+            console.log('getCurrentUserData error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Failed to retrieve current user data.`,
@@ -129,6 +129,7 @@ export class AuthController {
         } catch (err) {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Failed to create user.`
             }
         }
     }
