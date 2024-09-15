@@ -27,8 +27,6 @@ export class ManageUsersComponent implements CanComponentDeactivate {
       canDelete: new FormControl(false, [Validators.required]),
       canManage: new FormControl(false, [Validators.required]),
     })
-
-    this.usersService.users.subscribe((state: User[]) => console.log(state));
     this.usersService.users.subscribe((state: User[]) => this.users = state);
     this.usersService.updateUsersList();
   }

@@ -31,7 +31,6 @@ import { RemoveEmailDto } from './dtos/removeEmail.dto';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { UpdateWholeUserDto } from './dtos/updateUser.dto';
 import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
-import { last } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -524,14 +523,18 @@ export class AuthService {
 
         try {
 
+            const checkPermissions = JSON.parse(req?.cookies?.jwt);
+            const token = await this.jwtService.verifyAsync(checkPermissions.accessToken, { secret: config.secret });
+
+            const admin = await this.users.findOneBy({ id: token.sub });
             let user = await this.users.findOneBy({ id: body.userId });
+
+            if ((!admin?.canManage)) {
+                throw new UnauthorizedException(`Unable to manage users. Insufficient permissions.`);
+            }
 
             if (!user) {
                 throw new NotFoundException(`User with ID: "${body.userId}" doesn't exist.`);
-            }
-
-            if (!user.canManage) {
-                throw new UnauthorizedException(`Unable to manage users. Insufficient permissions.`);
             }
 
             user = await this.users.save({ ...user, ...body });
@@ -695,12 +698,14 @@ export class AuthService {
             }
 
             const instance = await this.users.save(newUser);
-            const checkEmail = await this.users.findOneBy({ email: body.email });
+            if (body.email) {
+                const checkEmail = await this.users.findOneBy({ email: body.email });
 
-            if (checkEmail) {
-                const email = await this.sendVerificationEmail({ email: body.email, id: instance.id }, req);
-                if (email.status === 200) {
-                    await this.users.save({ ...instance, emailSent: true });
+                if (checkEmail) {
+                    const email = await this.sendVerificationEmail({ email: body.email, id: instance.id }, req);
+                    if (email.status === 200) {
+                        await this.users.save({ ...instance, emailSent: true });
+                    }
                 }
             }
 

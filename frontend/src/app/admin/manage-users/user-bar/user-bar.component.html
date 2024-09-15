@@ -19,20 +19,24 @@
 <td class="medium-col permissions">
     <div class="row">
         <div class="permissions-wrapper">
-            <input type="checkbox" [checked]="user.canCreate" />
-            <label>cre</label>
+            <input type="checkbox" id="canCreate_{{user.id}}" name="canCreate_{{user.id}}" [checked]="user.canCreate"
+                [(ngModel)]="canCreate" (change)="onUpdatePermissions()" />
+            <label for="canCreate_{{user.id}}">cre</label>
         </div>
         <div class="permissions-wrapper">
-            <input type="checkbox" [checked]="user.canUpdate" />
-            <label>upd</label>
+            <input type="checkbox" id="canUpdate_{{user.id}}" name="canUpdate_{{user.id}}" [checked]="user.canUpdate"
+                [(ngModel)]="canUpdate" (change)="onUpdatePermissions()" />
+            <label for="canUpdate_{{user.id}}">upd</label>
         </div>
         <div class="permissions-wrapper">
-            <input type="checkbox" [checked]="user.canDelete" />
-            <label>del</label>
+            <input type="checkbox" id="canDelete_{{user.id}}" name="canDelete_{{user.id}}" [checked]="user.canDelete"
+                [(ngModel)]="canDelete" (change)="onUpdatePermissions()" />
+            <label for="canDelete_{{user.id}}">del</label>
         </div>
         <div class="permissions-wrapper">
-            <input type="checkbox" [checked]="user.canManage" />
-            <label>man</label>
+            <input type="checkbox" id="canManage_{{user.id}}" name="canManage_{{user.id}}" [checked]="user.canManage"
+                [(ngModel)]="canManage" (change)="onUpdatePermissions()" />
+            <label for="canManage_{{user.id}}">man</label>
         </div>
     </div>
 </td>

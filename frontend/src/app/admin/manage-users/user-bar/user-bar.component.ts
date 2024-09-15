@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { User } from '../../../services/users.service';
+import { User, UsersService } from '../../../services/users.service';
 import { FormGroup } from '@angular/forms';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 
@@ -13,6 +13,11 @@ export class UserBarComponent implements OnChanges, OnInit {
   @Input('user') protected user: UserFromResponse;
   @Input('index') protected index: number;
 
+  protected canCreate: boolean;
+  protected canUpdate: boolean;
+  protected canDelete: boolean;
+  protected canManage: boolean;
+
   protected loginInput: string;
   protected passwordInput: string;
   protected emailInput: string;
@@ -22,6 +27,7 @@ export class UserBarComponent implements OnChanges, OnInit {
 
   constructor(
     private readonly canLeave: CanDeactivateService,
+    private readonly usersService: UsersService,
   ) { }
 
   public ngOnChanges(changes: SimpleChanges): void {
@@ -29,7 +35,10 @@ export class UserBarComponent implements OnChanges, OnInit {
   }
 
   public ngOnInit(): void {
-    console.log(this.user)
+    this.canCreate = this.user.canCreate;
+    this.canUpdate = this.user.canUpdate;
+    this.canDelete = this.user.canDelete;
+    this.canManage = this.user.canManage;
   }
 
   protected onEdit = async (): Promise<void> => {
@@ -93,6 +102,19 @@ export class UserBarComponent implements OnChanges, OnInit {
       this.canLeave.modifiedUsers.next(users);
     }
   }
+
+  protected onUpdatePermissions = async (): Promise<void> => {
+    
+    const permissions = {
+      canCreate: this.canCreate,
+      canUpdate: this.canUpdate,
+      canDelete: this.canDelete,
+      canManage: this.canManage,
+    }
+
+    await this.usersService.setUserPermissions(permissions, this.user.id);
+  }
+
 }
 
 type UserFromResponse = User & {

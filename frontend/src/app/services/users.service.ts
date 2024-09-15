@@ -57,7 +57,7 @@ export class UsersService {
         return new Promise(resolve => {
             try {
                 const currentUser = this.currentUser.getValue();
-                console.log(currentUser)
+
                 this.http.get(`${this.targetUrl}/auth/currentuser/${currentUser.id}`,
                     { withCredentials: true })
                     .pipe(first())
@@ -86,22 +86,25 @@ export class UsersService {
         return this.currentUser;
     }
 
-    public setCurrentUserPermissions = async (permissions: Permissions): Promise<boolean> => {
+    public setUserPermissions = async (permissions: Permissions, id?: number): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/permissions`, { ...permissions, userId: this.currentUser.getValue().id }, { withCredentials: true })
+                this.http.patch(`${this.targetUrl}/auth/permissions`, { ...permissions, userId: id || this.currentUser.getValue().id }, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: { status: number, message: string }) => {
                             if (response.status === 200) {
+                                if (!id) {
+                                    const user = this.currentUser.getValue();
+                                    this.currentUser.next({ ...user, permissions });
 
-                                const user = this.currentUser.getValue();
-                                this.currentUser.next({ ...user, permissions });
-
-                                const accessToken = localStorage.getItem(`accessToken`);
-                                if (accessToken) {
-                                    const data = JSON.parse(accessToken);
-                                    localStorage.accessToken = JSON.stringify({ ...data, permissions });
+                                    const accessToken = localStorage.getItem(`accessToken`);
+                                    if (accessToken) {
+                                        const data = JSON.parse(accessToken);
+                                        localStorage.accessToken = JSON.stringify({ ...data, permissions });
+                                    }
+                                } else {
+                                    this.updateUsersList();
                                 }
                                 resolve(true);
                             } else {

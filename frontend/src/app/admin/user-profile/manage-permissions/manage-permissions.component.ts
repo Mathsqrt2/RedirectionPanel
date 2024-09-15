@@ -55,7 +55,7 @@ export class ManagePermissionsComponent implements OnInit {
       const { canDelete, canUpdate, canCreate, canManage } = this.permissionsForm.value;
       const body = { canDelete, canUpdate, canCreate, canManage };
 
-      await this.usersService.setCurrentUserPermissions(body);
+      await this.usersService.setUserPermissions(body);
 
     }
   }
