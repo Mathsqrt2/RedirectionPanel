@@ -8,12 +8,12 @@
 
 <td class="medium-col">
     <span *ngIf="!editMode" class="copy" (click)="onCopyToClipboard('login')"> {{user.login}}</span>
-    <input *ngIf="editMode" type="text" [value]="user.login" class="edit" />
+    <input *ngIf="editMode" type="text" (input)="refreshGuard()" [value]="user.login" class="edit" />
 </td>
 
 <td class="medium-col password">
     <span *ngIf="!editMode" class="copy" (click)="onCopyToClipboard('password')"> {{user.password}} </span>
-    <input *ngIf="editMode" type="text" [value]="user.password" class="edit" />
+    <input *ngIf="editMode" type="text" (input)="refreshGuard()" [value]="user.password" class="edit" />
 </td>
 
 <td class="medium-col permissions">
@@ -44,7 +44,7 @@
 <td class="medium-col">
     <span *ngIf="!editMode" class="copy" (click)="onCopyToClipboard('email')">{{user.email ? user.email :
         'none'}}</span>
-    <input *ngIf="editMode" type="text" [value]="user.email ? user.email : 'none'" class="edit" />
+    <input *ngIf="editMode" type="text" (input)="refreshGuard()" [value]="user.email ? user.email : 'none'" class="edit" />
 </td>
 
 <td class="email-sent" (click)="onCopyToClipboard('emailSent')">

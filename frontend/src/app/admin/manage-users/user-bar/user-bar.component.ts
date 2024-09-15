@@ -51,6 +51,8 @@ export class UserBarComponent implements OnChanges, OnInit {
     this.passwordInput = this.user.password;
     this.emailInput = this.user.email;
     this.emailSentInput = this.user.emailSent;
+
+    this.refreshGuard();
   }
 
   protected onConfirmEdit = async (): Promise<void> => {
