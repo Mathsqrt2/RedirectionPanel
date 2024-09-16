@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Permissions } from "./auth.service";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first } from "rxjs";
+import { Router } from "@angular/router";
 
 @Injectable()
 
@@ -17,6 +18,7 @@ export class UsersService {
 
     constructor(
         private readonly http: HttpClient,
+        private readonly router: Router,
     ) {
         this.currentUser.pipe(first()).subscribe(
             (newValue: User) => {
@@ -145,9 +147,14 @@ export class UsersService {
                     .subscribe(({ status }: { status: number }) => {
                         if (status === 202) {
                             const users = this.users.getValue();
-                            this.users.next({ ...users.filter((user: User) => user.id !== user.id) });
-                            this.deleteCookie('jwt');
-                            localStorage.removeItem('accessToken');
+                            if (!body.id) {
+                                this.deleteCookie('jwt');
+                                localStorage.removeItem('accessToken');
+                                this.users.next([...users.filter((user_: User) => user_.id !== user.id)]);
+                                this.router.navigate(['/login']);
+                            } else {
+                                this.users.next([...users.filter((user_: User) => user_.id !== body.id)]);
+                            }
                             resolve(true);
                         } else {
                             resolve(false)
@@ -297,6 +304,23 @@ export class UsersService {
             }
         })
     }
+
+    public createUserInPanel = async (body: NewUserBody): Promise<boolean> => {
+        return new Promise(async resolve => {
+            try {
+                this.http.post(`${this.targetUrl}/auth`, body, { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(
+                        (response: { status: number, content: User }) => {
+                            const users = this.users.getValue();
+                            this.users.next([...users, response.content])
+                        }
+                    )
+            } catch (err) {
+                resolve(false);
+            }
+        })
+    }
 }
 
 type UsersResponse = {
@@ -309,6 +333,16 @@ type ChangePasswordProps = {
     newPassword: string,
     confirmPassword: string,
     userId?: number,
+}
+
+type NewUserBody = {
+    login: string,
+    password: string,
+    email?: string,
+    canCreate: boolean,
+    canUpdate: boolean,
+    canDelete: boolean,
+    canManage: boolean,
 }
 
 export type User = {

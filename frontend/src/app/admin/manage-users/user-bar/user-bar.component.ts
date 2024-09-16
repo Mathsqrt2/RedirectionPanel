@@ -57,7 +57,10 @@ export class UserBarComponent implements OnInit {
   protected onConfirmEdit = async (): Promise<void> => {
 
     const confirmEdit = window.confirm(`This action is permanent, are you sure?`);
-    this.editMode = false;
+
+    if (confirmEdit) {
+      this.editMode = false;
+    }
   }
 
   protected onDelete = async (): Promise<void> => {

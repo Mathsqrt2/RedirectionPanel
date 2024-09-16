@@ -41,7 +41,6 @@ export class ManageUsersComponent implements CanComponentDeactivate {
       return this.confirm();
     }
 
-    console.log(this.canLeave.modifiedUsers.getValue().length)
     if (this.canLeave.modifiedUsers.getValue().length) {
       return this.confirm();
     }

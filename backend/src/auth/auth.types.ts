@@ -72,7 +72,7 @@ export type RemoveUserProps = {
 }
 
 export type RemoveUserResponse = {
-    status: HttpStatus.ACCEPTED | HttpStatus.UNAUTHORIZED | HttpStatus.NOT_IMPLEMENTED,
+    status: HttpStatus.ACCEPTED | HttpStatus.UNAUTHORIZED,
     message?: string,
 } | ErrorResponse;
 
