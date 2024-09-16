@@ -28,46 +28,51 @@ export class UsersService {
         private readonly http: HttpClient,
         private readonly router: Router,
     ) {
-        this.currentUser.pipe(first()).subscribe(
-            (newValue: User) => {
-                if (!this.users.getValue() && newValue.id && newValue.permissions.canManage) {
-                    this.getUsersList();
-                }
-            })
+        this.currentUser
+            .pipe(first())
+            .subscribe(
+                async (newValue: User) => {
+                    if (!this.users.getValue() && newValue.id && newValue.permissions.canManage) {
+                        await this.getUsersList();
+                    }
+                })
     }
 
     private getUsersList = async (): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.get(`${this.api}/users`, { withCredentials: true }).pipe(first())
+                this.http.get(`${this.api}/users`, { withCredentials: true })
+                    .pipe(first())
                     .subscribe(
                         (response: UsersResponse) => {
-                            this.users.next(response.content);
-                            resolve(true);
-                        }
-                    )
+                            if (response.status === 302) {
+                                this.users.next(response.content);
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
+                        });
             } catch (err) {
                 resolve(false)
             }
-        })
+        });
     }
 
     public updateUsersList = async (): Promise<boolean> => {
-        return new Promise(async (resolve) => {
+        return new Promise(async resolve => {
             try {
                 await this.getUsersList();
                 resolve(true);
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 
     public updateCurrentUser = async (): Promise<boolean> => {
         return new Promise(resolve => {
             try {
                 const currentUser = this.currentUser.getValue();
-
                 this.http.get(`${this.api}/user/${currentUser.id}`,
                     { withCredentials: true })
                     .pipe(first())
@@ -80,12 +85,11 @@ export class UsersService {
                             } else {
                                 resolve(false);
                             }
-                        }
-                    );
+                        });
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 
     public restoreCurrentUserData(newUser: User) {
@@ -102,7 +106,7 @@ export class UsersService {
                 this.http.patch(`${this.api}/user/permissions`, { ...permissions, userId: id || this.currentUser.getValue().id }, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: DefaultResponse) => {
+                        async (response: DefaultResponse) => {
                             if (response.status === 200) {
                                 const user = this.currentUser.getValue();
                                 if (!id || id === user.id) {
@@ -114,7 +118,7 @@ export class UsersService {
                                         localStorage.accessToken = JSON.stringify({ ...data, permissions });
                                     }
                                 } else {
-                                    this.updateUsersList();
+                                    await this.updateUsersList();
                                 }
                                 resolve(true);
                             } else {
@@ -124,22 +128,26 @@ export class UsersService {
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 
     public changeUserPassword = async (body: ChangePasswordProps): Promise<boolean> => {
         return new Promise(resolve => {
-            this.http.patch(`${this.api}/user/password`, { ...body, userId: this.currentUser.getValue().id }, { withCredentials: true })
-                .pipe(first())
-                .subscribe(
-                    (response: DefaultResponse) => {
-                        if (response.status === 200) {
-                            resolve(true);
-                        } else {
-                            resolve(false);
-                        }
-                    });
-        })
+            try {
+                this.http.patch(`${this.api}/user/password`, { ...body, userId: this.currentUser.getValue().id }, { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(
+                        (response: DefaultResponse) => {
+                            if (response.status === 200) {
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
+                        });
+            } catch (err) {
+                resolve(false);
+            }
+        });
     }
 
     private deleteCookie = (name: string, path: string = "/"): void => {
@@ -167,42 +175,53 @@ export class UsersService {
                         } else {
                             resolve(false)
                         }
-                    })
+                    });
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
+    }
+
+    private setEmailStatus = async ({ id, status }: { id: number, status: boolean }): Promise<boolean> => {
+        return new Promise(resolve => {
+            try {
+                this.http.patch(`${this.api}/user/status/${id}`,
+                    { emailSent: status },
+                    { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(
+                        async ({ status }: DefaultResponse) => {
+                            if (status === 200) {
+                                this.updateCurrentUser();
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
+                        });
+            } catch (err) {
+                resolve(false)
+            }
+        });
     }
 
     public sendVerificationEmail = async (body: { id: number, email: string }): Promise<boolean> => {
-        return new Promise(async resolve => {
+        return new Promise(resolve => {
             try {
                 this.http.post(`${this.api}/code`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: DefaultResponse) => {
+                        async (response: DefaultResponse) => {
                             if (response.status === 200) {
-                                this.http.patch(`${this.api}/user/status/${body.id}`,
-                                    { emailSent: true },
-                                    { withCredentials: true })
-                                    .pipe(first())
-                                    .subscribe(async ({ status }: { status: number }) => {
-                                        if (status === 200) {
-                                            this.updateCurrentUser();
-                                            resolve(true);
-                                        } else {
-                                            resolve(false);
-                                        }
-                                    });
-                            } else if (response.status === 400) {
-                                resolve(false)
+                                await this.setEmailStatus({ id: body.id, status: true });
+                                resolve(true);
+                            } else {
+                                resolve(false);
                             }
-                        })
+                        });
             } catch (err) {
                 resolve(false);
             }
-
-        })
+        });
     }
 
     public updateEmailValue = async (values: { newEmail?: string, emailSent: boolean }): Promise<boolean> => {
@@ -211,20 +230,19 @@ export class UsersService {
                 this.http.patch(`${this.api}/auth/update/email/${this.currentUser.getValue().id}`, values, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        ((response: DefaultResponse) => {
+                        async (response: DefaultResponse) => {
                             if (response.status === 200) {
                                 this.currentUser.next({ ...this.currentUser.getValue(), email: values?.newEmail || null, emailSent: values.emailSent });
-                                this.updateCurrentUser();
+                                await this.updateCurrentUser();
                                 resolve(true);
                             } else {
                                 resolve(false);
                             }
-                        })
-                    )
+                        });
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 
     public removeEmailValue = async (body: { password: string }): Promise<boolean> => {
@@ -233,19 +251,19 @@ export class UsersService {
                 this.http.patch(`${this.api}/user/email/${this.currentUser.getValue().id}`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: DefaultResponse) => {
+                        async (response: DefaultResponse) => {
                             if (response.status === 200) {
                                 this.currentUser.next({ ...this.currentUser.getValue(), email: null, emailSent: null });
-                                this.updateCurrentUser();
+                                await this.updateCurrentUser();
                                 resolve(true);
                             } else {
                                 resolve(false);
                             }
-                        })
+                        });
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 
     public checkIfActiveCodeExists = async (): Promise<Code> => {
@@ -263,13 +281,14 @@ export class UsersService {
                                 } else {
                                     resolve(null);
                                 }
+                            } else {
+                                resolve(null);
                             }
-                        }
-                    )
+                        });
             } catch (err) {
                 resolve(null);
             }
-        })
+        });
     }
 
     public verifyByRequest = async (code: number): Promise<boolean> => {
@@ -278,22 +297,22 @@ export class UsersService {
                 this.http.get(`${this.api}/code/${code}`, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: VerifyEmailResponse) => {
+                        async (response: VerifyEmailResponse) => {
                             if (response.status === 200) {
-                                this.updateCurrentUser();
+                                await this.updateCurrentUser();
                                 resolve(true);
                             } else {
-                                resolve(false)
+                                resolve(false);
                             }
                         });
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 
     public createUserInPanel = async (body: NewUserBody): Promise<boolean> => {
-        return new Promise(async resolve => {
+        return new Promise(resolve => {
             try {
                 this.http.post(`${this.api}/auth/create`, body, { withCredentials: true })
                     .pipe(first())
@@ -304,12 +323,11 @@ export class UsersService {
                             } else {
                                 resolve(false);
                             }
-                        }
-                    )
+                        });
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 
     public updateWholeUser = async (body: UpdateUserBody): Promise<boolean> => {
@@ -324,10 +342,10 @@ export class UsersService {
                         } else {
                             resolve(false);
                         }
-                    })
+                    });
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 }

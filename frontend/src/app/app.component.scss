@@ -15,8 +15,7 @@
     transition: all $duration ease-in-out;
 }
 
-@media (max-width: 996px) {
-
+@media (max-width: 996px) { 
     .content {
         height: calc(100dvh - $footerHeightSmall - $footerHeightSmall);
     }

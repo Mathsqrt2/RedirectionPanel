@@ -10,27 +10,25 @@ import { Injectable } from "@angular/core";
 
 export class LogsService {
 
+    private domain = `http://localhost:3000`;
+    private baseUrl = `${this.domain}/api`;
+
     constructor(
         private readonly http: HttpClient,
         private readonly canLeave: CanDeactivateService,
     ) { }
 
-    private domain = `http://localhost:3000`;
-    private baseUrl = `${this.domain}/api`;
-    public filter: BehaviorSubject<Filters> = new BehaviorSubject<Filters>('all');
-    public downloadFilter: BehaviorSubject<DownloadFilter> = new BehaviorSubject<DownloadFilter>('current view');
-
     public timeOffset = new Date().getTimezoneOffset() * -1000 * 60;
+    public downloadFilter: BehaviorSubject<DownloadFilter> = new BehaviorSubject<DownloadFilter>('current view');
+    public downloadLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
+    public allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
+    public filter: BehaviorSubject<Filters> = new BehaviorSubject<Filters>('all');
     public params: BehaviorSubject<QueryParams> = new BehaviorSubject<QueryParams>({
         offset: 0,
         maxCount: 20,
         minDate: null,
         maxDate: new Date(Date.now() + this.timeOffset).toISOString().split('T')[0],
-    })
-
-    public downloadLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
-    public allLogs: BehaviorSubject<Log[]> = new BehaviorSubject<Log[]>([]);
-
+    });
 
     private getQuery = (currentParams: QueryParams): string => {
         let params = '';
@@ -56,26 +54,30 @@ export class LogsService {
                     .pipe(first())
                     .subscribe(
                         (response: LogResponse) => {
-                            if (downloadFilter !== 'all data') {
-                                this.params.next({ ...params, offset: params.offset + 2 + params.maxCount })
+                            if (response.status === 302) {
+                                if (downloadFilter !== 'all data') {
+                                    this.params.next({ ...params, offset: params.offset + 2 + params.maxCount })
 
-                                let values = newFetch ? response.content : [...this.allLogs.getValue(), ...response.content];
-                                values = values.sort((a: Log, b: Log) => b.id - a.id);
-                                this.allLogs.next(values);
+                                    let values = newFetch ? response.content : [...this.allLogs.getValue(), ...response.content];
+                                    values = values.sort((a: Log, b: Log) => b.id - a.id);
+                                    this.allLogs.next(values);
 
-                                this.canLeave.getSubject('logsLoading').next(false);
+                                    this.canLeave.getSubject('logsLoading').next(false);
+                                } else {
+                                    let values = response.content;
+                                    values = values.sort((a: Log, b: Log) => b.id - a.id);
+                                    this.downloadLogs.next(values);
+                                    this.params.next({ ...params, offset: params.offset + 2 });
+
+                                }
+                                resolve(true);
                             } else {
-                                let values = response.content;
-                                values = values.sort((a: Log, b: Log) => b.id - a.id);
-                                this.downloadLogs.next(values);
-                                this.params.next({ ...params, offset: params.offset + 2 });
-
+                                resolve(false);
                             }
-                            resolve(true);
-                        })
+                        });
             } catch (err) {
                 resolve(false);
             }
-        })
+        });
     }
 }

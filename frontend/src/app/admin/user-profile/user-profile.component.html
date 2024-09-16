@@ -24,10 +24,10 @@
                 *ngIf="currentUser.email && !changeProcess && !deleteProcess" />
 
             <app-email-change [currentUser]="currentUser"
-                *ngIf="(!currentUser.email && !currentUser.emailSent) || changeProcess" />
+                *ngIf="(!currentUser.email && !currentUser.emailSent) || (changeProcess && !deleteProcess)" />
 
             <app-email-confirm [currentUser]="currentUser"
-                *ngIf="(!currentUser.email && currentUser.emailSent) || (currentUser.emailSent && changeProcess)" />
+                *ngIf="(!currentUser.email && currentUser.emailSent) || (currentUser.emailSent && changeProcess && !changeProcess)" />
 
             <app-email-delete [currentUser]="currentUser" *ngIf="currentUser.email && deleteProcess" />
 

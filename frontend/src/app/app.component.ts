@@ -7,7 +7,6 @@ import { Component, HostListener } from '@angular/core';
 })
 
 export class AppComponent {
-
   @HostListener('contextmenu', ['$event']) disableContextMenu(event: PointerEvent): void {
     event.preventDefault();
   }

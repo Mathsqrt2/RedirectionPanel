@@ -133,7 +133,7 @@ export class DatabaseService {
             }
 
             return {
-                status: HttpStatus.OK,
+                status: HttpStatus.FOUND,
                 content: response,
                 message: await this.logger.received({
                     label: `Single element was found.`,

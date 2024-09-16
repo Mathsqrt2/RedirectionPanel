@@ -1,5 +1,5 @@
-import { RegisterProps } from "../../../../types/property.types";
 import { LoginResponse, RegisterUserResponse } from "../../../../types/response.types";
+import { RegisterProps } from "../../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
 import { UsersService } from "./users.service";
 import { Injectable } from "@angular/core";
@@ -18,7 +18,6 @@ export class AuthService {
         private readonly http: HttpClient,
         private readonly usersService: UsersService,
     ) {
-
         if (localStorage.getItem(`accessToken`)) {
             const read = JSON.parse(localStorage.getItem(`accessToken`));
             if (Date.now() > read.expireDate) {
@@ -61,47 +60,45 @@ export class AuthService {
         return new Promise((resolve) => {
             if (this.isLoggedIn) {
                 resolve(true);
+            } else {
+                resolve(false);
             }
-            resolve(false);
-        })
+        });
     }
 
     public login = async (loginForm: { userLogin: string, userPassword: string }): Promise<boolean> => {
-
         return new Promise((resolve) => {
             if (!this.accessToken) {
                 this.http.post(`${this.api}/auth/signin`, loginForm)
                     .pipe(first())
                     .subscribe(
-                        (response: LoginResponse) => {
-                            this.setStatus(response?.accessToken);
+                        async (response: LoginResponse) => {
+                            if (response.status === 200) {
+                                this.setStatus(response?.accessToken);
+                                if (response?.accessToken) {
+                                    const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+                                    localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
-                            if (response?.accessToken) {
-                                const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
-                                localStorage.accessToken = JSON.stringify({ ...response, expireDate });
-
-                                this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                                this.usersService.restoreCurrentUserData({
-                                    login: response.login,
-                                    permissions: response.permissions,
-                                    accessToken: response.accessToken,
-                                    id: response.userId,
-                                    email: response.email,
-                                    emailSent: response.emailSent,
-                                });
-                                this.usersService.updateCurrentUser();
-                                resolve(true)
+                                    this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+                                    this.usersService.restoreCurrentUserData({
+                                        login: response.login,
+                                        permissions: response.permissions,
+                                        accessToken: response.accessToken,
+                                        id: response.userId,
+                                        email: response.email,
+                                        emailSent: response.emailSent,
+                                    });
+                                    await this.usersService.updateCurrentUser();
+                                    resolve(true)
+                                }
+                            } else {
+                                resolve(false);
                             }
-
-                            resolve(false);
-                        },
-
-                    )
+                        });
             } else {
                 resolve(true);
             }
-        })
-
+        });
     }
 
     public logout = (): void => {
@@ -111,35 +108,35 @@ export class AuthService {
     }
 
     public registerNewUser = async (body: RegisterProps): Promise<boolean> => {
-        return new Promise((resolve) => {
-            this.http.post(`${this.api}/auth/signup`, body)
-                .pipe(first())
-                .subscribe({
-                    next: (response: RegisterUserResponse) => {
-                        if (response.status === 200) {
-                            this.setStatus(response?.accessToken);
+        return new Promise(resolve => {
+            try {
+                this.http.post(`${this.api}/auth/signup`, body)
+                    .pipe(first())
+                    .subscribe(
+                        (response: RegisterUserResponse) => {
+                            if (response.status === 200) {
+                                this.setStatus(response?.accessToken);
 
-                            const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
-                            localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+                                const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+                                localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
-                            this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                            this.usersService.restoreCurrentUserData({
-                                login: response.login,
-                                permissions: response.permissions,
-                                accessToken: response.accessToken,
-                                id: response.userId,
-                            });
-                            this.usersService.updateCurrentUser();
+                                this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+                                this.usersService.restoreCurrentUserData({
+                                    login: response.login,
+                                    permissions: response.permissions,
+                                    accessToken: response.accessToken,
+                                    id: response.userId,
+                                });
+                                this.usersService.updateCurrentUser();
 
-                            resolve(true);
-                        } else {
-                            resolve(false);
-                        }
-                    },
-                    error: () => {
-                        resolve(false);
-                    }
-                });
-        })
+                                resolve(true);
+                            } else {
+                                resolve(false);
+                            }
+                        });
+            } catch (err) {
+                resolve(false);
+            }
+        });
     }
 }

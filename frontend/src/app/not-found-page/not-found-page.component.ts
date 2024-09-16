@@ -12,7 +12,6 @@ export class NotFoundPageComponent implements OnInit {
   protected isLoggedIn: boolean;
   constructor(private readonly auth: AuthService) { }
 
-
   async ngOnInit(): Promise<void> {
     this.isLoggedIn = await this.auth.isAuthenticated();
   }

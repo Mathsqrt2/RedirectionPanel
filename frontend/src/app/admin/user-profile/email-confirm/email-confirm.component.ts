@@ -58,9 +58,10 @@ export class EmailConfirmComponent implements OnInit {
   }
 
   protected onCancel = async (): Promise<void> => {
+    this.usersService.changeEmailProcess.next(false);
     const response = await this.usersService.updateEmailValue({ emailSent: false });
-    if (response) {
-      this.usersService.changeEmailProcess.next(false);
+    if (!response) {
+      this.usersService.changeEmailProcess.next(true);
     }
   }
 }
