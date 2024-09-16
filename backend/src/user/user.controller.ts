@@ -1,13 +1,16 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Put, Req, UseGuards } from "@nestjs/common";
+import { CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
+import {
+    Body, Controller, Get, HttpStatus, Param,
+    Patch, Put, Req, UseGuards
+} from "@nestjs/common";
+import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
+import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
+import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
+import { RemoveEmailDto } from "../auth/dtos/removeEmail.dto";
+import { UpdatePswdDto } from "../auth/dtos/updatepswd.dto";
+import { RemoveUserDto } from "../auth/dtos/removeUser.dto";
 import { SoftAuthGuard } from "../auth/auth.guard";
 import { UserService } from "./user.service";
-import { CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
-import { UpdatePswdDto } from "../auth/dtos/updatepswd.dto";
-import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
-import { RemoveEmailDto } from "../auth/dtos/removeEmail.dto";
-import { RemoveUserDto } from "../auth/dtos/removeUser.dto";
-import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
-import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
 import { Request } from "express";
 
 @Controller('/api/user')
@@ -106,7 +109,7 @@ export class UserController {
 
     @UseGuards(SoftAuthGuard)
     @Patch(`:id`)
-    async updateWholeUser(
+    async updateUser(
         @Param(`id`) id: number,
         @Body() body: UpdateWholeUserDto,
         @Req() req: Request,

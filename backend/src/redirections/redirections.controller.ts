@@ -1,9 +1,9 @@
 import { Controller, Get, Inject, Ip, Param, Redirect } from "@nestjs/common";
-import { SHA256 } from 'crypto-js';
 import { Redirections } from "../database/orm/redirections/redirections.entity";
 import { Requests } from "../database/orm/requests/requests.entity";
 import { LoggerService } from "../utils/logs.service";
 import { Repository } from "typeorm";
+import { SHA256 } from 'crypto-js';
 
 @Controller(`:redirection`)
 
@@ -13,7 +13,6 @@ export class RedirectionsController {
         @Inject(`REDIRECTIONS`) private redirections: Repository<Redirections>,
         @Inject(`REQUESTS`) private requests: Repository<Requests>,
         private logger: LoggerService,
-
     ) { }
 
     private loggedRequests = [];

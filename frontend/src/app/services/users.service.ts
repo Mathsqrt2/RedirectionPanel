@@ -299,7 +299,6 @@ export class UsersService {
                     .pipe(first())
                     .subscribe(
                         async ({ status }: DefaultResponse) => {
-                            console.log(status);
                             if (status === 200) {
                                 await this.updateUsersList();
                             } else {

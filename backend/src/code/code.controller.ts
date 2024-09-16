@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, Redirect, Req, UseGuards } from "@nestjs/common";
-import { SoftAuthGuard } from "../auth/auth.guard";
 import { DefaultResponse, ResponseWithCode, VerifyEmailResponse } from "types/response.types";
+import { SoftAuthGuard } from "../auth/auth.guard";
+import { CodesDto } from "../auth/dtos/codes.dto";
 import { CodeService } from "./code.service";
 import { HttpStatus } from "@nestjs/common";
 import { Request } from "express";
-import { CodesDto } from "../auth/dtos/codes.dto";
 import config from "../config";
 
 @Controller('api/code')

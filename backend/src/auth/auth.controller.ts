@@ -1,3 +1,6 @@
+import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
+import { RegisterUserDto } from './dtos/registerUser.dto';
+import { LoginUserDto } from './dtos/loginUser.dto';
 import {
     DefaultResponse,
     LoginUserResponse, RegisterUserResponse,
@@ -8,12 +11,9 @@ import {
     Req, Res,
     UseGuards
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { RegisterUserDto } from './dtos/registerUser.dto';
-import { LoginUserDto } from './dtos/loginUser.dto';
-import { Request, Response } from 'express';
-import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
 import { StrictAuthGuard } from './auth.guard';
+import { AuthService } from './auth.service';
+import { Request, Response } from 'express';
 
 
 @Controller(`api/auth`)

@@ -1,46 +1,23 @@
-import {
-    ConflictException, HttpStatus, Inject,
-    Injectable, NotFoundException, UnauthorizedException
-} from '@nestjs/common';
-;
-import {
-    CurrentUserResponse, LoginUserResponse,
-    RegisterUserResponse, DefaultResponse,
-    UpdateUserResponse
-} from '../../../types/response.types';
-import {
-    LoginUser, RegisterUser,
-    User
-} from '../../../types/property.types';
-
-import { JwtService } from '@nestjs/jwt';
-import { DataSource, Repository } from 'typeorm';
-import { Users } from '../database/orm/users/users.entity';
-import { SHA256 } from 'crypto-js';
-import { Codes } from './orm/codes.entity';
-import { Request } from 'express';
-import config from '../config';
-import { UpdatePswdDto } from './dtos/updatepswd.dto';
-import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
-import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
-import { LoggerService } from '../utils/logs.service';
-import { RemoveEmailDto } from './dtos/removeEmail.dto';
-import { RemoveUserDto } from './dtos/removeUser.dto';
-import { UpdateWholeUserDto } from './dtos/updateUser.dto';
+import { ConflictException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { LoginUserResponse, RegisterUserResponse, DefaultResponse } from '../../../types/response.types';
+import { LoginUser, RegisterUser } from '../../../types/property.types';
 import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
+import { Users } from '../database/orm/users/users.entity';
+import { LoggerService } from '../utils/logs.service';
 import { CodeService } from '../code/code.service';
+import { JwtService } from '@nestjs/jwt';
+import { Repository } from 'typeorm';
+import { SHA256 } from 'crypto-js';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthService {
     constructor(
         @Inject(`USERS`) private readonly users: Repository<Users>,
-        private readonly dataSource: DataSource,
         private readonly jwtService: JwtService,
         private readonly codeService: CodeService,
         private readonly logger: LoggerService,
     ) { }
-
-
 
     private securePassword = (password: string): string => {
         const seed = `${Date.now()}`;
@@ -168,10 +145,6 @@ export class AuthService {
         }
     }
 
-
-
-
-
     public createUserByPanel = async (body: CreateUserByPanelDto, req: Request): Promise<DefaultResponse | DefaultResponse> => {
 
         const startTime = Date.now();
@@ -226,7 +199,5 @@ export class AuthService {
                 })
             }
         }
-
     }
-
 }

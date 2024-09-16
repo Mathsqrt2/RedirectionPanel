@@ -10,21 +10,21 @@ export class LoggerService {
         @Inject('LOGS') private readonly logs: Repository<Logs>,
     ) { }
 
-    public success = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
+    public fail = async ({ label, description, startTime, err }: LoggerProps): Promise<string> => {
         return new Promise(async (resolve) => {
+            console.log(`${label} error: `, err?.message ? err.message : err);
             await this.logs.save({
-                label, description, status: `success`,
+                label, description, status: `failed`,
                 jstimestamp: Date.now(), duration: (Date.now() - startTime)
             });
             resolve(label);
         })
     }
 
-    public fail = async ({ label, description, startTime, err }: LoggerProps): Promise<string> => {
+    public success = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
         return new Promise(async (resolve) => {
-            console.log(`${label} error: `, err?.message ? err.message : err);
             await this.logs.save({
-                label, description, status: `failed`,
+                label, description, status: `success`,
                 jstimestamp: Date.now(), duration: (Date.now() - startTime)
             });
             resolve(label);
@@ -41,30 +41,20 @@ export class LoggerService {
         })
     }
 
-    public received = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
-        return new Promise(async (resolve) => {
-            await this.logs.save({
-                label, description, status: `received`,
-                jstimestamp: Date.now(), duration: (Date.now() - startTime)
-            });
-            resolve(label);
-        })
-    }
-
-    public deleted = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
-        return new Promise(async (resolve) => {
-            await this.logs.save({
-                label, description, status: `deleted`,
-                jstimestamp: Date.now(), duration: (Date.now() - startTime)
-            });
-            resolve(label);
-        })
-    }
-
     public created = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
         return new Promise(async (resolve) => {
             await this.logs.save({
                 label, description, status: `created`,
+                jstimestamp: Date.now(), duration: (Date.now() - startTime)
+            });
+            resolve(label);
+        })
+    }
+
+    public received = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
+        return new Promise(async (resolve) => {
+            await this.logs.save({
+                label, description, status: `received`,
                 jstimestamp: Date.now(), duration: (Date.now() - startTime)
             });
             resolve(label);
@@ -81,6 +71,16 @@ export class LoggerService {
         })
     }
 
+    public deleted = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
+        return new Promise(async (resolve) => {
+            await this.logs.save({
+                label, description, status: `deleted`,
+                jstimestamp: Date.now(), duration: (Date.now() - startTime)
+            });
+            resolve(label);
+        })
+    }
+
     public authorized = async ({ label, description, startTime }: LoggerProps): Promise<string> => {
         return new Promise(async (resolve) => {
             await this.logs.save({
@@ -90,6 +90,4 @@ export class LoggerService {
             resolve(label);
         })
     }
-
 }
-
