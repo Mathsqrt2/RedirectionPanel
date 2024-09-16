@@ -5,9 +5,12 @@ import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
 import config from "../config";
 import { LoggerService } from "../utils/logs.service";
+import { CodeService } from "../code/code.service";
+import { CodeModule } from "../code/code.module";
 
 @Module({
     imports: [
+        CodeModule,
         DatabaseModule,
         JwtModule.register({
             secret: config.secret,
@@ -16,7 +19,7 @@ import { LoggerService } from "../utils/logs.service";
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, LoggerService],
+    providers: [AuthService, LoggerService, CodeService],
     exports: [AuthService],
 })
 

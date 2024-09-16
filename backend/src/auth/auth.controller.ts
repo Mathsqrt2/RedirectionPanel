@@ -1,20 +1,18 @@
 import {
     CurrentUserResponse, LoginUserResponse, RegisterUserResponse,
-    ResponseWithCode, DefaultResponse, UpdateUserResponse, VerifyEmailResponse
+    DefaultResponse, UpdateUserResponse
 } from '../../../types/response.types';
 import {
     BadRequestException, Body, Controller,
     Get, HttpStatus, Param, Patch, Post,
-    Redirect, Req, Res, UseGuards
+    Req, Res, UseGuards
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
-import { CodesDto } from './dtos/codes.dto';
 import { SoftAuthGuard, StrictAuthGuard } from './auth.guard';
-import config from '../config';
 import { UpdatePswdDto } from './dtos/updatepswd.dto';
 import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
 import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
@@ -27,40 +25,6 @@ export class AuthController {
     constructor(
         private readonly authService: AuthService,
     ) { }
-
-    @UseGuards(SoftAuthGuard)
-    @Get(`verifybyrequest/:code`)
-    async getVerificationCode(
-        @Param('code') code: string,
-        @Req() req: Request,
-    ): Promise<VerifyEmailResponse> {
-        try {
-            return await this.authService.getVerificationCode(code, req);
-        } catch (err) {
-            console.log('verifyEmail error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Verification failed for the request with code: "${code}".`,
-            }
-        }
-    }
-
-    @UseGuards(SoftAuthGuard)
-    @Get('activecode/:userid')
-    async getActiveCode(
-        @Param(`userid`) id: number,
-        @Req() req: Request
-    ): Promise<ResponseWithCode> {
-        try {
-            return await this.authService.getActiveCode(id, req);
-        } catch (err) {
-            console.log('getActiveCode error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to retrieve active code.`,
-            }
-        }
-    }
 
     @UseGuards(SoftAuthGuard)
     @Get('currentuser/:id')
@@ -79,46 +43,12 @@ export class AuthController {
         }
     }
 
-    @Get(`verify/:code`)
-    @Redirect(`${config.frontend.domain}/admin/profile`, 302)
-    async getVerificationCodeFromEmail(
-        @Param(`code`) code: string,
-        @Req() req: Request,
-    ): Promise<VerifyEmailResponse> {
-        try {
-            return await this.authService.getVerificationCode(code, req);
-        } catch (err) {
-            console.log('verifyEmail error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to verify request with code: "${code}".`,
-            }
-        }
-    }
-
-    @UseGuards(SoftAuthGuard)
-    @Post(`getverificationemail`)
-    async sendVerificationEmail(
-        @Body() body: CodesDto,
-        @Req() req: Request,
-    ): Promise<DefaultResponse> {
-        try {
-            return await this.authService.sendVerificationEmail(body, req);
-        } catch (err) {
-            console.log('verifyEmail error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Verification process failed.`,
-            }
-        }
-    }
-
     @UseGuards(StrictAuthGuard)
     @Post(`create/user`)
     async createUserByPanel(
         @Body() body: CreateUserByPanelDto,
         @Req() req: Request,
-    ): Promise<DefaultResponse | DefaultResponse> {
+    ): Promise<DefaultResponse> {
         try {
             return await this.authService.createUserByPanel(body, req);
         } catch (err) {

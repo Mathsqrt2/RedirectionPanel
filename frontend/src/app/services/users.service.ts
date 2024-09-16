@@ -1,7 +1,11 @@
-import { CodeResponse, DefaultResponse, UpdateUserResponse, UsersResponse } from "../../../../types/response.types";
+import {
+    CurrentUserResponse, DefaultResponse, ResponseWithCode,
+    UpdateUserResponse, UsersResponse,
+    VerifyEmailResponse
+} from "../../../../types/response.types";
 import {
     User, ChangePasswordProps, Code,
-    EmailCheck, NewUserBody, UpdateUserBody, Permissions
+    NewUserBody, UpdateUserBody, Permissions
 } from "../../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first } from "rxjs";
@@ -68,7 +72,7 @@ export class UsersService {
                     { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        ({ status, content }: { status: number, content?: User }) => {
+                        ({ status, content }: CurrentUserResponse) => {
                             if (status === 200) {
                                 this.currentUser.next({ ...currentUser, ...content });
                                 localStorage.accessToken = JSON.stringify(this.currentUser.getValue());
@@ -98,7 +102,7 @@ export class UsersService {
                 this.http.patch(`${this.api}/auth/permissions`, { ...permissions, userId: id || this.currentUser.getValue().id }, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: { status: number, message: string }) => {
+                        (response: DefaultResponse) => {
                             if (response.status === 200) {
                                 const user = this.currentUser.getValue();
                                 if (!id || id === user.id) {
@@ -128,7 +132,7 @@ export class UsersService {
             this.http.patch(`${this.api}/auth/password`, { ...body, userId: this.currentUser.getValue().id }, { withCredentials: true })
                 .pipe(first())
                 .subscribe(
-                    (response: { status: number, message: string }) => {
+                    (response: DefaultResponse) => {
                         if (response.status === 200) {
                             resolve(true);
                         } else {
@@ -173,7 +177,7 @@ export class UsersService {
     public sendVerificationEmail = async (body: { id: number, email: string }): Promise<boolean> => {
         return new Promise(async resolve => {
             try {
-                this.http.post(`${this.api}/auth/getverificationemail`, body, { withCredentials: true })
+                this.http.post(`${this.api}/code`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: DefaultResponse) => {
@@ -207,7 +211,7 @@ export class UsersService {
                 this.http.patch(`${this.api}/auth/update/email/${this.currentUser.getValue().id}`, values, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        ((response: { status: number, message: string }) => {
+                        ((response: DefaultResponse) => {
                             if (response.status === 200) {
                                 this.currentUser.next({ ...this.currentUser.getValue(), email: values?.newEmail || null, emailSent: values.emailSent });
                                 this.updateCurrentUser();
@@ -229,8 +233,8 @@ export class UsersService {
                 this.http.patch(`${this.api}/auth/remove/email/${this.currentUser.getValue().id}`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: { status: number, message?: string }) => {
-                            if (response.status === 202) {
+                        (response: DefaultResponse) => {
+                            if (response.status === 200) {
                                 this.currentUser.next({ ...this.currentUser.getValue(), email: null, emailSent: null });
                                 this.updateCurrentUser();
                                 resolve(true);
@@ -247,11 +251,11 @@ export class UsersService {
     public checkIfActiveCodeExists = async (): Promise<Code> => {
         return new Promise(resolve => {
             try {
-                this.http.get(`${this.api}/auth/activecode/${this.currentUser.getValue().id}`,
+                this.http.get(`${this.api}/code/user/${this.currentUser.getValue().id}`,
                     { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: CodeResponse) => {
+                        (response: ResponseWithCode) => {
                             if (response.status === 200) {
                                 const code = response.content;
                                 if (Date.now() <= code.expireDate) {
@@ -271,10 +275,10 @@ export class UsersService {
     public verifyByRequest = async (code: number): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.get(`${this.api}/auth/verifybyrequest/${code}`, { withCredentials: true })
+                this.http.get(`${this.api}/code/${code}`, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: EmailCheck) => {
+                        (response: VerifyEmailResponse) => {
                             if (response.status === 200) {
                                 this.updateCurrentUser();
                                 resolve(true);
@@ -294,7 +298,7 @@ export class UsersService {
                 this.http.post(`${this.api}/auth/create/user`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        async ({ status, content }: { status: number, content: User }) => {
+                        async ({ status }: DefaultResponse) => {
                             console.log(status);
                             if (status === 200) {
                                 await this.updateUsersList();

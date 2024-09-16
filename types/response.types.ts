@@ -1,10 +1,5 @@
 import { HttpStatus } from "../backend/node_modules/@nestjs/common";
-import { Code, Log, Redirection, RequestData, User, Permissions, CRUDTypes, CodeWithoutDetails } from "./property.types";
-
-export type CodeResponse = {
-    status: number,
-    content: Code,
-}
+import { Log, Redirection, RequestData, User, Permissions, CRUDTypes, CodeWithoutDetails } from "./property.types";
 
 export type RequestResponse = {
     status: number,

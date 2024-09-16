@@ -6,7 +6,6 @@ import { UsersDto } from "../backend/src/database/orm/users/users.dto";
 import { Users } from "../backend/src/database/orm/users/users.entity";
 import { Logs } from "../backend/src/database/orm/logs/logs.entity";
 import { LogsDto } from "../backend/src/database/orm/logs/logs.dto";
-import { HttpStatus } from "../backend/node_modules/@nestjs/common";
 import { Request } from "express";
 
 export type Permissions = {
@@ -57,16 +56,6 @@ export type NewUserBody = {
     canUpdate: boolean,
     canDelete: boolean,
     canManage: boolean,
-}
-
-export type EmailCheck = {
-    status: number;
-    message?: string;
-    content?: {
-        permissions: Permissions;
-        login: string;
-        userId: number;
-    };
 }
 
 export type Redirection = {
