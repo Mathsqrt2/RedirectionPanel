@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
-import { Observable } from 'rxjs';
-import { UsersService, User } from '../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UsersService } from '../../services/users.service';
+import { User } from '../../../../../types/property.types';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-manage-users',
@@ -50,6 +51,11 @@ export class ManageUsersComponent implements CanComponentDeactivate {
   };
 
   protected onUserCreate = async (): Promise<void> => {
-    this.createUserError = await this.usersService.createUserInPanel(this.createNewUser.value);
+
+    if (this.createNewUser.status === 'VALID') {
+      this.createUserError = await this.usersService.createUserInPanel(this.createNewUser.value);
+      this.createNewUser.reset();
+    }
+
   }
 }

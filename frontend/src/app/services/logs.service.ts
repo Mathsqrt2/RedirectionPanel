@@ -1,7 +1,10 @@
-import { Injectable } from "@angular/core";
+import { Filters, DownloadFilter } from "../../../../types/constants.types";
+import { CanDeactivateService } from "./can-deactivate-guard.service";
+import { Log, QueryParams } from "../../../../types/property.types";
+import { LogResponse } from "../../../../types/response.types";
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, first } from 'rxjs';
-import { CanDeactivateService } from "./can-deactivate-guard.service";
+import { Injectable } from "@angular/core";
 
 @Injectable()
 
@@ -52,7 +55,7 @@ export class LogsService {
                 this.http.get(`${this.baseUrl}/logs/${req}${downloadFilter === 'all data' ? '' : this.getQuery(params)}`, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: LogRequest) => {
+                        (response: LogResponse) => {
                             if (downloadFilter !== 'all data') {
                                 this.params.next({ ...params, offset: params.offset + 2 + params.maxCount })
 
@@ -66,7 +69,7 @@ export class LogsService {
                                 values = values.sort((a: Log, b: Log) => b.id - a.id);
                                 this.downloadLogs.next(values);
                                 this.params.next({ ...params, offset: params.offset + 2 });
-                                
+
                             }
                             resolve(true);
                         })
@@ -75,34 +78,4 @@ export class LogsService {
             }
         })
     }
-
 }
-
-export type FiltersProps = {
-
-}
-
-export type Log = {
-    id?: number,
-    label: string,
-    description: string,
-    status: string,
-    duration: string,
-    jstimestamp?: number,
-}
-
-export type LogRequest = {
-    status: number,
-    content: Log[],
-}
-
-export type Filters = `all` | `success` | `failed` | `completed` | `received` | `deleted` | `created` | `updated` | `authorized`;
-
-export type QueryParams = {
-    maxCount?: number,
-    offset?: number,
-    maxDate?: string,
-    minDate?: string,
-}
-
-export type DownloadFilter = 'current view' | 'all data';

@@ -1,6 +1,7 @@
-import { Component, Input } from "@angular/core";
-import { User, UsersService } from "../../../services/users.service";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { UsersService } from "../../../services/users.service";
+import { User } from "../../../../../../types/property.types";
+import { Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
 
 @Component({

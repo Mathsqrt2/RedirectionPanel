@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { UsersService, User } from '../services/users.service';
 import { AuthService } from '../services/auth.service';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-not-found-page',
@@ -11,7 +10,7 @@ import { AuthService } from '../services/auth.service';
 export class NotFoundPageComponent implements OnInit {
 
   protected isLoggedIn: boolean;
-  constructor(private readonly auth: AuthService){}
+  constructor(private readonly auth: AuthService) { }
 
 
   async ngOnInit(): Promise<void> {

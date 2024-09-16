@@ -20,29 +20,17 @@
 
             <hr />
 
-            <app-email-display [currentUser]="currentUser" [accessLocked]="accessLocked"
+            <app-email-display [currentUser]="currentUser"
                 *ngIf="currentUser.email && !changeProcess && !deleteProcess" />
 
-            <app-email-change [currentUser]="currentUser" [accessLocked]="accessLocked"
+            <app-email-change [currentUser]="currentUser"
                 *ngIf="(!currentUser.email && !currentUser.emailSent) || changeProcess" />
 
-            <app-email-confirm [currentUser]="currentUser" [accessLocked]="accessLocked"
+            <app-email-confirm [currentUser]="currentUser"
                 *ngIf="(!currentUser.email && currentUser.emailSent) || (currentUser.emailSent && changeProcess)" />
 
-            <app-email-delete [currentUser]="currentUser" [accessLocked]="accessLocked"
-                *ngIf="currentUser.email && deleteProcess" />
+            <app-email-delete [currentUser]="currentUser" *ngIf="currentUser.email && deleteProcess" />
 
-
-            <div class="wrapper" *ngIf="accessLocked.status">
-                <span class="error-code">
-                    <h3>
-                        Too many attempts
-                    </h3>
-                    <span>
-                        please try again in 5 minutes
-                    </span>
-                </span>
-            </div>
 
             <hr />
 

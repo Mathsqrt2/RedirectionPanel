@@ -1,7 +1,7 @@
-import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { Redirection, RedirectionsService } from '../../../services/redirections.service';
-import { Permissions } from '../../../services/auth.service';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
+import { Permissions, Redirection } from '../../../../../../types/property.types';
+import { RedirectionsService } from '../../../services/redirections.service';
+import { Component, HostListener, Input, OnChanges } from '@angular/core';
 
 @Component({
     selector: '[redirectionBar]',

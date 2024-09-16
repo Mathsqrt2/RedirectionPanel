@@ -1,10 +1,10 @@
+import { Redirection, User } from "../../../../types/property.types";
+import { ObserverType } from "../../../../types/constants.types";
 import {
     ActivatedRouteSnapshot, CanDeactivateFn,
     RouterStateSnapshot
 } from "@angular/router";
 import { BehaviorSubject, Observable } from "rxjs";
-import { Redirection } from "./redirections.service";
-import { User } from "./users.service";
 
 export interface CanComponentDeactivate {
     canDeactivate: () => Observable<boolean> | Promise<boolean> | boolean;
@@ -16,7 +16,6 @@ export const canDeactivateGuard: CanDeactivateFn<CanComponentDeactivate> = (
     currentState: RouterStateSnapshot,
     nextState?: RouterStateSnapshot
 ): Observable<boolean> | Promise<boolean> | boolean => {
-
     return component.canDeactivate();
 };
 
@@ -45,7 +44,4 @@ export class CanDeactivateService {
     public getValue(option: ObserverType): boolean {
         return this.getSubject(option).getValue();
     }
-
 }
-
-type ObserverType = `createRedirection` | `logsLoading` | `changePassword` | `emailValidation` | `emailChange` | `createUser`;

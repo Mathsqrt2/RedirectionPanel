@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Redirection, RedirectionsService } from '../../services/redirections.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { UsersService, User } from '../../services/users.service';
-import { Permissions } from '../../services/auth.service';
-import { Observable } from 'rxjs';
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
+import { Permissions, Redirection, User } from '../../../../../types/property.types';
+import { RedirectionsService } from '../../services/redirections.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UsersService } from '../../services/users.service';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-manage-redirections',

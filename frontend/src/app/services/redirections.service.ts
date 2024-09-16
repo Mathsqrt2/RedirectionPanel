@@ -1,6 +1,8 @@
+import { RedirectionsResponse, RequestResponse } from "../../../../types/response.types";
+import { Redirection, RequestData } from "../../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
 import { BehaviorSubject, first } from "rxjs";
+import { Injectable } from "@angular/core";
 
 @Injectable()
 
@@ -108,31 +110,4 @@ export class RedirectionsService {
                     this.findCategories(this.redirections.getValue());
                 });
     }
-}
-
-type RedirectionsResponse = {
-    status: number,
-    content: Redirection[]
-}
-
-export type Redirection = {
-    id?: number,
-    targetUrl: string,
-    route: string,
-    userId: number,
-    category?: string,
-    clicksTotal?: number,
-    clicks30d?: number,
-}
-
-type RequestResponse = {
-    status: number,
-    content: RequestData[]
-}
-
-type RequestData = {
-    id: number,
-    requestIp: string,
-    redirectionId: number,
-    requestTime: any,
 }

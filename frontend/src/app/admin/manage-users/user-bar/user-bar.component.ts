@@ -1,7 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { UpdateUserBody, User, UsersService } from '../../../services/users.service';
+import { Permissions, UpdateUserBody, User } from '../../../../../../types/property.types';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
+import { UserFromResponse } from '../../../../../../types/response.types';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Property } from '../../../../../../types/constants.types';
+import { UsersService } from '../../../services/users.service';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: '[user-bar]',
@@ -140,7 +143,7 @@ export class UserBarComponent implements OnInit {
     }
 
     const { canCreate, canUpdate, canDelete, canManage } = this.permissionsForm.value;
-    const permissions = { canCreate, canUpdate, canDelete, canManage };
+    const permissions: Permissions = { canCreate, canUpdate, canDelete, canManage };
 
     if (confirm) {
       await this.usersService.setUserPermissions(permissions, this.user.id);
@@ -148,12 +151,3 @@ export class UserBarComponent implements OnInit {
   }
 
 }
-
-type UserFromResponse = User & {
-  canCreate: boolean,
-  canUpdate: boolean,
-  canDelete: boolean,
-  canManage: boolean,
-}
-
-type Property = `id` | `login` | `password` | `email` | `emailSent`;

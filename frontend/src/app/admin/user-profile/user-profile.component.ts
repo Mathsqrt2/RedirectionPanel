@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { User, UsersService } from '../../services/users.service';
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
+import { UsersService } from '../../services/users.service';
+import { User } from '../../../../../types/property.types';
+import { Component } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -8,13 +9,11 @@ import { Observable } from 'rxjs';
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.scss'
 })
-export class UserProfileComponent implements OnInit, CanComponentDeactivate {
+export class UserProfileComponent implements CanComponentDeactivate {
 
   private domain: string = `http://localhost:3000`;
   protected baseUrl: string = `${this.domain}/api/auth`;
   protected currentUser: User;
-  protected accessLocked: BanTime = { status: false }
-  protected counter = 3;
 
   protected changeProcess = false;
   protected deleteProcess = false;
@@ -56,39 +55,4 @@ export class UserProfileComponent implements OnInit, CanComponentDeactivate {
     return true;
   }
 
-  public ngOnInit(): void {
-    if (localStorage.accessLocked) {
-      const data = JSON.parse(localStorage.accessLocked);
-      if (Date.now() > data?.banExpires) {
-        this.accessLocked.status = false;
-      } else {
-        this.accessLocked = data;
-      }
-    }
-  }
-
-  protected checkBanStatus = (): boolean => {
-    if (this.accessLocked.status) {
-      if (Date.now() > this.accessLocked.banExpires) {
-        this.counter = 3;
-        this.accessLocked.status = false;
-        this.accessLocked.banExpires = null;
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private setBanStatus = (banTimeInMinutes: number) => {
-    this.accessLocked.status = true;
-    this.accessLocked.banExpires = Date.now() + 1000 * 60 * banTimeInMinutes;
-    setTimeout(this.checkBanStatus, 1000 * 60 * banTimeInMinutes + 1);
-    localStorage.accessLocked = JSON.stringify(this.accessLocked);
-  }
-
-}
-
-export type BanTime = {
-  banExpires?: number,
-  status: boolean
 }

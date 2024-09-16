@@ -1,7 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { User, UsersService, Code } from '../../../services/users.service';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { UsersService } from '../../../services/users.service';
+import { User } from '../../../../../../types/property.types';
+import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-email-confirm',
@@ -46,8 +47,6 @@ export class EmailConfirmComponent implements OnInit {
         this.canLeave.getSubject('emailValidation').next(false);
       }
     })
-
-
   }
 
   protected onEmailConfirm = async (): Promise<void> => {

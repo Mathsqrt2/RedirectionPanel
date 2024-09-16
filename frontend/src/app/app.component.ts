@@ -11,5 +11,4 @@ export class AppComponent {
   @HostListener('contextmenu', ['$event']) disableContextMenu(event: PointerEvent): void {
     event.preventDefault();
   }
-
 }

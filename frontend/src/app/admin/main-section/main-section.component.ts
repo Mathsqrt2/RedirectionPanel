@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { User, Permissions } from '../../../../../types/property.types';
 import { AdminService } from '../../services/admin.service';
+import { UsersService } from '../../services/users.service';
+import { AuthService } from '../../services/auth.service';
 import { RouteModel } from '../../models/route.model';
-import { AuthService, Permissions } from '../../services/auth.service';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { User, UsersService } from '../../services/users.service';
 
 @Component({
   selector: 'app-main-section',

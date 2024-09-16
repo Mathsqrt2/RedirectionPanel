@@ -1,7 +1,7 @@
-import { Router } from "@angular/router";
-import { Component, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { AuthService } from "../../services/auth.service";
+import { Component, OnInit } from "@angular/core";
+import { Router } from "@angular/router";
 
 @Component({
     selector: 'login',
@@ -44,11 +44,3 @@ export class LoginComponent implements OnInit {
         this.isPasswordVisible = !this.isPasswordVisible;
     }
 }
-
-export type User = {
-    login: string,
-    token?: string,
-    refreshToken?: string,
-    isAuthenticated: boolean,
-}
-

@@ -1,7 +1,4 @@
-export type Route = {
-    title: string,
-    route: string,
-}
+import { Route } from "../../../../types/property.types";
 
 export class RouteModel {
 

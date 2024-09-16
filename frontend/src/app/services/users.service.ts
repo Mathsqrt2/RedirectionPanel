@@ -1,7 +1,11 @@
-import { Injectable } from "@angular/core";
-import { Permissions } from "./auth.service";
+import { CodeResponse, UsersResponse } from "../../../../types/response.types";
+import {
+    User, ChangePasswordProps, Code,
+    EmailCheck, NewUserBody, UpdateUserBody, Permissions
+} from "../../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first } from "rxjs";
+import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 
 @Injectable()
@@ -344,67 +348,4 @@ export class UsersService {
             }
         })
     }
-}
-
-export type UpdateUserBody = {
-    adminToken: string,
-    id: number,
-    newLogin?: string,
-    newPassword?: string,
-    newEmail?: string,
-}
-
-type UsersResponse = {
-    status: number,
-    content: User[],
-}
-
-type ChangePasswordProps = {
-    password: string,
-    newPassword: string,
-    confirmPassword: string,
-    userId?: number,
-}
-
-type NewUserBody = {
-    login: string,
-    password: string,
-    email?: string,
-    canCreate: boolean,
-    canUpdate: boolean,
-    canDelete: boolean,
-    canManage: boolean,
-}
-
-export type User = {
-    email?: string,
-    emailSent?: boolean,
-    id: number,
-    login: string,
-    password?: string,
-    permissions: Permissions,
-    accessToken?: string,
-}
-
-type EmailCheck = {
-    status: number;
-    message?: string;
-    content?: {
-        permissions: Permissions;
-        login: string;
-        userId: number;
-    };
-}
-
-export type CodeResponse = {
-    status: number,
-    content: Code,
-}
-
-export type Code = {
-    id: number,
-    userId: number,
-    status: boolean,
-    expireDate: number,
-    email: string,
 }

@@ -1,5 +1,5 @@
+import { Log } from '../../../../../../types/property.types';
 import { Component, Input, OnInit } from '@angular/core';
-import { Log } from '../display-logs.component';
 
 @Component({
   selector: '[logView]',
@@ -21,6 +21,6 @@ export class LogBarComponent implements OnInit {
 
   protected toggleDetailsDisplay(): void {
     this.isExpanded = !this.isExpanded;
-  } 
+  }
 
 }

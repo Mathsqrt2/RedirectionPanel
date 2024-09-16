@@ -1,7 +1,9 @@
-import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
-import { UsersService } from "./users.service";
 import { RegisterUserResponse } from "../../../../backend/src/auth/auth.types";
+import { RegisterProps } from "../../../../types/property.types";
+import { LoginResponse } from "../../../../types/response.types";
+import { HttpClient } from "@angular/common/http";
+import { UsersService } from "./users.service";
+import { Injectable } from "@angular/core";
 import { first } from "rxjs/operators";
 
 @Injectable()
@@ -37,8 +39,6 @@ export class AuthService {
         }
     }
 
-
-
     private setCookie = (name: string, value: string | number, expirationDays: number, path: string = "/"): void => {
         const date: Date = new Date((Date.now() + (1000 * 60 * 60 * 24 * expirationDays)));
         document.cookie = `${encodeURIComponent(name)}=${encodeURIComponent(value)};path=${path};expires=${date.toUTCString()}`;
@@ -73,8 +73,8 @@ export class AuthService {
             if (!this.accessToken) {
                 this.http.post(`${this.api}/auth/login`, loginForm)
                     .pipe(first())
-                    .subscribe({
-                        next: (response: LoginResponse) => {
+                    .subscribe(
+                        (response: LoginResponse) => {
                             this.setStatus(response?.accessToken);
 
                             if (response?.accessToken) {
@@ -97,10 +97,7 @@ export class AuthService {
                             resolve(false);
                         },
 
-                        error: () => {
-                            resolve(false);
-                        },
-                    })
+                    )
             } else {
                 resolve(true);
             }
@@ -146,27 +143,4 @@ export class AuthService {
                 });
         })
     }
-}
-
-export type Permissions = {
-    canCreate: boolean,
-    canUpdate: boolean,
-    canDelete: boolean,
-    canManage: boolean,
-}
-
-type LoginResponse = {
-    status: number,
-    permissions?: Permissions,
-    login?: string,
-    userId: number,
-    email?: string,
-    emailSent?: boolean,
-    accessToken?: string,
-}
-
-type RegisterProps = {
-    login: string,
-    password: string,
-    confirmPassword: string,
 }
