@@ -3,9 +3,9 @@ import {
     Injectable, UnauthorizedException
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import config from "src/config";
-import { Users } from "src/database/orm/users/users.entity";
-import { LoggerService } from "src/utils/logs.service";
+import config from "../config";
+import { Users } from "../database/orm/users/users.entity";
+import { LoggerService } from "../utils/logs.service";
 import { Repository } from "typeorm";
 
 @Injectable()

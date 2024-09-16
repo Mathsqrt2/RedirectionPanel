@@ -1,11 +1,12 @@
+import { DTOs, QueryConditions } from "../../../types/property.types";
+import { DatabaseResponse } from "../../../types/response.types";
 import {
     Controller, Post, Param, Body, Get,
     Query, Put, Patch, Delete,
     HttpStatus, UseGuards
 } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
-import { DTOs, CRUDResponse, QueryConditions } from "./database.types";
-import { StrictAuthGuard } from "src/auth/auth.guard";
+import { StrictAuthGuard } from "../auth/auth.guard";
 
 @Controller(`api`)
 export class DatabaseController {
@@ -22,7 +23,7 @@ export class DatabaseController {
         @Query(`offset`) offset?: number,
         @Query(`minDate`) minDate?: string,
         @Query(`maxDate`) maxDate?: string,
-    ): Promise<CRUDResponse> {
+    ): Promise<DatabaseResponse> {
         try {
             const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }
             return await this.database.getMultipleElements({ endpoint, conditions });
@@ -40,7 +41,7 @@ export class DatabaseController {
     async getSingleElementById(
         @Param(`endpoint`) endpoint: string,
         @Param(`id`) id: number,
-    ): Promise<CRUDResponse> {
+    ): Promise<DatabaseResponse> {
         try {
             return await this.database.getSingleElementById({ endpoint, id })
         } catch (err) {
@@ -62,7 +63,7 @@ export class DatabaseController {
         @Query(`offset`) offset?: number,
         @Query(`minDate`) minDate?: string,
         @Query(`maxDate`) maxDate?: string,
-    ): Promise<CRUDResponse> {
+    ): Promise<DatabaseResponse> {
         try {
             const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }
             return await this.database.getMultipleElementsByParam({ endpoint, param, value, conditions });
@@ -80,7 +81,7 @@ export class DatabaseController {
     async createSingleElement(
         @Param(`endpoint`) endpoint: string,
         @Body() data: DTOs,
-    ): Promise<CRUDResponse> {
+    ): Promise<DatabaseResponse> {
         try {
             return await this.database.createSingleElement({ endpoint, data });
         } catch (err) {
@@ -97,7 +98,7 @@ export class DatabaseController {
     async createMultipleElements(
         @Param(`endpoint`) endpoint: string,
         @Body() dataArray: DTOs[],
-    ): Promise<CRUDResponse> {
+    ): Promise<DatabaseResponse> {
         try {
             return await this.database.createMultipleElements({ endpoint, dataArray });
         } catch (err) {
@@ -115,7 +116,7 @@ export class DatabaseController {
         @Param(`endpoint`) endpoint: string,
         @Param(`id`) id: number,
         @Body() data: DTOs,
-    ) {
+    ): Promise<DatabaseResponse> {
         try {
             return await this.database.updateSingleElement({ endpoint, id, data });
         } catch (err) {
@@ -133,7 +134,7 @@ export class DatabaseController {
         @Param(`endpoint`) endpoint: string,
         @Param(`id`) id: number,
         @Body() data: DTOs,
-    ) {
+    ): Promise<DatabaseResponse> {
         try {
             return await this.database.patchSingleElement({ endpoint, id, data });
         } catch (err) {
@@ -152,7 +153,7 @@ export class DatabaseController {
         @Param(`param`) param: string,
         @Param(`value`) value: string | number,
         @Body() data: DTOs,
-    ) {
+    ): Promise<DatabaseResponse> {
         try {
             return await this.database.patchMultipleElementsByParam({ endpoint, param, value, data });
         } catch (err) {
@@ -169,7 +170,7 @@ export class DatabaseController {
     async deleteSingleElementById(
         @Param(`endpoint`) endpoint: string,
         @Param(`id`) id: number,
-    ) {
+    ): Promise<DatabaseResponse> {
         try {
             return await this.database.deleteSingleElementById({ endpoint, id });
         } catch (err) {
@@ -187,7 +188,7 @@ export class DatabaseController {
         @Param(`endpoint`) endpoint: string,
         @Param(`param`) param: string,
         @Param(`value`) value: string,
-    ) {
+    ): Promise<DatabaseResponse> {
         try {
             return await this.database.deleteMultipleElementsByParam({ endpoint, param, value });
         } catch (err) {

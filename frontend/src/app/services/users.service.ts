@@ -1,4 +1,4 @@
-import { CodeResponse, UsersResponse } from "../../../../types/response.types";
+import { CodeResponse, DefaultResponse, UpdateUserResponse, UsersResponse } from "../../../../types/response.types";
 import {
     User, ChangePasswordProps, Code,
     EmailCheck, NewUserBody, UpdateUserBody, Permissions
@@ -148,8 +148,8 @@ export class UsersService {
                 const user = this.currentUser.getValue();
                 this.http.patch(`${this.api}/auth/deactivate/user/${body.id ? body.id : user.id}`, body, { withCredentials: true })
                     .pipe(first())
-                    .subscribe(({ status }: { status: number }) => {
-                        if (status === 202) {
+                    .subscribe(({ status }: DefaultResponse) => {
+                        if (status === 200) {
                             const users = this.users.getValue();
                             if (!body.id) {
                                 this.deleteCookie('jwt');
@@ -176,7 +176,7 @@ export class UsersService {
                 this.http.post(`${this.api}/auth/getverificationemail`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: { status: number, message: string }) => {
+                        (response: DefaultResponse) => {
                             if (response.status === 200) {
                                 this.http.patch(`${this.api}/auth/update/email/${body.id}`,
                                     { emailSent: true },
@@ -198,27 +198,6 @@ export class UsersService {
                 resolve(false);
             }
 
-        })
-    }
-
-    public updateEmailSentStatus = async (status: boolean): Promise<boolean> => {
-        return new Promise(resolve => {
-            try {
-                this.http.patch(`${this.api}/auth/emailstatus/${this.currentUser.getValue().id}`,
-                    { emailSent: status },
-                    { withCredentials: true })
-                    .pipe(first())
-                    .subscribe(({ status }: { status: number }) => {
-                        if (status === 200) {
-                            this.updateCurrentUser();
-                            resolve(true);
-                        } else {
-                            resolve(false);
-                        }
-                    });
-            } catch (err) {
-                resolve(false);
-            }
         })
     }
 
@@ -335,8 +314,8 @@ export class UsersService {
             try {
                 this.http.patch(`${this.api}/auth/update/user/${body.id}`, body, { withCredentials: true })
                     .pipe(first())
-                    .subscribe(async ({ status }: { status: number }) => {
-                        if (status === 202) {
+                    .subscribe(async ({ status }: UpdateUserResponse) => {
+                        if (status === 200) {
                             await this.updateUsersList();
                             resolve(true);
                         } else {

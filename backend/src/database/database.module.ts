@@ -6,8 +6,8 @@ import { usersProviders } from "./orm/users/users.providers";
 import { logsProviders } from "./orm/logs/logs.providers";
 import { redirectionsProviders } from "./orm/redirections/redirections.providers";
 import { requestsProviders } from "./orm/requests/requests.providers";
-import { codesProviders } from "src/auth/orm/codes.providers";
-import { LoggerService } from "src/utils/logs.service";
+import { codesProviders } from "../auth/orm/codes.providers";
+import { LoggerService } from "../utils/logs.service";
 
 
 const providers = [

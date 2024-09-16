@@ -1,3 +1,14 @@
+import { RedirectionsDto } from "../backend/src/database/orm/redirections/redirections.dto";
+import { Redirections } from "../backend/src/database/orm/redirections/redirections.entity";
+import { Requests } from "../backend/src/database/orm/requests/requests.entity";
+import { RequestsDto } from "../backend/src/database/orm/requests/requests.dto";
+import { UsersDto } from "../backend/src/database/orm/users/users.dto";
+import { Users } from "../backend/src/database/orm/users/users.entity";
+import { Logs } from "../backend/src/database/orm/logs/logs.entity";
+import { LogsDto } from "../backend/src/database/orm/logs/logs.dto";
+import { HttpStatus } from "../backend/node_modules/@nestjs/common";
+import { Request } from "express";
+
 export type Permissions = {
     canCreate: boolean,
     canUpdate: boolean,
@@ -100,4 +111,122 @@ export type RegisterProps = {
 export type Route = {
     title: string,
     route: string,
+}
+
+export type LoggerProps = {
+    label: string,
+    description: string,
+    startTime: number,
+    err?: Error,
+}
+
+export type DTOs = LogsDto | RedirectionsDto | RequestsDto | UsersDto;
+export type CRUDTypes = Logs | Redirections | Requests | Users | any;
+
+export type getMultipleElementsProps = {
+    endpoint: string,
+    conditions?: QueryConditions,
+}
+
+export type getSingleElementByIdProps = {
+    endpoint: string,
+    id: number,
+}
+
+export type getMultipleElementsByParamProps = {
+    endpoint: string,
+    param: string,
+    value: string | number,
+    conditions?: QueryConditions,
+}
+
+export type createMultipleElementsProps = {
+    endpoint: string,
+    dataArray: CRUDTypes[],
+}
+
+export type createSingleElementProps = {
+    endpoint: string,
+    data: CRUDTypes,
+}
+
+export type updateSingleElementProps = {
+    endpoint: string,
+    id: number,
+    data: CRUDTypes,
+}
+
+export type patchSingleElementProps = {
+    endpoint: string,
+    id: number,
+    data: CRUDTypes,
+}
+
+export type patchMultipleElementsByParamProps = {
+    endpoint: string,
+    param: string,
+    value: string | number,
+    data: CRUDTypes,
+}
+
+export type deleteSingleElementByIdProps = {
+    endpoint: string,
+    id: number,
+}
+
+export type deleteMultipleElementsByParamProps = {
+    endpoint: string,
+    param: string,
+    value: string | number,
+}
+
+export type QueryConditions = {
+    maxCount?: number,
+    offset?: number,
+    minDate?: string,
+    maxDate?: string,
+}
+
+export type RegisterUser = {
+    login: string,
+    password: string,
+    confirmPassword: string,
+    req?: Request,
+}
+
+export type LoginUser = {
+    login: string,
+    password: string,
+    req?: Request,
+}
+
+export type LogoutUser = {
+    login: string,
+    accessToken: string,
+}
+
+export type RemoveUserProps = {
+    login: string,
+    password: string,
+}
+
+export type CodeWithoutDetails = {
+    id: number,
+    userId: number,
+    status: boolean,
+    expireDate: number,
+    email: string,
+}
+
+export type TransportDataType = {
+    service: string,
+    host: string,
+    port: string,
+    secure: boolean,
+    auth: SmtpAuth,
+}
+
+export type SmtpAuth = {
+    user: string,
+    pass: string,
 }

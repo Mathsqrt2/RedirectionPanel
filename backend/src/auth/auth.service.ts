@@ -4,29 +4,28 @@ import {
 } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import {
-    CurrentUserResponse, LoginUser, LoginUserResponse, RegisterUser,
-    RegisterUserResponse, RemoveUserResponse,
-    ResponseWithCode, User, SendVerificationCodeResponse,
-    UpdatePermissionsResponse, UpdatePswdResponse,
-    UpdateStatusResponse, VerifyEmailResponse,
-    TransportDataType,
-    SimpleResponse,
-    UpdateUserResponse,
-    CreateUserByPanelResponse
-} from './auth.types';
+    CurrentUserResponse, LoginUserResponse,
+    RegisterUserResponse, DefaultResponse,
+    ResponseWithCode, VerifyEmailResponse,
+    UpdateUserResponse
+} from '../../../types/response.types';
+import {
+    LoginUser, RegisterUser,
+    User, TransportDataType,
+} from '../../../types/property.types';
 
 import { JwtService } from '@nestjs/jwt';
 import { DataSource, Repository } from 'typeorm';
-import { Users } from 'src/database/orm/users/users.entity';
+import { Users } from '../database/orm/users/users.entity';
 import { SHA256 } from 'crypto-js';
 import { CodesDto } from './dtos/codes.dto';
 import { Codes } from './orm/codes.entity';
 import { Request } from 'express';
-import config from 'src/config';
+import config from '../config';
 import { UpdatePswdDto } from './dtos/updatepswd.dto';
 import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
 import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
-import { LoggerService } from 'src/utils/logs.service';
+import { LoggerService } from '../utils/logs.service';
 import { RemoveEmailDto } from './dtos/removeEmail.dto';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { UpdateWholeUserDto } from './dtos/updateUser.dto';
@@ -225,7 +224,7 @@ export class AuthService {
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    public sendVerificationEmail = async ({ email, id }: CodesDto, req: Request): Promise<SendVerificationCodeResponse> => {
+    public sendVerificationEmail = async ({ email, id }: CodesDto, req: Request): Promise<DefaultResponse> => {
 
         const startTime = Date.now();
 
@@ -389,7 +388,7 @@ export class AuthService {
             const payload = { sub: newUser.id, username: newUser?.login };
 
             return {
-                status: HttpStatus.ACCEPTED,
+                status: HttpStatus.OK,
                 accessToken: await this.jwtService.signAsync(payload),
                 login: newUser.login,
                 permissions: { canDelete, canUpdate, canCreate, canManage },
@@ -458,7 +457,6 @@ export class AuthService {
                 })
             };
         } catch (err) {
-
             return {
                 status: HttpStatus.BAD_REQUEST,
                 message: await this.logger.fail({
@@ -471,7 +469,7 @@ export class AuthService {
         }
     }
 
-    public updatePassword = async (body: UpdatePswdDto, req: Request): Promise<UpdatePswdResponse> => {
+    public updatePassword = async (body: UpdatePswdDto, req: Request): Promise<DefaultResponse> => {
 
         const startTime = Date.now();
 
@@ -518,7 +516,7 @@ export class AuthService {
         }
     }
 
-    public updatePermissions = async (body: UpdatePermissionsDto, req: Request): Promise<UpdatePermissionsResponse> => {
+    public updatePermissions = async (body: UpdatePermissionsDto, req: Request): Promise<DefaultResponse> => {
         const startTime = Date.now();
 
         try {
@@ -563,7 +561,7 @@ export class AuthService {
         }
     }
 
-    public updateEmailStatus = async (id: number, body: UpdateStatusDto, req: Request): Promise<UpdateStatusResponse> => {
+    public updateEmailStatus = async (id: number, body: UpdateStatusDto, req: Request): Promise<DefaultResponse> => {
 
         const startTime = Date.now();
 
@@ -617,7 +615,7 @@ export class AuthService {
         }
     }
 
-    public updateUser = async (id: number, body: UpdateWholeUserDto, req: Request): Promise<UpdateUserResponse | SendVerificationCodeResponse> => {
+    public updateUser = async (id: number, body: UpdateWholeUserDto, req: Request): Promise<UpdateUserResponse | DefaultResponse> => {
 
         const startTime = Date.now();
 
@@ -656,7 +654,7 @@ export class AuthService {
             await this.users.save(user);
 
             return {
-                status: HttpStatus.ACCEPTED,
+                status: HttpStatus.OK,
                 message: await this.logger.updated({
                     label: `User updated.`,
                     description: `User with id: ${user.id} updated successfully. Request IP: "${req?.ip}". Time: ${new Date().toLocaleString('pl-PL')}. `,
@@ -675,7 +673,7 @@ export class AuthService {
         }
     }
 
-    public createUserByPanel = async (body: CreateUserByPanelDto, req: Request): Promise<CreateUserByPanelResponse | SendVerificationCodeResponse> => {
+    public createUserByPanel = async (body: CreateUserByPanelDto, req: Request): Promise<DefaultResponse | DefaultResponse> => {
 
         const startTime = Date.now();
 
@@ -732,7 +730,7 @@ export class AuthService {
 
     }
 
-    public deactivateUser = async (id: number, { password, login }: RemoveUserDto, req: Request): Promise<RemoveUserResponse> => {
+    public deactivateUser = async (id: number, { password, login }: RemoveUserDto, req: Request): Promise<DefaultResponse> => {
 
         const startTime = Date.now();
 
@@ -762,7 +760,7 @@ export class AuthService {
             await this.users.delete({ login: user.login });
 
             return {
-                status: HttpStatus.ACCEPTED,
+                status: HttpStatus.OK,
                 message: await this.logger.deleted({
                     label: `User removed.`,
                     description: `User with login: "${user.login}" was removed. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
@@ -781,7 +779,7 @@ export class AuthService {
         }
     }
 
-    public removeEmail = async (id: number, { password }: RemoveEmailDto): Promise<SimpleResponse> => {
+    public removeEmail = async (id: number, { password }: RemoveEmailDto): Promise<DefaultResponse> => {
 
         const startTime = Date.now();
 
@@ -799,7 +797,7 @@ export class AuthService {
             }
 
             return {
-                status: HttpStatus.ACCEPTED,
+                status: HttpStatus.OK,
                 message: await this.logger.deleted({
                     label: `User removed.`,
                     description: `User with login: "${user.login}" was removed. Time: ${new Date().toLocaleString('pl-PL')}.`,

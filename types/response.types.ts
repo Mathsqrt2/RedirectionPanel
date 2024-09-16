@@ -1,4 +1,5 @@
-import { Code, Log, Redirection, RequestData, User, Permissions } from "./property.types";
+import { HttpStatus } from "../backend/node_modules/@nestjs/common";
+import { Code, Log, Redirection, RequestData, User, Permissions, CRUDTypes, CodeWithoutDetails } from "./property.types";
 
 export type CodeResponse = {
     status: number,
@@ -20,12 +21,7 @@ export type LoginResponse = {
     accessToken?: string,
 }
 
-export type UserFromResponse = User & {
-    canCreate: boolean,
-    canUpdate: boolean,
-    canDelete: boolean,
-    canManage: boolean,
-}
+export type UserFromResponse = User & Permissions;
 
 export type UsersResponse = {
     status: number,
@@ -40,4 +36,51 @@ export type RedirectionsResponse = {
 export type LogResponse = {
     status: number,
     content: Log[],
+}
+
+export type DefaultResponse = {
+    status: HttpStatus.OK | HttpStatus.INTERNAL_SERVER_ERROR | HttpStatus.BAD_REQUEST | HttpStatus.UNAUTHORIZED,
+    message?: string,
+}
+
+export type DatabaseResponse = {
+    status: HttpStatus.OK | HttpStatus.FOUND | HttpStatus.CREATED | HttpStatus.BAD_REQUEST | HttpStatus.NOT_FOUND | HttpStatus.INTERNAL_SERVER_ERROR,
+    message?: string,
+    content?: CRUDTypes,
+};
+
+export type UpdateUserResponse = DefaultResponse & {
+    content?: User,
+}
+
+export type RegisterUserResponse = DefaultResponse & {
+    accessToken?: string,
+    login?: string,
+    permissions?: Permissions,
+    email?: string,
+    userId?: number,
+}
+
+export type LoginUserResponse = DefaultResponse & {
+    accessToken?: string,
+    login?: string,
+    userId?: number,
+    email?: string,
+    permissions?: Permissions
+};
+
+export type VerifyEmailResponse = DefaultResponse & {
+    content?: {
+        permissions: Permissions,
+        login: string,
+        userId: number,
+    },
+}
+
+export type CurrentUserResponse = DefaultResponse & {
+    content?: User,
+}
+
+export type ResponseWithCode = DefaultResponse & {
+    content?: CodeWithoutDetails,
 }

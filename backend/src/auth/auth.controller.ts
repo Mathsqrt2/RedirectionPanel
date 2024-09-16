@@ -1,25 +1,20 @@
 import {
+    CurrentUserResponse, LoginUserResponse, RegisterUserResponse,
+    ResponseWithCode, DefaultResponse, UpdateUserResponse, VerifyEmailResponse
+} from '../../../types/response.types';
+import {
     BadRequestException, Body, Controller,
-    Get, HttpStatus,
-    Param, Patch, Post,
+    Get, HttpStatus, Param, Patch, Post,
     Redirect, Req, Res, UseGuards
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
-import {
-    CreateUserByPanelResponse,
-    CurrentUserResponse, LoginUserResponse, RegisterUserResponse,
-    RemoveUserResponse, ResponseWithCode, SendVerificationCodeResponse,
-    SimpleResponse,
-    UpdatePermissionsResponse, UpdatePswdResponse,
-    UpdateStatusResponse, UpdateUserResponse, VerifyEmailResponse
-} from './auth.types';
 import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
 import { CodesDto } from './dtos/codes.dto';
 import { SoftAuthGuard, StrictAuthGuard } from './auth.guard';
-import config from 'src/config';
+import config from '../config';
 import { UpdatePswdDto } from './dtos/updatepswd.dto';
 import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
 import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
@@ -106,7 +101,7 @@ export class AuthController {
     async sendVerificationEmail(
         @Body() body: CodesDto,
         @Req() req: Request,
-    ): Promise<SendVerificationCodeResponse> {
+    ): Promise<DefaultResponse> {
         try {
             return await this.authService.sendVerificationEmail(body, req);
         } catch (err) {
@@ -123,7 +118,7 @@ export class AuthController {
     async createUserByPanel(
         @Body() body: CreateUserByPanelDto,
         @Req() req: Request,
-    ): Promise<CreateUserByPanelResponse | SendVerificationCodeResponse> {
+    ): Promise<DefaultResponse | DefaultResponse> {
         try {
             return await this.authService.createUserByPanel(body, req);
         } catch (err) {
@@ -183,7 +178,7 @@ export class AuthController {
     async updatePassword(
         @Body() body: UpdatePswdDto,
         @Req() req: Request,
-    ): Promise<UpdatePswdResponse> {
+    ): Promise<DefaultResponse> {
         try {
             return await this.authService.updatePassword(body, req);
         } catch (err) {
@@ -200,7 +195,7 @@ export class AuthController {
     async updatePermissions(
         @Body() body: UpdatePermissionsDto,
         @Req() req: Request,
-    ): Promise<UpdatePermissionsResponse> {
+    ): Promise<DefaultResponse> {
         try {
             return await this.authService.updatePermissions(body, req);
         } catch (err) {
@@ -218,7 +213,7 @@ export class AuthController {
         @Param(`id`) id: number,
         @Body() body: UpdateStatusDto,
         @Req() req: Request,
-    ): Promise<UpdateStatusResponse> {
+    ): Promise<DefaultResponse> {
         try {
             return await this.authService.updateEmailStatus(id, body, req);
         } catch (err) {
@@ -235,7 +230,7 @@ export class AuthController {
     async removeEmail(
         @Param('id') id: number,
         @Body() body: RemoveEmailDto,
-    ): Promise<SimpleResponse> {
+    ): Promise<DefaultResponse> {
         try {
             return await this.authService.removeEmail(id, body);
         } catch (err) {
@@ -253,7 +248,7 @@ export class AuthController {
         @Param(`id`) id: number,
         @Body() body: RemoveUserDto,
         @Req() req: Request,
-    ): Promise<RemoveUserResponse> {
+    ): Promise<DefaultResponse> {
         try {
             return await this.authService.deactivateUser(id, body, req);
         } catch (err) {
@@ -271,7 +266,7 @@ export class AuthController {
         @Param(`id`) id: number,
         @Body() body: UpdateWholeUserDto,
         @Req() req: Request,
-    ): Promise<UpdateUserResponse | SendVerificationCodeResponse> {
+    ): Promise<UpdateUserResponse> {
         try {
             return await this.authService.updateUser(id, body, req);
         } catch (err) {

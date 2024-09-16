@@ -1,6 +1,5 @@
-import { RegisterUserResponse } from "../../../../backend/src/auth/auth.types";
 import { RegisterProps } from "../../../../types/property.types";
-import { LoginResponse } from "../../../../types/response.types";
+import { LoginResponse, RegisterUserResponse } from "../../../../types/response.types";
 import { HttpClient } from "@angular/common/http";
 import { UsersService } from "./users.service";
 import { Injectable } from "@angular/core";
@@ -117,7 +116,7 @@ export class AuthService {
                 .pipe(first())
                 .subscribe({
                     next: (response: RegisterUserResponse) => {
-                        if (response.status === 202) {
+                        if (response.status === 200) {
                             this.setStatus(response?.accessToken);
 
                             const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)

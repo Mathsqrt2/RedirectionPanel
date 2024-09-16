@@ -1,5 +1,6 @@
+import { LoggerProps } from "../../../types/property.types";
 import { Inject, Injectable } from "@nestjs/common";
-import { Logs } from "src/database/orm/logs/logs.entity";
+import { Logs } from "../database/orm/logs/logs.entity";
 import { Repository } from "typeorm";
 
 @Injectable()
@@ -92,9 +93,3 @@ export class LoggerService {
 
 }
 
-type LoggerProps = {
-    label: string,
-    description: string,
-    startTime: number,
-    err?: Error,
-}

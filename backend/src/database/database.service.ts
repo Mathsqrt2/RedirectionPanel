@@ -1,22 +1,23 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import {
-    Repository, DataSource, LessThanOrEqual,
-    MoreThanOrEqual, Between
-} from 'typeorm';
-import { HttpStatus } from "@nestjs/common";
-import {
     createSingleElementProps, CRUDTypes, createMultipleElementsProps,
-    DatabaseOutput, getSingleElementByIdProps, getMultipleElementsByParamProps,
+    getSingleElementByIdProps, getMultipleElementsByParamProps,
     getMultipleElementsProps, deleteMultipleElementsByParamProps,
     deleteSingleElementByIdProps, patchMultipleElementsByParamProps,
     patchSingleElementProps, updateSingleElementProps
-} from "./database.types";
-import { Users } from "./orm/users/users.entity";
-import { Requests } from "./orm/requests/requests.entity";
+} from "../../../types/property.types";
+import {
+    Repository, DataSource, LessThanOrEqual,
+    MoreThanOrEqual, Between
+} from 'typeorm';
 import { Redirections } from "./orm/redirections/redirections.entity";
+import { DatabaseResponse } from '../../../types/response.types';
+import { Requests } from "./orm/requests/requests.entity";
+import { LoggerService } from "../utils/logs.service";
+import { Codes } from "../auth/orm/codes.entity";
+import { Users } from "./orm/users/users.entity";
 import { Logs } from "./orm/logs/logs.entity";
-import { Codes } from "src/auth/orm/codes.entity";
-import { LoggerService } from "src/utils/logs.service";
+import { HttpStatus } from "@nestjs/common";
 import { NotFoundError } from "rxjs";
 
 @Injectable()
@@ -57,7 +58,7 @@ export class DatabaseService {
         }
     }
 
-    public getMultipleElements = async ({ endpoint, conditions }: getMultipleElementsProps): Promise<DatabaseOutput> => {
+    public getMultipleElements = async ({ endpoint, conditions }: getMultipleElementsProps): Promise<DatabaseResponse> => {
 
         const { minDate, maxDate, maxCount, offset = 0 } = conditions;
         const startTime = Date.now();
@@ -116,7 +117,7 @@ export class DatabaseService {
         }
     }
 
-    public getSingleElementById = async ({ endpoint, id }: getSingleElementByIdProps): Promise<DatabaseOutput> => {
+    public getSingleElementById = async ({ endpoint, id }: getSingleElementByIdProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -154,7 +155,7 @@ export class DatabaseService {
         }
     }
 
-    public getMultipleElementsByParam = async ({ endpoint, param, value, conditions }: getMultipleElementsByParamProps): Promise<DatabaseOutput> => {
+    public getMultipleElementsByParam = async ({ endpoint, param, value, conditions }: getMultipleElementsByParamProps): Promise<DatabaseResponse> => {
 
         const { minDate, maxDate, maxCount, offset = 0 } = conditions;
         const startTime = Date.now();
@@ -215,7 +216,7 @@ export class DatabaseService {
         }
     }
 
-    public createSingleElement = async ({ endpoint, data }: createSingleElementProps): Promise<DatabaseOutput> => {
+    public createSingleElement = async ({ endpoint, data }: createSingleElementProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -260,7 +261,7 @@ export class DatabaseService {
         }
     }
 
-    public createMultipleElements = async ({ endpoint, dataArray }: createMultipleElementsProps): Promise<DatabaseOutput> => {
+    public createMultipleElements = async ({ endpoint, dataArray }: createMultipleElementsProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -317,7 +318,7 @@ export class DatabaseService {
         }
     }
 
-    public updateSingleElement = async ({ endpoint, id, data }: updateSingleElementProps): Promise<DatabaseOutput> => {
+    public updateSingleElement = async ({ endpoint, id, data }: updateSingleElementProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -358,7 +359,7 @@ export class DatabaseService {
         }
     }
 
-    public patchSingleElement = async ({ endpoint, id, data }: patchSingleElementProps): Promise<DatabaseOutput> => {
+    public patchSingleElement = async ({ endpoint, id, data }: patchSingleElementProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -399,7 +400,7 @@ export class DatabaseService {
         }
     }
 
-    public patchMultipleElementsByParam = async ({ endpoint, param, value, data }: patchMultipleElementsByParamProps): Promise<DatabaseOutput> => {
+    public patchMultipleElementsByParam = async ({ endpoint, param, value, data }: patchMultipleElementsByParamProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -441,7 +442,7 @@ export class DatabaseService {
         }
     }
 
-    public deleteSingleElementById = async ({ endpoint, id }: deleteSingleElementByIdProps): Promise<DatabaseOutput> => {
+    public deleteSingleElementById = async ({ endpoint, id }: deleteSingleElementByIdProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -484,7 +485,7 @@ export class DatabaseService {
         }
     }
 
-    public deleteMultipleElementsByParam = async ({ endpoint, param, value }: deleteMultipleElementsByParamProps): Promise<DatabaseOutput> => {
+    public deleteMultipleElementsByParam = async ({ endpoint, param, value }: deleteMultipleElementsByParamProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);

@@ -1,8 +1,8 @@
 import { Controller, Get, Inject, Ip, Param, Redirect } from "@nestjs/common";
 import { SHA256 } from 'crypto-js';
-import { Redirections } from "src/database/orm/redirections/redirections.entity";
-import { Requests } from "src/database/orm/requests/requests.entity";
-import { LoggerService } from "src/utils/logs.service";
+import { Redirections } from "../database/orm/redirections/redirections.entity";
+import { Requests } from "../database/orm/requests/requests.entity";
+import { LoggerService } from "../utils/logs.service";
 import { Repository } from "typeorm";
 
 @Controller(`:redirection`)
@@ -75,5 +75,4 @@ export class RedirectionsController {
             return { url: "/not-found", status: 404 };
         }
     }
-
 }

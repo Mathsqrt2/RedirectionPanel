@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { RedirectionsController } from "./redirections.controller";
-import { DatabaseModule } from "src/database/database.module";
-import { LoggerService } from "src/utils/logs.service";
+import { DatabaseModule } from "../database/database.module";
+import { LoggerService } from "../utils/logs.service";
 
 @Module({
     imports: [DatabaseModule],
