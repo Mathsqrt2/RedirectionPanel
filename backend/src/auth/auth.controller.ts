@@ -265,8 +265,8 @@ export class AuthController {
         }
     }
 
-    @UseGuards(StrictAuthGuard)
-    @Patch(`user/:id`)
+    @UseGuards(SoftAuthGuard)
+    @Patch(`update/user/:id`)
     async updateWholeUser(
         @Param(`id`) id: number,
         @Body() body: UpdateWholeUserDto,

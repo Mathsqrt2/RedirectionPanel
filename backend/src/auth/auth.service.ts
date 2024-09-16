@@ -653,11 +653,13 @@ export class AuthService {
                 return await this.sendVerificationEmail({ email: body.newEmail, id }, req);
             }
 
+            await this.users.save(user);
+
             return {
                 status: HttpStatus.ACCEPTED,
                 message: await this.logger.updated({
                     label: `User updated.`,
-                    description: `User ${1}`,
+                    description: `User with id: ${user.id} updated successfully. Request IP: "${req?.ip}". Time: ${new Date().toLocaleString('pl-PL')}. `,
                     startTime,
                 })
             }

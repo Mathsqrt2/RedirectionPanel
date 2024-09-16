@@ -74,7 +74,7 @@ export class ChangePasswordComponent implements OnInit {
       const { password, newPassword, confirmPassword } = this.changePasswordForm.value;
       const body = { password, newPassword, confirmPassword };
 
-      const response = await this.usersService.changeCurrentUserPassword(body);
+      const response = await this.usersService.changeUserPassword(body);
       this.unauthorizedResponse = !response;
       this.changePasswordForm.reset();
     }

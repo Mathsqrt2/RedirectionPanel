@@ -9,7 +9,7 @@ import { Router } from "@angular/router";
 export class UsersService {
 
     private domain: string = `http://localhost:3000`;
-    private targetUrl: string = `${this.domain}/api`;
+    private api: string = `${this.domain}/api`;
     private currentUser: BehaviorSubject<User> = new BehaviorSubject<User>({} as User);
     public users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
 
@@ -31,7 +31,7 @@ export class UsersService {
     private getUsersList = async (): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.get(`${this.targetUrl}/users`, { withCredentials: true }).pipe(first())
+                this.http.get(`${this.api}/users`, { withCredentials: true }).pipe(first())
                     .subscribe(
                         (response: UsersResponse) => {
                             this.users.next(response.content);
@@ -60,7 +60,7 @@ export class UsersService {
             try {
                 const currentUser = this.currentUser.getValue();
 
-                this.http.get(`${this.targetUrl}/auth/currentuser/${currentUser.id}`,
+                this.http.get(`${this.api}/auth/currentuser/${currentUser.id}`,
                     { withCredentials: true })
                     .pipe(first())
                     .subscribe(
@@ -91,7 +91,7 @@ export class UsersService {
     public setUserPermissions = async (permissions: Permissions, id?: number): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/permissions`, { ...permissions, userId: id || this.currentUser.getValue().id }, { withCredentials: true })
+                this.http.patch(`${this.api}/auth/permissions`, { ...permissions, userId: id || this.currentUser.getValue().id }, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: { status: number, message: string }) => {
@@ -119,9 +119,9 @@ export class UsersService {
         })
     }
 
-    public changeCurrentUserPassword = async (body: ChangePasswordProps): Promise<boolean> => {
+    public changeUserPassword = async (body: ChangePasswordProps): Promise<boolean> => {
         return new Promise(resolve => {
-            this.http.patch(`${this.targetUrl}/auth/password`, { ...body, userId: this.currentUser.getValue().id }, { withCredentials: true })
+            this.http.patch(`${this.api}/auth/password`, { ...body, userId: this.currentUser.getValue().id }, { withCredentials: true })
                 .pipe(first())
                 .subscribe(
                     (response: { status: number, message: string }) => {
@@ -142,7 +142,7 @@ export class UsersService {
         return new Promise(resolve => {
             try {
                 const user = this.currentUser.getValue();
-                this.http.patch(`${this.targetUrl}/auth/deactivate/user/${body.id ? body.id : user.id}`, body, { withCredentials: true })
+                this.http.patch(`${this.api}/auth/deactivate/user/${body.id ? body.id : user.id}`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(({ status }: { status: number }) => {
                         if (status === 202) {
@@ -169,12 +169,12 @@ export class UsersService {
     public sendVerificationEmail = async (body: { id: number, email: string }): Promise<boolean> => {
         return new Promise(async resolve => {
             try {
-                this.http.post(`${this.targetUrl}/auth/getverificationemail`, body, { withCredentials: true })
+                this.http.post(`${this.api}/auth/getverificationemail`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: { status: number, message: string }) => {
                             if (response.status === 200) {
-                                this.http.patch(`${this.targetUrl}/auth/update/email/${body.id}`,
+                                this.http.patch(`${this.api}/auth/update/email/${body.id}`,
                                     { emailSent: true },
                                     { withCredentials: true })
                                     .pipe(first())
@@ -200,7 +200,7 @@ export class UsersService {
     public updateEmailSentStatus = async (status: boolean): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/emailstatus/${this.currentUser.getValue().id}`,
+                this.http.patch(`${this.api}/auth/emailstatus/${this.currentUser.getValue().id}`,
                     { emailSent: status },
                     { withCredentials: true })
                     .pipe(first())
@@ -221,7 +221,7 @@ export class UsersService {
     public updateEmailValue = async (values: { newEmail?: string, emailSent: boolean }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/update/email/${this.currentUser.getValue().id}`, values, { withCredentials: true })
+                this.http.patch(`${this.api}/auth/update/email/${this.currentUser.getValue().id}`, values, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         ((response: { status: number, message: string }) => {
@@ -243,7 +243,7 @@ export class UsersService {
     public removeEmailValue = async (body: { password: string }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.patch(`${this.targetUrl}/auth/remove/email/${this.currentUser.getValue().id}`, body, { withCredentials: true })
+                this.http.patch(`${this.api}/auth/remove/email/${this.currentUser.getValue().id}`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: { status: number, message?: string }) => {
@@ -264,7 +264,7 @@ export class UsersService {
     public checkIfActiveCodeExists = async (): Promise<Code> => {
         return new Promise(resolve => {
             try {
-                this.http.get(`${this.targetUrl}/auth/activecode/${this.currentUser.getValue().id}`,
+                this.http.get(`${this.api}/auth/activecode/${this.currentUser.getValue().id}`,
                     { withCredentials: true })
                     .pipe(first())
                     .subscribe(
@@ -288,7 +288,7 @@ export class UsersService {
     public verifyByRequest = async (code: number): Promise<boolean> => {
         return new Promise(resolve => {
             try {
-                this.http.get(`${this.targetUrl}/auth/verifybyrequest/${code}`, { withCredentials: true })
+                this.http.get(`${this.api}/auth/verifybyrequest/${code}`, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: EmailCheck) => {
@@ -308,7 +308,7 @@ export class UsersService {
     public createUserInPanel = async (body: NewUserBody): Promise<boolean> => {
         return new Promise(async resolve => {
             try {
-                this.http.post(`${this.targetUrl}/auth`, body, { withCredentials: true })
+                this.http.post(`${this.api}/auth`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
                         (response: { status: number, content: User }) => {
@@ -321,6 +321,33 @@ export class UsersService {
             }
         })
     }
+
+    public updateWholeUser = async (body: UpdateUserBody): Promise<boolean> => {
+        return new Promise(resolve => {
+            try {
+                this.http.patch(`${this.api}/auth/update/user/${body.id}`, body, { withCredentials: true })
+                    .pipe(first())
+                    .subscribe(async ({ status }: { status: number }) => {
+                        if (status === 202) {
+                            await this.updateUsersList();
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    })
+            } catch (err) {
+                resolve(false);
+            }
+        })
+    }
+}
+
+export type UpdateUserBody = {
+    adminToken: string,
+    id: number,
+    newLogin?: string,
+    newPassword?: string,
+    newEmail?: string,
 }
 
 type UsersResponse = {

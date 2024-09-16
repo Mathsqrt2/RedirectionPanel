@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { User, UsersService } from '../../../services/users.service';
+import { UpdateUserBody, User, UsersService } from '../../../services/users.service';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -42,6 +42,9 @@ export class UserBarComponent implements OnInit {
 
   protected onEdit = async (): Promise<void> => {
     this.editMode = true;
+    this.loginInput = this.user.login;
+    this.passwordInput = this.user.password;
+    this.emailInput = this.user.email ? this.user.email : 'none';
   }
 
   protected onRejectEdit = async (): Promise<void> => {
@@ -58,7 +61,25 @@ export class UserBarComponent implements OnInit {
 
     const confirmEdit = window.confirm(`This action is permanent, are you sure?`);
 
+    const body: UpdateUserBody = {
+      adminToken: this.usersService.getCurrentUser().getValue().accessToken,
+      id: this.user.id,
+    };
+
+    if (this.loginInput !== this.user.login) {
+      body.newLogin = this.loginInput;
+    }
+
+    if (this.passwordInput !== this.user.password) {
+      body.newPassword = this.passwordInput;
+    }
+
+    if (this.emailInput !== this.user.email && this.emailInput !== 'none') {
+      body.newEmail = this.emailInput;
+    }
+
     if (confirmEdit) {
+      await this.usersService.updateWholeUser(body);
       this.editMode = false;
     }
   }
@@ -73,7 +94,7 @@ export class UserBarComponent implements OnInit {
   }
 
   protected onCopyToClipboard = (property?: Property): void => {
-    let response
+    let response;
     switch (property) {
       case 'id': response = `${this.user.id}`;
         break;
@@ -96,8 +117,7 @@ export class UserBarComponent implements OnInit {
 
     if ((this.loginInput !== this.user.login
       || this.passwordInput !== this.user.password
-      || this.emailInput !== this.user.email
-      || this.emailSentInput !== this.user.emailSent)
+      || this.emailInput !== this.user.email)
     ) {
       if (users.findIndex((r: User) => r.id === this.user.id) < 0) {
         users = [...users, this.user];
@@ -121,7 +141,6 @@ export class UserBarComponent implements OnInit {
 
     const { canCreate, canUpdate, canDelete, canManage } = this.permissionsForm.value;
     const permissions = { canCreate, canUpdate, canDelete, canManage };
-    console.log(permissions);
 
     if (confirm) {
       await this.usersService.setUserPermissions(permissions, this.user.id);
