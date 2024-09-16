@@ -1,14 +1,14 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { User, UsersService } from '../../../services/users.service';
-import { FormGroup } from '@angular/forms';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: '[user-bar]',
   templateUrl: './user-bar.component.html',
   styleUrls: ['./user-bar.component.scss', '../../manage-redirections/manage-redirections.component.scss']
 })
-export class UserBarComponent implements OnChanges, OnInit {
+export class UserBarComponent implements OnInit {
 
   @Input('user') protected user: UserFromResponse;
   @Input('index') protected index: number;
@@ -22,6 +22,7 @@ export class UserBarComponent implements OnChanges, OnInit {
   protected passwordInput: string;
   protected emailInput: string;
   protected emailSentInput: boolean;
+  protected permissionsForm: FormGroup;
 
   protected editMode: boolean = false;
 
@@ -30,15 +31,13 @@ export class UserBarComponent implements OnChanges, OnInit {
     private readonly usersService: UsersService,
   ) { }
 
-  public ngOnChanges(changes: SimpleChanges): void {
-
-  }
-
   public ngOnInit(): void {
-    this.canCreate = this.user.canCreate;
-    this.canUpdate = this.user.canUpdate;
-    this.canDelete = this.user.canDelete;
-    this.canManage = this.user.canManage;
+    this.permissionsForm = new FormGroup({
+      canCreate: new FormControl(this.user.canCreate, [Validators.required]),
+      canUpdate: new FormControl(this.user.canUpdate, [Validators.required]),
+      canDelete: new FormControl(this.user.canDelete, [Validators.required]),
+      canManage: new FormControl(this.user.canManage, [Validators.required]),
+    })
   }
 
   protected onEdit = async (): Promise<void> => {
@@ -57,13 +56,15 @@ export class UserBarComponent implements OnChanges, OnInit {
 
   protected onConfirmEdit = async (): Promise<void> => {
 
+    const confirmEdit = window.confirm(`This action is permanent, are you sure?`);
+    this.editMode = false;
   }
 
   protected onDelete = async (): Promise<void> => {
 
-    const confirmDelete = window.confirm(`This action is permanent, are you sure?`)
+    const confirmDelete = window.confirm(`This action is permanent, are you sure?`);
     if (confirmDelete) {
-
+      await this.usersService.deactivateUser({ id: this.user.id });
     }
 
   }
@@ -105,16 +106,23 @@ export class UserBarComponent implements OnChanges, OnInit {
     }
   }
 
-  protected onUpdatePermissions = async (): Promise<void> => {
-    
-    const permissions = {
-      canCreate: this.canCreate,
-      canUpdate: this.canUpdate,
-      canDelete: this.canDelete,
-      canManage: this.canManage,
+  protected onUpdatePermissions = async (mode?: string): Promise<void> => {
+
+    let confirm = true;
+    if (mode) {
+      confirm = window.confirm(`This change might be sensitive, Are you sure?`)
+      if (!confirm) {
+        this.permissionsForm.patchValue({ canManage: true });
+      }
     }
 
-    await this.usersService.setUserPermissions(permissions, this.user.id);
+    const { canCreate, canUpdate, canDelete, canManage } = this.permissionsForm.value;
+    const permissions = { canCreate, canUpdate, canDelete, canManage };
+    console.log(permissions);
+
+    if (confirm) {
+      await this.usersService.setUserPermissions(permissions, this.user.id);
+    }
   }
 
 }

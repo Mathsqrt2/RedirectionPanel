@@ -94,8 +94,8 @@ export class UsersService {
                     .subscribe(
                         (response: { status: number, message: string }) => {
                             if (response.status === 200) {
-                                if (!id) {
-                                    const user = this.currentUser.getValue();
+                                const user = this.currentUser.getValue();
+                                if (!id || id === user.id) {
                                     this.currentUser.next({ ...user, permissions });
 
                                     const accessToken = localStorage.getItem(`accessToken`);
@@ -136,11 +136,11 @@ export class UsersService {
         document.cookie = `${decodeURIComponent(name)}=;path=${path}; expires=Thu, 01 Jan 1970 00:00:00 UTC`;
     }
 
-    public deactivateCurrentUser = async (body: { login: string, password: string }): Promise<boolean> => {
+    public deactivateUser = async (body: { login?: string, password?: string, id?: number }): Promise<boolean> => {
         return new Promise(resolve => {
             try {
                 const user = this.currentUser.getValue();
-                this.http.patch(`${this.targetUrl}/auth/deactivate/user/${user.id}`, body, { withCredentials: true })
+                this.http.patch(`${this.targetUrl}/auth/deactivate/user/${body.id ? body.id : user.id}`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(({ status }: { status: number }) => {
                         if (status === 202) {

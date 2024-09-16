@@ -1,11 +1,13 @@
-import { IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class RemoveUserDto {
 
     @IsString()
-    login :string;
-
-    @IsString()
-    password: string;
+    @IsOptional()
+    login?: string;
     
+    @IsString()
+    @IsOptional()
+    password?: string;
+
 }

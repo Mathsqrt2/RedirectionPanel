@@ -252,9 +252,10 @@ export class AuthController {
     async deactivateUser(
         @Param(`id`) id: number,
         @Body() body: RemoveUserDto,
+        @Req() req: Request,
     ): Promise<RemoveUserResponse> {
         try {
-            return await this.authService.deactivateUser(id, body);
+            return await this.authService.deactivateUser(id, body, req);
         } catch (err) {
             console.log(`removeUser error:`, err);
             return {

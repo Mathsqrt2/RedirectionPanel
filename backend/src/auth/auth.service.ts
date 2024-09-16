@@ -730,42 +730,49 @@ export class AuthService {
 
     }
 
-    public deactivateUser = async (id: number, { password, login }: RemoveUserDto): Promise<RemoveUserResponse> => {
+    public deactivateUser = async (id: number, { password, login }: RemoveUserDto, req: Request): Promise<RemoveUserResponse> => {
 
         const startTime = Date.now();
 
         try {
+
+            const checkPermissions = JSON.parse(req?.cookies?.jwt);
+            const token = await this.jwtService.verifyAsync(checkPermissions.accessToken, { secret: config.secret });
+
+            const admin = await this.users.findOneBy({ id: token.sub });
             const user = await this.users.findOneBy({ id });
 
-            if (!user) {
-                throw new NotFoundException(`Login or password incorrect.`)
+            if (!admin.canManage) {
+
+                if (!user) {
+                    throw new NotFoundException(`User with id: ${id} doesn't exists.`);
+                }
+
+                if (user.login !== login) {
+                    throw new NotFoundException(`Login or password incorrect.`)
+                }
+
+                if (!this.comparePasswords(password, user.password)) {
+                    throw new UnauthorizedException(`Access denied.`);
+                }
             }
 
-            if (user.login !== login) {
-                throw new UnauthorizedException(`You're not allowed to manage users`);
-            }
-
-            if (this.comparePasswords(password, user.password)) {
-                await this.users.delete({ login: user.login });
-            } else {
-                throw new UnauthorizedException(`Access denied.`);
-            }
+            await this.users.delete({ login: user.login });
 
             return {
                 status: HttpStatus.ACCEPTED,
                 message: await this.logger.deleted({
                     label: `User removed.`,
-                    description: `User with login: "${user.login}" was removed. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    description: `User with login: "${user.login}" was removed. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime,
                 })
             }
         } catch (err) {
-
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: await this.logger.fail({
                     label: `Error while trying to remove user.`,
-                    description: `User with ID: "${id}" couldn't be removed. Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    description: `User with ID: "${id}" couldn't be removed. Request IP: ${req.ip}. Error: "${err}". Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime, err,
                 })
             }

@@ -35,10 +35,10 @@ export class ManagePermissionsComponent implements OnInit {
   public ngOnInit(): void {
     const { canUpdate, canDelete, canManage, canCreate } = this.currentUser?.permissions;
     this.permissionsForm = new FormGroup({
+      canCreate: new FormControl({ value: canCreate, disabled: !canManage }, [Validators.required]),
       canUpdate: new FormControl({ value: canUpdate, disabled: !canManage }, [Validators.required]),
       canDelete: new FormControl({ value: canDelete, disabled: !canManage }, [Validators.required]),
       canManage: new FormControl({ value: canManage, disabled: !canManage }, [Validators.required]),
-      canCreate: new FormControl({ value: canCreate, disabled: !canManage }, [Validators.required]),
     });
   }
 
@@ -52,8 +52,8 @@ export class ManagePermissionsComponent implements OnInit {
     }
 
     if (this.permissionsForm.status === 'VALID' && canContinue) {
-      const { canDelete, canUpdate, canCreate, canManage } = this.permissionsForm.value;
-      const body = { canDelete, canUpdate, canCreate, canManage };
+      const { canCreate, canUpdate, canDelete, canManage } = this.permissionsForm.value;
+      const body = { canCreate, canUpdate, canDelete, canManage };
 
       await this.usersService.setUserPermissions(body);
 

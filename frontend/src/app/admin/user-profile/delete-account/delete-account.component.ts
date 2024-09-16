@@ -42,7 +42,7 @@ export class DeleteAccountComponent {
                 login: this.deleteAccountForm.value.confirmDeleteWithLogin,
                 password: this.deleteAccountForm.value.confirmDeleteWithPassword,
             }
-            this.error = !await this.usersService.deactivateCurrentUser(body);
+            this.error = !await this.usersService.deactivateUser(body);
 
             this.deleteAccountForm.reset();
             if (!this.error) {

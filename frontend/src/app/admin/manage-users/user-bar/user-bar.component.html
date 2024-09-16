@@ -17,34 +17,35 @@
 </td>
 
 <td class="medium-col permissions">
-    <div class="row">
+    <form class="row" [formGroup]="permissionsForm">
         <div class="permissions-wrapper">
             <input type="checkbox" id="canCreate_{{user.id}}" name="canCreate_{{user.id}}" [checked]="user.canCreate"
-                [(ngModel)]="canCreate" (change)="onUpdatePermissions()" />
+                formControlName="canCreate" (change)="onUpdatePermissions()" />
             <label for="canCreate_{{user.id}}">cre</label>
         </div>
         <div class="permissions-wrapper">
             <input type="checkbox" id="canUpdate_{{user.id}}" name="canUpdate_{{user.id}}" [checked]="user.canUpdate"
-                [(ngModel)]="canUpdate" (change)="onUpdatePermissions()" />
+                formControlName="canUpdate" (change)="onUpdatePermissions()" />
             <label for="canUpdate_{{user.id}}">upd</label>
         </div>
         <div class="permissions-wrapper">
             <input type="checkbox" id="canDelete_{{user.id}}" name="canDelete_{{user.id}}" [checked]="user.canDelete"
-                [(ngModel)]="canDelete" (change)="onUpdatePermissions()" />
+                formControlName="canDelete" (change)="onUpdatePermissions()" />
             <label for="canDelete_{{user.id}}">del</label>
         </div>
         <div class="permissions-wrapper">
             <input type="checkbox" id="canManage_{{user.id}}" name="canManage_{{user.id}}" [checked]="user.canManage"
-                [(ngModel)]="canManage" (change)="onUpdatePermissions()" />
+                formControlName="canManage" (change)="onUpdatePermissions('canManage')" />
             <label for="canManage_{{user.id}}">man</label>
         </div>
-    </div>
+    </form>
 </td>
 
 <td class="medium-col">
     <span *ngIf="!editMode" class="copy" (click)="onCopyToClipboard('email')">{{user.email ? user.email :
         'none'}}</span>
-    <input *ngIf="editMode" type="text" (input)="refreshGuard()" [value]="user.email ? user.email : 'none'" class="edit" />
+    <input *ngIf="editMode" type="text" (input)="refreshGuard()" [value]="user.email ? user.email : 'none'"
+        class="edit" />
 </td>
 
 <td class="email-sent" (click)="onCopyToClipboard('emailSent')">
