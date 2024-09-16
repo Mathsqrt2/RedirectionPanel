@@ -1,7 +1,8 @@
 import { providers } from "../database/database.module";
 import { LoggerService } from "../utils/logs.service";
-import { CodeController } from "./code.controller";
-import { CodeService } from "./code.service";
+import { CodeService } from "../code/code.service";
+import { UserController } from "./user.controller";
+import { UserService } from "./user.service";
 import { JwtModule } from "@nestjs/jwt";
 import { Module } from "@nestjs/common";
 import config from "../config";
@@ -14,8 +15,13 @@ import config from "../config";
             signOptions: { expiresIn: '7d' },
         }),
     ],
-    controllers: [CodeController],
-    providers: [CodeService, LoggerService, ...providers],
+    controllers: [UserController],
+    providers: [
+        UserService,
+        CodeService,
+        LoggerService,
+        ...providers
+    ],
 })
 
-export class CodeModule { }
+export class UserModule { }

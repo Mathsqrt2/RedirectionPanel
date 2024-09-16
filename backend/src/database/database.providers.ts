@@ -38,7 +38,6 @@ export const databaseProviders = [
                     ],
                 });
                 await dataSource.initialize();
-                console.log('Database connected successfully');
                 return dataSource;
             } catch (error) {
                 console.log('Error connecting to database');

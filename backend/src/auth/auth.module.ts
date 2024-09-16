@@ -1,17 +1,15 @@
-import { Module } from "@nestjs/common";
-import { JwtModule } from "@nestjs/jwt";
-import { DatabaseModule } from "../database/database.module";
-import { AuthController } from "./auth.controller";
-import { AuthService } from "./auth.service";
-import config from "../config";
+import { providers } from "../database/database.module";
 import { LoggerService } from "../utils/logs.service";
+import { AuthController } from "./auth.controller";
 import { CodeService } from "../code/code.service";
-import { CodeModule } from "../code/code.module";
+import { AuthService } from "./auth.service";
+import { JwtModule } from "@nestjs/jwt";
+import { Module } from "@nestjs/common";
+import config from "../config";
+
 
 @Module({
     imports: [
-        CodeModule,
-        DatabaseModule,
         JwtModule.register({
             secret: config.secret,
             global: true,
@@ -19,7 +17,11 @@ import { CodeModule } from "../code/code.module";
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, LoggerService, CodeService],
+    providers: [
+        LoggerService,
+        AuthService,
+        CodeService,
+        ...providers],
     exports: [AuthService],
 })
 

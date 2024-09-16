@@ -1,24 +1,20 @@
 import {
-    CurrentUserResponse, LoginUserResponse, RegisterUserResponse,
-    DefaultResponse, UpdateUserResponse
+    DefaultResponse,
+    LoginUserResponse, RegisterUserResponse,
 } from '../../../types/response.types';
 import {
     BadRequestException, Body, Controller,
-    Get, HttpStatus, Param, Patch, Post,
-    Req, Res, UseGuards
+    HttpStatus, Post,
+    Req, Res,
+    UseGuards
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dtos/registerUser.dto';
 import { LoginUserDto } from './dtos/loginUser.dto';
-import { RemoveUserDto } from './dtos/removeUser.dto';
 import { Request, Response } from 'express';
-import { SoftAuthGuard, StrictAuthGuard } from './auth.guard';
-import { UpdatePswdDto } from './dtos/updatepswd.dto';
-import { UpdatePermissionsDto } from './dtos/updatePermissions.dto';
-import { UpdateStatusDto } from './dtos/updateEmailStatus.dto';
-import { RemoveEmailDto } from './dtos/removeEmail.dto';
-import { UpdateWholeUserDto } from './dtos/updateUser.dto';
 import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
+import { StrictAuthGuard } from './auth.guard';
+
 
 @Controller(`api/auth`)
 export class AuthController {
@@ -26,59 +22,7 @@ export class AuthController {
         private readonly authService: AuthService,
     ) { }
 
-    @UseGuards(SoftAuthGuard)
-    @Get('currentuser/:id')
-    async getCurrentUserData(
-        @Param(`id`) id: number,
-        @Req() req: Request
-    ): Promise<CurrentUserResponse> {
-        try {
-            return await this.authService.getCurrentUserData(id, req);
-        } catch (err) {
-            console.log('getCurrentUserData error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to retrieve current user data.`,
-            }
-        }
-    }
-
-    @UseGuards(StrictAuthGuard)
-    @Post(`create/user`)
-    async createUserByPanel(
-        @Body() body: CreateUserByPanelDto,
-        @Req() req: Request,
-    ): Promise<DefaultResponse> {
-        try {
-            return await this.authService.createUserByPanel(body, req);
-        } catch (err) {
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to create user.`
-            }
-        }
-    }
-
-    @Post(`register`)
-    async registerUser(
-        @Body() body: RegisterUserDto,
-        @Res({ passthrough: true }) response: Response,
-        @Req() req: Request,
-    ): Promise<RegisterUserResponse> {
-        try {
-            const newUser = await this.authService.registerUser({ ...body, req });
-            response.cookie('jwt', newUser.status, { httpOnly: true });
-            return newUser;
-        } catch (err) {
-            console.log(`registerUser error: `, err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to register new user.`,
-            }
-        }
-    }
-
-    @Post(`login`)
+    @Post(`signin`)
     async loginUser(
         @Body() body: LoginUserDto,
         @Res({ passthrough: true }) response: Response,
@@ -103,108 +47,38 @@ export class AuthController {
         }
     }
 
-    @UseGuards(SoftAuthGuard)
-    @Patch(`password`)
-    async updatePassword(
-        @Body() body: UpdatePswdDto,
+    @Post(`signup`)
+    async registerUser(
+        @Body() body: RegisterUserDto,
+        @Res({ passthrough: true }) response: Response,
+        @Req() req: Request,
+    ): Promise<RegisterUserResponse> {
+        try {
+            const newUser = await this.authService.registerUser({ ...body, req });
+            response.cookie('jwt', newUser.status, { httpOnly: true });
+            return newUser;
+        } catch (err) {
+            console.log(`registerUser error: `, err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Failed to register new user.`,
+            }
+        }
+    }
+
+    @UseGuards(StrictAuthGuard)
+    @Post(`create`)
+    async createUserByPanel(
+        @Body() body: CreateUserByPanelDto,
         @Req() req: Request,
     ): Promise<DefaultResponse> {
         try {
-            return await this.authService.updatePassword(body, req);
-        } catch (err) {
-            console.log('updatePassword error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to update password.`,
-            }
-        }
-    }
-
-    @UseGuards(SoftAuthGuard)
-    @Patch(`permissions`)
-    async updatePermissions(
-        @Body() body: UpdatePermissionsDto,
-        @Req() req: Request,
-    ): Promise<DefaultResponse> {
-        try {
-            return await this.authService.updatePermissions(body, req);
-        } catch (err) {
-            console.log('updatePermissions error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to update permissions.`,
-            }
-        }
-    }
-
-    @UseGuards(SoftAuthGuard)
-    @Patch(`update/email/:id`)
-    async updateEmailStatus(
-        @Param(`id`) id: number,
-        @Body() body: UpdateStatusDto,
-        @Req() req: Request,
-    ): Promise<DefaultResponse> {
-        try {
-            return await this.authService.updateEmailStatus(id, body, req);
-        } catch (err) {
-            console.log('updateEmailStatus error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to update email status.`,
-            }
-        }
-    }
-
-    @UseGuards(SoftAuthGuard)
-    @Patch(`remove/email/:id`)
-    async removeEmail(
-        @Param('id') id: number,
-        @Body() body: RemoveEmailDto,
-    ): Promise<DefaultResponse> {
-        try {
-            return await this.authService.removeEmail(id, body);
-        } catch (err) {
-            console.log(`removeEmail error: `, err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to remove email.`,
-            }
-        }
-    }
-
-    @UseGuards(SoftAuthGuard)
-    @Patch(`deactivate/user/:id`)
-    async deactivateUser(
-        @Param(`id`) id: number,
-        @Body() body: RemoveUserDto,
-        @Req() req: Request,
-    ): Promise<DefaultResponse> {
-        try {
-            return await this.authService.deactivateUser(id, body, req);
-        } catch (err) {
-            console.log(`removeUser error:`, err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to remove user.`,
-            }
-        }
-    }
-
-    @UseGuards(SoftAuthGuard)
-    @Patch(`update/user/:id`)
-    async updateWholeUser(
-        @Param(`id`) id: number,
-        @Body() body: UpdateWholeUserDto,
-        @Req() req: Request,
-    ): Promise<UpdateUserResponse> {
-        try {
-            return await this.authService.updateUser(id, body, req);
+            return await this.authService.createUserByPanel(body, req);
         } catch (err) {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to update user ${id}.`
+                message: `Failed to create user.`
             }
         }
     }
-
 }

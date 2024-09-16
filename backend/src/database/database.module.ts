@@ -10,7 +10,7 @@ import { codesProviders } from "../auth/orm/codes.providers";
 import { LoggerService } from "../utils/logs.service";
 
 
-const providers = [
+export const providers = [
     LoggerService,
     DatabaseService,
     ...databaseProviders,

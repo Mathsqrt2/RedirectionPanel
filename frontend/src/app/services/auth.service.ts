@@ -70,7 +70,7 @@ export class AuthService {
 
         return new Promise((resolve) => {
             if (!this.accessToken) {
-                this.http.post(`${this.api}/auth/login`, loginForm)
+                this.http.post(`${this.api}/auth/signin`, loginForm)
                     .pipe(first())
                     .subscribe(
                         (response: LoginResponse) => {
@@ -112,7 +112,7 @@ export class AuthService {
 
     public registerNewUser = async (body: RegisterProps): Promise<boolean> => {
         return new Promise((resolve) => {
-            this.http.post(`${this.api}/auth/register`, body)
+            this.http.post(`${this.api}/auth/signup`, body)
                 .pipe(first())
                 .subscribe({
                     next: (response: RegisterUserResponse) => {
