@@ -308,12 +308,16 @@ export class UsersService {
     public createUserInPanel = async (body: NewUserBody): Promise<boolean> => {
         return new Promise(async resolve => {
             try {
-                this.http.post(`${this.api}/auth`, body, { withCredentials: true })
+                this.http.post(`${this.api}/auth/create/user`, body, { withCredentials: true })
                     .pipe(first())
                     .subscribe(
-                        (response: { status: number, content: User }) => {
-                            const users = this.users.getValue();
-                            this.users.next([...users, response.content])
+                        async ({ status, content }: { status: number, content: User }) => {
+                            console.log(status);
+                            if (status === 200) {
+                                await this.updateUsersList();
+                            } else {
+                                resolve(false);
+                            }
                         }
                     )
             } catch (err) {

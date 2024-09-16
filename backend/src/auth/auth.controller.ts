@@ -119,7 +119,7 @@ export class AuthController {
     }
 
     @UseGuards(StrictAuthGuard)
-    @Post(`create`)
+    @Post(`create/user`)
     async createUserByPanel(
         @Body() body: CreateUserByPanelDto,
         @Req() req: Request,

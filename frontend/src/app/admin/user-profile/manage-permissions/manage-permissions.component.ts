@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { User, UsersService } from '../../../services/users.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
@@ -8,8 +8,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./manage-permissions.component.scss', './../user-profile.component.scss'],
 })
 export class ManagePermissionsComponent implements OnInit {
-
-  @Input(`baseUrl`) baseUrl: string;
 
   protected permissions: { key: string, value: string }[] = []
   protected currentUser: User;
@@ -33,7 +31,7 @@ export class ManagePermissionsComponent implements OnInit {
   }
 
   public ngOnInit(): void {
-    const { canUpdate, canDelete, canManage, canCreate } = this.currentUser?.permissions;
+    const { canCreate, canUpdate, canDelete, canManage } = this.currentUser?.permissions;
     this.permissionsForm = new FormGroup({
       canCreate: new FormControl({ value: canCreate, disabled: !canManage }, [Validators.required]),
       canUpdate: new FormControl({ value: canUpdate, disabled: !canManage }, [Validators.required]),

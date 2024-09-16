@@ -179,9 +179,9 @@ export class AuthService {
             }
 
             const permissions = {
-                canDelete: user.canDelete,
-                canUpdate: user.canUpdate,
                 canCreate: user.canCreate,
+                canUpdate: user.canUpdate,
+                canDelete: user.canDelete,
                 canManage: user.canManage,
             }
 
@@ -700,10 +700,10 @@ export class AuthService {
             }
 
             const instance = await this.users.save(newUser);
+
             if (body.email) {
                 const checkEmail = await this.users.findOneBy({ email: body.email });
-
-                if (checkEmail) {
+                if (!checkEmail) {
                     const email = await this.sendVerificationEmail({ email: body.email, id: instance.id }, req);
                     if (email.status === 200) {
                         await this.users.save({ ...instance, emailSent: true });

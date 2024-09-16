@@ -10,7 +10,7 @@
                         formControlName="login" />
                 </div>
                 <div class="control-group">
-                    <label for="">Password</label>
+                    <label for="password">Password</label>
                     <input type="password" class="input" id="password" name="password" placeholder="password"
                         formControlName="password">
                 </div>
@@ -32,8 +32,8 @@
                         formControlName="canManage">canManage</label>
             </div>
 
-            <div *ngIf="createNewUser.touched && !createNewUser.valid">
-                <span class="error-code"></span>
+            <div *ngIf="createUserError">
+                <span class="error-code"> Something went wrong, try again later.</span>
             </div>
 
             <input type="submit" value="CREATE" class="confirm" [disabled]="!createNewUser.valid" />

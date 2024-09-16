@@ -135,7 +135,7 @@ export class UserBarComponent implements OnInit {
     if (mode) {
       confirm = window.confirm(`This change might be sensitive, Are you sure?`)
       if (!confirm) {
-        this.permissionsForm.patchValue({ canManage: true });
+        this.permissionsForm.patchValue({ canManage: !this.permissionsForm.value.canManage });
       }
     }
 

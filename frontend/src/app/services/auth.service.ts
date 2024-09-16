@@ -1,7 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { UsersService } from "./users.service";
-import { Router } from "@angular/router";
 import { RegisterUserResponse } from "../../../../backend/src/auth/auth.types";
 import { first } from "rxjs/operators";
 
@@ -9,9 +8,13 @@ import { first } from "rxjs/operators";
 
 export class AuthService {
 
+    private domain: string = `http://localhost:3000`;
+    private api: string = `${this.domain}/api`;
+    private isLoggedIn: Boolean = false;
+    private accessToken: string | null = null;
+
     constructor(
         private readonly http: HttpClient,
-        private readonly router: Router,
         private readonly usersService: UsersService,
     ) {
 
@@ -30,15 +33,11 @@ export class AuthService {
                 this.setStatus(read.accessToken);
                 const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7);
                 localStorage.accessToken = JSON.stringify({ ...read, expireDate });
-                this.router.navigate(['/admin/users'])
             }
         }
     }
 
-    private domain: string = `http://localhost:3000`;
-    private baseUrl: string = `${this.domain}/api`;
-    private isLoggedIn: Boolean = false;
-    private accessToken: string | null = null;
+
 
     private setCookie = (name: string, value: string | number, expirationDays: number, path: string = "/"): void => {
         const date: Date = new Date((Date.now() + (1000 * 60 * 60 * 24 * expirationDays)));
@@ -72,7 +71,7 @@ export class AuthService {
 
         return new Promise((resolve) => {
             if (!this.accessToken) {
-                this.http.post(`${this.baseUrl}/auth/login`, loginForm)
+                this.http.post(`${this.api}/auth/login`, loginForm)
                     .pipe(first())
                     .subscribe({
                         next: (response: LoginResponse) => {
@@ -117,7 +116,7 @@ export class AuthService {
 
     public registerNewUser = async (body: RegisterProps): Promise<boolean> => {
         return new Promise((resolve) => {
-            this.http.post(`${this.baseUrl}/auth/register`, body)
+            this.http.post(`${this.api}/auth/register`, body)
                 .pipe(first())
                 .subscribe({
                     next: (response: RegisterUserResponse) => {
@@ -150,9 +149,9 @@ export class AuthService {
 }
 
 export type Permissions = {
-    canDelete: boolean,
-    canUpdate: boolean,
     canCreate: boolean,
+    canUpdate: boolean,
+    canDelete: boolean,
     canManage: boolean,
 }
 

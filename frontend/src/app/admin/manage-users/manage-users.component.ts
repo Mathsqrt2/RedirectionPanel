@@ -13,6 +13,7 @@ export class ManageUsersComponent implements CanComponentDeactivate {
 
   protected users: User[] = []
   protected createNewUser: FormGroup;
+  protected createUserError: boolean;
 
   constructor(
     private readonly canLeave: CanDeactivateService,
@@ -49,6 +50,6 @@ export class ManageUsersComponent implements CanComponentDeactivate {
   };
 
   protected onUserCreate = async (): Promise<void> => {
-
+    this.createUserError = await this.usersService.createUserInPanel(this.createNewUser.value);
   }
 }
