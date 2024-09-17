@@ -79,3 +79,7 @@ export type CurrentUserResponse = DefaultResponse & {
 export type ResponseWithCode = DefaultResponse & {
     content?: CodeWithoutDetails,
 }
+
+export type AvatarResponse = DefaultResponse & {
+    
+}

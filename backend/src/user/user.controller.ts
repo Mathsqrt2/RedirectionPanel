@@ -1,8 +1,12 @@
-import { CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
+import { AvatarResponse, CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
 import {
-    Body, Controller, Get, HttpStatus, Param,
-    Patch, Put, Req, UseGuards
+    Body, Controller, Delete, FileTypeValidator, Get,
+    HttpStatus, MaxFileSizeValidator, Param,
+    ParseFilePipe,
+    Patch, Post, Put, Req, UploadedFile, UseGuards,
+    UseInterceptors
 } from "@nestjs/common";
+import { diskStorage } from "multer";
 import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
 import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
 import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
@@ -12,6 +16,7 @@ import { RemoveUserDto } from "../auth/dtos/removeUser.dto";
 import { SoftAuthGuard } from "../auth/auth.guard";
 import { UserService } from "./user.service";
 import { Request } from "express";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller('/api/user')
 
@@ -34,6 +39,67 @@ export class UserController {
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Failed to retrieve current user data.`,
+            }
+        }
+    }
+
+    //@UseGuards(SoftAuthGuard)
+    @Get('avatar/:id')
+    async getAvatar(
+
+    ): Promise<AvatarResponse> {
+        try {
+
+        } catch (err) {
+            console.log('getAvatar error: ', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Failed to get avatar.`,
+            }
+        }
+    }
+    // new ParseFilePipe({
+    //     validators: [
+    //         new MaxFileSizeValidator({ maxSize: 24000 }),
+    //         new FileTypeValidator({ fileType: 'image/jpeg' }),
+    //     ]
+    // })
+    //@UseGuards(SoftAuthGuard)
+    @Post('avatar/:id')
+    @UseInterceptors(FileInterceptor(`image`, {
+        storage: diskStorage({
+            destination: `./uploads`,
+            filename: (req, file: Express.Multer.File, next) => {
+                next(null, `${file.originalname}`);
+            }
+        }),
+    }))
+    async setAvatar(
+        @Param('id') id: number,
+    ): Promise<DefaultResponse> {
+        try {
+            console.log('===>', id)
+        } catch (err) {
+            console.log('deleteAvatar error: ', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Failed to set avatar.`,
+            }
+        }
+    }
+
+    @UseGuards(SoftAuthGuard)
+    @Delete('avatar/:id')
+    async deleteAvatar(
+
+    ): Promise<DefaultResponse> {
+        try {
+            return
+        } catch (err) {
+            console.log('deleteAvatar error: ', err);
+            return {
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Failed to delete avatar.`,
             }
         }
     }
