@@ -14,12 +14,16 @@
 
         <div class="image-side">
 
-            <div>
-                <form class="profilePicForm" >
-                    <input class="profilePicInput" type="file">
-                    <div class="imageWrapper">
-                        <img class="profile-pic" [src]="image ? image : ''" draggable="false" />
+            <div class="form-container">
+                <form class="profilePictureForm">
+                    <div class="profileElementWrapper options">
+                        <input type="button" [value]="image ? 'change' : 'set'" class="input button option" />
+                        <input type="button" *ngIf="image" value="delete" class="input button option" />
                     </div>
+                    <div class="profileElementWrapper profilePicture">
+                        <img [src]="image ? image : ''" draggable="false" />
+                    </div>
+                    <input #setProfilePicture type="file" placeholder="change" />
                 </form>
             </div>
 
