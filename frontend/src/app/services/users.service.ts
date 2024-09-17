@@ -100,6 +100,25 @@ export class UsersService {
         return this.currentUser;
     }
 
+    public getUserImage = async (): Promise<Blob> => {
+        return new Promise(async resolve => {
+            try {
+                this.http.get(`${this.api}/user/avatar/${this.currentUser.getValue().id}`, { withCredentials: true, responseType: 'blob' })
+                    .pipe(first())
+                    .subscribe({
+                        next: (response: Blob) => {
+                            resolve(response)
+                        },
+                        error: (err) => {
+                            resolve(null);
+                        }
+                    });
+            } catch (err) {
+                resolve(null);
+            }
+        });
+    }
+
     public setUserPermissions = async (permissions: Permissions, id?: number): Promise<boolean> => {
         return new Promise(resolve => {
             try {

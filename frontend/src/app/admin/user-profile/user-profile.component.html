@@ -15,7 +15,12 @@
         <div class="image-side">
 
             <div>
-                <img src="" />
+                <form class="profilePicForm" >
+                    <input class="profilePicInput" type="file">
+                    <div class="imageWrapper">
+                        <img class="profile-pic" [src]="image ? image : ''" draggable="false" />
+                    </div>
+                </form>
             </div>
 
             <hr />
@@ -32,7 +37,7 @@
             <app-email-delete [currentUser]="currentUser" *ngIf="currentUser.email && deleteProcess" />
 
             <hr />
-            
+
             <delete-account />
 
         </div>

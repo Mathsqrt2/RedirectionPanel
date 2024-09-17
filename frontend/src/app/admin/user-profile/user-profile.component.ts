@@ -14,6 +14,7 @@ export class UserProfileComponent implements CanComponentDeactivate {
   private domain: string = `http://localhost:3000`;
   protected baseUrl: string = `${this.domain}/api/auth`;
   protected currentUser: User;
+  protected image: any;
 
   protected changeProcess = false;
   protected deleteProcess = false;
@@ -32,6 +33,26 @@ export class UserProfileComponent implements CanComponentDeactivate {
       if (state) { this.usersService.deleteEmailProcess.next(false) };
       this.changeProcess = state;
     });
+
+    this.getImage();
+  }
+
+  private createImageFromBlob = (image: Blob) => {
+    let reader = new FileReader();
+    reader.addEventListener('load', () => {
+      this.image = reader.result;
+    }, false)
+
+    if (image) {
+      reader.readAsDataURL(image);
+    }
+  }
+
+  private getImage = async (): Promise<void> => {
+    const response = await this.usersService.getUserImage();
+    if (response) {
+      this.createImageFromBlob(response);
+    }
   }
 
   private confirm = (): boolean => {
