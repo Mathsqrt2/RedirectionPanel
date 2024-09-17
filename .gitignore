@@ -1,6 +1,7 @@
 dist
 tmp
-uploads
+files_queue
+avatars
 out-tsc
 bazel-out
 .vscode

@@ -81,5 +81,5 @@ export type ResponseWithCode = DefaultResponse & {
 }
 
 export type AvatarResponse = DefaultResponse & {
-    
+
 }

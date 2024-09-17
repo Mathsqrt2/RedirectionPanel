@@ -1,9 +1,12 @@
-import { AvatarResponse, CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
+import {
+    AvatarResponse, CurrentUserResponse,
+    DefaultResponse, UpdateUserResponse
+} from "types/response.types";
 import {
     Body, Controller, Delete, FileTypeValidator, Get,
     HttpStatus, MaxFileSizeValidator, Param,
     ParseFilePipe,
-    Patch, Post, Put, Req, UploadedFile, UseGuards,
+    Patch, Post, Put, Req, Res, UploadedFile, UseGuards,
     UseInterceptors
 } from "@nestjs/common";
 import { diskStorage } from "multer";
@@ -13,10 +16,12 @@ import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
 import { RemoveEmailDto } from "../auth/dtos/removeEmail.dto";
 import { UpdatePswdDto } from "../auth/dtos/updatepswd.dto";
 import { RemoveUserDto } from "../auth/dtos/removeUser.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { SoftAuthGuard } from "../auth/auth.guard";
 import { UserService } from "./user.service";
-import { Request } from "express";
-import { FileInterceptor } from "@nestjs/platform-express";
+import { Request, Response } from "express";
+import * as path from "node:path";
+import * as fs from "node:fs";
 
 @Controller('/api/user')
 
@@ -46,10 +51,13 @@ export class UserController {
     //@UseGuards(SoftAuthGuard)
     @Get('avatar/:id')
     async getAvatar(
-
+        @Param(`id`) id: string,
+        @Res() res: Response,
     ): Promise<AvatarResponse> {
         try {
-
+            res.sendFile(path.join(__dirname, `../../../../avatars/${id}`));
+            return { status: HttpStatus.OK };
+            // return await this.userService.getAvatar();
         } catch (err) {
             console.log('getAvatar error: ', err);
             return {
@@ -58,27 +66,32 @@ export class UserController {
             }
         }
     }
-    // new ParseFilePipe({
-    //     validators: [
-    //         new MaxFileSizeValidator({ maxSize: 24000 }),
-    //         new FileTypeValidator({ fileType: 'image/jpeg' }),
-    //     ]
-    // })
-    //@UseGuards(SoftAuthGuard)
+
+    // @UseGuards(SoftAuthGuard)
     @Post('avatar/:id')
     @UseInterceptors(FileInterceptor(`image`, {
         storage: diskStorage({
-            destination: `./uploads`,
+            destination: `./avatars`,
             filename: (req, file: Express.Multer.File, next) => {
-                next(null, `${file.originalname}`);
+                next(null, `${req.params.id}.jpg`);
             }
-        }),
+        })
     }))
     async setAvatar(
         @Param('id') id: number,
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                    new MaxFileSizeValidator({ maxSize: 24000000 }),
+                    new FileTypeValidator({ fileType: 'image/jpeg' }),
+                ]
+            })) image,
     ): Promise<DefaultResponse> {
         try {
-            console.log('===>', id)
+            return {
+                status: HttpStatus.OK,
+                message: `Avatar for user with ID: ${id} created successfully.`
+            }
         } catch (err) {
             console.log('deleteAvatar error: ', err);
             return {
@@ -88,7 +101,7 @@ export class UserController {
         }
     }
 
-    @UseGuards(SoftAuthGuard)
+    // @UseGuards(SoftAuthGuard)
     @Delete('avatar/:id')
     async deleteAvatar(
 

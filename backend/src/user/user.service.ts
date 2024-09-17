@@ -2,7 +2,7 @@ import {
     ConflictException, HttpStatus, Inject, Injectable,
     NotFoundException, UnauthorizedException
 } from "@nestjs/common";
-import { CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
+import { AvatarResponse, CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
 import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
 import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
 import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
