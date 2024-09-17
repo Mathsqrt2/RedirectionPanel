@@ -78,8 +78,9 @@ export type CurrentUserResponse = DefaultResponse & {
 
 export type ResponseWithCode = DefaultResponse & {
     content?: CodeWithoutDetails,
+
 }
-
-export type AvatarResponse = DefaultResponse & {
-
+export type AvatarResponse = {
+    status: HttpStatus.NOT_FOUND | HttpStatus.CREATED | HttpStatus.BAD_REQUEST | HttpStatus.INTERNAL_SERVER_ERROR | HttpStatus.OK,
+    message?: string,
 }

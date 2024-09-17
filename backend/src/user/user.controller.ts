@@ -48,16 +48,20 @@ export class UserController {
         }
     }
 
-    //@UseGuards(SoftAuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Get('avatar/:id')
     async getAvatar(
         @Param(`id`) id: string,
         @Res() res: Response,
     ): Promise<AvatarResponse> {
         try {
-            res.sendFile(path.join(__dirname, `../../../../avatars/${id}`));
-            return { status: HttpStatus.OK };
-            // return await this.userService.getAvatar();
+            const path_ = path.join(__dirname, `../../../../avatars/${id}.jpg`);
+            if (fs.existsSync(path_)) {
+                res.status(HttpStatus.OK).sendFile(path_);
+            } else {
+                console.log('nie istnieje');
+                res.status(HttpStatus.NOT_FOUND).json({ message: `avatar for user with ID: ${id} doesn't exist` })
+            }
         } catch (err) {
             console.log('getAvatar error: ', err);
             return {
@@ -67,7 +71,7 @@ export class UserController {
         }
     }
 
-    // @UseGuards(SoftAuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Post('avatar/:id')
     @UseInterceptors(FileInterceptor(`image`, {
         storage: diskStorage({
@@ -101,13 +105,20 @@ export class UserController {
         }
     }
 
-    // @UseGuards(SoftAuthGuard)
+    @UseGuards(SoftAuthGuard)
     @Delete('avatar/:id')
     async deleteAvatar(
-
+        @Param(`id`) id: number,
+        @Res() res: Response,
     ): Promise<DefaultResponse> {
         try {
-            return
+            const path_ = path.join(__dirname, `../../../../avatars/${id}.jpg`);
+            if (fs.existsSync(path_)) {
+                fs.unlinkSync(path_);
+                res.sendStatus(HttpStatus.OK);
+            } else {
+                res.sendStatus(HttpStatus.NOT_FOUND);
+            }
         } catch (err) {
             console.log('deleteAvatar error: ', err);
             return {

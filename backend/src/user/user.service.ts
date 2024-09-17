@@ -356,7 +356,7 @@ export class UserService {
             if (!admin.canManage) {
 
                 if (!user) {
-                    throw new NotFoundException(`User with id: ${id} doesn't exists.`);
+                    throw new NotFoundException(`User with id: ${id} doesn't exist.`);
                 }
 
                 if (user.login !== login) {
