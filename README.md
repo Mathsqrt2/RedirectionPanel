@@ -8,12 +8,12 @@ This repository is dedicated to my project for a panel used to manage URL redire
 
 ### Tech Stack
 
-- ** Angular 17: ** (A modern front-end framework for building dynamic, single-page web applications using TypeScript)
-- ** NestJS: ** (A scalable Node.js framework for building server-side applications)
-- ** Express: ** (A minimalistic and flexible Node.js web application framework for building APIs and web applications.)
-- ** TypeOrm: ** (An ORM for TypeScript and JavaScript that supports various databases, providing tools for object-relational mapping.)
-- ** MySql: ** (A widely-used open-source relational database management system known for its reliability and scalability.)
-- ** JWT: ** (JSON Web Token, a compact and secure method for transmitting information between parties, often used for authentication.)
+- **Angular 17:** (A modern front-end framework for building dynamic, single-page web applications using TypeScript)
+- **NestJS:** (A scalable Node.js framework for building server-side applications)
+- **Express:** (A minimalistic and flexible Node.js web application framework for building APIs and web applications.)
+- **TypeOrm:** (An ORM for TypeScript and JavaScript that supports various databases, providing tools for object-relational mapping.)
+- **MySql:** (A widely-used open-source relational database management system known for its reliability and scalability.)
+- **JWT:** (JSON Web Token, a compact and secure method for transmitting information between parties, often used for authentication.)
 
 ### Features
 
@@ -88,7 +88,7 @@ npm run panel
 7. email (text)
 8. jstimestamp (bigint(20))
 
-- logs
+##### logs
 
 1. id (int(11))
 2. label (text)
@@ -98,31 +98,40 @@ npm run panel
 6. timestamp (timestamp)
 7. jstimestamp (bigint(20))
 
-- redirections
-- 1. id (int(11))
-- 1. targetUrl (text)
-- 1. route (text)
-- 1. creationTime (timestamp)
-- 1. userId (int(11))
-- 1. category (text)
-- 1. jstimestamp (bigint(20))
+---
 
-- requests
-- 1. id (int(11))
-- 2. redirectionId (int(11))
-- 3. requestIp (int(11))
-- 4. requestTime (timestamp)
-- 5. jstimestamp (bigint(20))
+##### redirections
 
-- users
-- 1. id (int(11))
-- 1. login (text)
-- 1. password (text)
-- 1. canDelete (tinyint(1))
-- 1. canUpdate (tinyint(1))
-- 1. canCreate (tinyint(1))
-- 1. canManage (tinyint(1))
-- 1. creationTime (timestamp)
-- 1. email (text)
-- 1. emailSent (tinyint(1))
-- 1. jstimestamp (bigint(20))
+1. id (int(11))
+2. targetUrl (text)
+3. route (text)
+4. creationTime (timestamp)
+5. userId (int(11))
+6. category (text)
+7. jstimestamp (bigint(20))
+
+---
+
+##### requests
+
+1. id (int(11))
+2. redirectionId (int(11))
+3. requestIp (int(11))
+4. requestTime (timestamp)
+5. jstimestamp (bigint(20))
+
+---
+
+##### users
+
+1. id (int(11))
+2. login (text)
+3. password (text)
+4. canDelete (tinyint(1))
+5. canUpdate (tinyint(1))
+6. canCreate (tinyint(1))
+7. canManage (tinyint(1))
+8. creationTime (timestamp)
+9. email (text)
+10. emailSent (tinyint(1))
+11. jstimestamp (bigint(20))
