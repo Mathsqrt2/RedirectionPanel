@@ -4,13 +4,14 @@ import {
     VerifyEmailResponse
 } from "../../../../types/response.types";
 import {
-    User, ChangePasswordProps, Code,
+    User, ChangePasswordProps,
     NewUserBody, UpdateUserBody, Permissions
 } from "../../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
+import { AuthService } from "./auth.service";
 
 @Injectable()
 
@@ -168,8 +169,6 @@ export class UsersService {
                         if (status === 200) {
                             const users = this.users.getValue();
                             if (!body.id) {
-                                this.deleteCookie('jwt');
-                                localStorage.removeItem('accessToken');
                                 this.users.next([...users.filter((user_: User) => user_.id !== user.id)]);
                                 this.router.navigate(['/login']);
                             } else {

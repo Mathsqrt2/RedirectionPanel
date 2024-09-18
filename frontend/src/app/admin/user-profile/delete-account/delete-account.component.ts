@@ -3,6 +3,7 @@ import { UsersService } from "../../../services/users.service";
 import { User } from "../../../../../../types/property.types";
 import { Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
+import { AuthService } from "../../../services/auth.service";
 
 @Component({
     selector: 'delete-account',
@@ -22,6 +23,7 @@ export class DeleteAccountComponent {
     constructor(
         private readonly router: Router,
         private readonly usersService: UsersService,
+        private readonly auth: AuthService,
     ) {
 
     }
@@ -47,6 +49,7 @@ export class DeleteAccountComponent {
 
             this.deleteAccountForm.reset();
             if (!this.error) {
+                this.auth.logout();
                 this.router.navigate(['/login']);
             }
         } else {
