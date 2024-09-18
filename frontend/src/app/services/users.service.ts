@@ -21,8 +21,9 @@ export class UsersService {
     private currentUser: BehaviorSubject<User> = new BehaviorSubject<User>({} as User);
     public users: BehaviorSubject<User[]> = new BehaviorSubject<User[]>([]);
 
-    public deleteEmailProcess: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
-    public changeEmailProcess: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false)
+    public deleteEmailProcess: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    public changeEmailProcess: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    public pendingEmail: BehaviorSubject<string> = new BehaviorSubject<string>(null);
 
     constructor(
         private readonly http: HttpClient,
@@ -213,6 +214,7 @@ export class UsersService {
                     next: async (response: DefaultResponse) => {
                         if (response.status === 200) {
                             await this.setEmailStatus({ id: body.id, status: true });
+                            await this.updateCurrentUser();
                             resolve(true);
                         } else {
                             resolve(false);
@@ -225,7 +227,7 @@ export class UsersService {
 
     public updateEmailValue = async (values: { newEmail?: string, emailSent: boolean }): Promise<boolean> => {
         return new Promise(resolve => {
-            this.http.patch(`${this.api}/auth/update/email/${this.currentUser.getValue().id}`, values, { withCredentials: true })
+            this.http.patch(`${this.api}/user/status/${this.currentUser.getValue().id}`, values, { withCredentials: true })
                 .pipe(first())
                 .subscribe({
                     next: async (response: DefaultResponse) => {
@@ -261,7 +263,7 @@ export class UsersService {
         });
     }
 
-    public checkIfActiveCodeExists = async (): Promise<Code> => {
+    public checkIfActiveCodeExists = async (): Promise<boolean> => {
         return new Promise(resolve => {
             this.http.get(`${this.api}/code/user/${this.currentUser.getValue().id}`,
                 { withCredentials: true })
@@ -272,14 +274,15 @@ export class UsersService {
                             if (response.status === 200) {
                                 const code = response.content;
                                 if (Date.now() <= code.expireDate) {
-                                    resolve(code);
+                                    this.pendingEmail.next(code.email);
+                                    resolve(true);
                                 } else {
-                                    resolve(null);
+                                    resolve(false);
                                 }
                             } else {
-                                resolve(null);
+                                resolve(false);
                             }
-                        }, error: () => resolve(null)
+                        }, error: () => resolve(false)
                 });
         });
     }

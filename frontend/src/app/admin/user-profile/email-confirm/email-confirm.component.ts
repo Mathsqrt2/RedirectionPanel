@@ -24,12 +24,14 @@ export class EmailConfirmComponent implements OnInit {
     this.usersService.getCurrentUser().subscribe(async (state: User) => {
       this.currentUser = state
 
-      if (!this.codeChecked) {
-        const code = await this.usersService.checkIfActiveCodeExists();
+      if (!this.codeChecked && this.currentUser.emailSent) {
+        this.usersService.pendingEmail.subscribe(value => {
+          if (value) {
+            this.confirmEmailWithCodeForm.patchValue({ newEmail: value });
+          }
+        });
+        await this.usersService.checkIfActiveCodeExists();
         this.codeChecked = true;
-        if (code.email) {
-          this.confirmEmailWithCodeForm.patchValue({ newEmail: code.email });
-        }
       }
     });
   }
@@ -58,10 +60,17 @@ export class EmailConfirmComponent implements OnInit {
   }
 
   protected onCancel = async (): Promise<void> => {
-    this.usersService.changeEmailProcess.next(false);
-    const response = await this.usersService.updateEmailValue({ emailSent: false });
-    if (!response) {
-      this.usersService.changeEmailProcess.next(true);
+
+    const canCancel = window.confirm(`Are you sure, you want cancel?`);
+
+    if (canCancel) {
+      if (this.currentUser.emailSent) {
+        if (await this.usersService.updateEmailValue({ emailSent: false })) {
+          this.usersService.changeEmailProcess.next(false);
+        }
+      } else {
+        this.usersService.changeEmailProcess.next(false);
+      }
     }
   }
 }

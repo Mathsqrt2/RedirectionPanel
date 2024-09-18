@@ -66,7 +66,7 @@ export class EmailChangeComponent implements OnInit {
 
   public onSendVerificationCode = async (): Promise<void> => {
 
-    const canRemove = window.confirm(`This action will remove the existing email. Are you sure?`);
+
     this.usersService.changeEmailProcess.next(false);
 
     if (this.setNewEmailForm.status === 'VALID') {
@@ -75,28 +75,29 @@ export class EmailChangeComponent implements OnInit {
         email: this.setNewEmailForm.value.newEmail,
       }
 
-
       if (this.currentUser.email) {
+        const canRemove = window.confirm(`This action will remove the existing email. Are you sure?`);
         if (canRemove) {
-          this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
           await this.usersService.sendVerificationEmail(body);
+          this.usersService.pendingEmail.next(body.email);
+          this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
           this.setNewEmailForm.reset();
         }
       } else {
-        this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
         await this.usersService.sendVerificationEmail(body);
+        this.usersService.pendingEmail.next(body.email);
+        this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
         this.setNewEmailForm.reset();
       }
-
     }
   }
 
   protected onCancel = async (): Promise<void> => {
 
-    const canLeave = this.canLeave.getSubject('emailValidation').getValue();
+    const leaveLock = this.canLeave.getSubject('emailValidation').getValue();
 
     if (this.currentUser.email) {
-      if (canLeave) {
+      if (leaveLock) {
         const canCancel = window.confirm(`There are unsaved values, Are you sure?`);
         if (canCancel) {
           this.usersService.changeEmailProcess.next(false);
@@ -104,14 +105,12 @@ export class EmailChangeComponent implements OnInit {
       } else {
         this.usersService.changeEmailProcess.next(false);
       }
-
-      this.usersService.changeEmailProcess.next(false);
-    } else {
-      const response = await this.usersService.updateEmailValue({ emailSent: false });
-      if (response) {
+    } else if (this.currentUser.emailSent) {
+      if (await this.usersService.updateEmailValue({ emailSent: false })) {
         this.usersService.changeEmailProcess.next(false);
-        this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: false })
       }
+    } else {
+      this.usersService.changeEmailProcess.next(false);
     }
   }
 }
