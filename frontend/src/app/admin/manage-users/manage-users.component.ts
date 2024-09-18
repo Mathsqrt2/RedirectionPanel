@@ -2,7 +2,7 @@ import { CanComponentDeactivate, CanDeactivateService } from '../../services/can
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../services/users.service';
 import { User } from '../../../../../types/property.types';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
   templateUrl: './manage-users.component.html',
   styleUrls: ['./manage-users.component.scss', '../manage-redirections/manage-redirections.component.scss']
 })
-export class ManageUsersComponent implements CanComponentDeactivate {
+export class ManageUsersComponent implements CanComponentDeactivate, OnInit {
 
   protected users: User[] = []
   protected createNewUser: FormGroup;
@@ -31,6 +31,20 @@ export class ManageUsersComponent implements CanComponentDeactivate {
     })
     this.usersService.users.subscribe((state: User[]) => this.users = state);
     this.usersService.updateUsersList();
+  }
+
+  ngOnInit(): void {
+    this.createNewUser.valueChanges.subscribe((newState) => {
+
+      if (newState.login !== null && newState.login !== '' ||
+        newState.password !== null && newState.password !== '' ||
+        newState.email !== null && newState.email !== ''
+      ) {
+        this.canLeave.getSubject('createUser').next(true);
+      } else {
+        this.canLeave.getSubject('createUser').next(false);
+      }
+    });
   }
 
   private confirm = (): boolean => {
