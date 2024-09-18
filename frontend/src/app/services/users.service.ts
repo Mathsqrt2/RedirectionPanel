@@ -368,7 +368,6 @@ export class UsersService {
                 .pipe(first())
                 .subscribe({
                     next: (response: DefaultResponse) => {
-                        console.log('del', response)
                         if (response.status === 200) {
                             resolve(true);
                         } else {

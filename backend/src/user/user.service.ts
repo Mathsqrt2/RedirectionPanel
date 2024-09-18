@@ -2,7 +2,7 @@ import {
     ConflictException, HttpStatus, Inject, Injectable,
     NotFoundException, UnauthorizedException
 } from "@nestjs/common";
-import { AvatarResponse, CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
+import { CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
 import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
 import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
 import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
@@ -19,6 +19,8 @@ import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { SHA256 } from 'crypto-js';
 import config from "../config";
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 @Injectable()
 
@@ -369,6 +371,11 @@ export class UserService {
             }
 
             await this.users.delete({ login: user.login });
+            
+            const path_ = path.join(__dirname, `../../../../avatars/${user.id}.jpg`)
+            if(fs.existsSync(path_)){
+                fs.unlinkSync(path_);
+            }
 
             return {
                 status: HttpStatus.OK,
