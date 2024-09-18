@@ -15,6 +15,8 @@ This repository is dedicated to my project for a panel used to manage URL redire
 - **MySql:** (A widely-used open-source relational database management system known for its reliability and scalability.)
 - **JWT:** (JSON Web Token, a compact and secure method for transmitting information between parties, often used for authentication.)
 
+---
+
 ### Features
 
 #### Backend
@@ -36,6 +38,8 @@ This repository is dedicated to my project for a panel used to manage URL redire
 - Users are protected from losing input data through a CanDeactivateGuard on every form or edit form.
 - Users can view redirections, see the total number of clicks, and modify or delete them (if permitted). A panel for creating new redirections is visible only to users with the necessary permissions.
 
+---
+
 ### Database
 
 ##### codes
@@ -49,8 +53,6 @@ This repository is dedicated to my project for a panel used to manage URL redire
 7. email (text)
 8. jstimestamp (bigint(20))
 
----
-
 ##### logs
 
 1. id (int(11))
@@ -60,8 +62,6 @@ This repository is dedicated to my project for a panel used to manage URL redire
 5. duration (int(11))
 6. timestamp (timestamp)
 7. jstimestamp (bigint(20))
-
----
 
 ##### redirections
 
@@ -73,8 +73,6 @@ This repository is dedicated to my project for a panel used to manage URL redire
 6. category (text)
 7. jstimestamp (bigint(20))
 
----
-
 ##### requests
 
 1. id (int(11))
@@ -82,8 +80,6 @@ This repository is dedicated to my project for a panel used to manage URL redire
 3. requestIp (int(11))
 4. requestTime (timestamp)
 5. jstimestamp (bigint(20))
-
----
 
 ##### users
 
@@ -98,6 +94,8 @@ This repository is dedicated to my project for a panel used to manage URL redire
 9. email (text)
 10. emailSent (tinyint(1))
 11. jstimestamp (bigint(20))
+
+---
 
 ### Installation
 
