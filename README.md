@@ -36,48 +36,9 @@ This repository is dedicated to my project for a panel used to manage URL redire
 - Users are protected from losing input data through a CanDeactivateGuard on every form or edit form.
 - Users can view redirections, see the total number of clicks, and modify or delete them (if permitted). A panel for creating new redirections is visible only to users with the necessary permissions.
 
-### Installation
+### Database
 
-Clone the repository
-
-```bash
-git clone https://github.com/Mathsqrt2/RedirectionPanel.git
-
-```
-
-Create an .env file in backend folder and add the following variables
-
-```bash
-PORT=
-
-DBHOST=
-DBUSERNAME=
-DBPASSWORD=
-DATABASE=
-
-ORIGIN1=
-ORIGIN2=
-
-SECRET=
-SMTP_SERVICE=
-SMTP_HOST=
-SMTP_PORT=
-SMTP_SECURE=
-SMTP_PASS=
-SMTP_USER=
-
-```
-
-Then run the panel
-
-```bash
-cd redirectionpanel
-npm run panel
-```
-
-#### Database requirements
-
-- codes
+##### codes
 
 1. id (int(11))
 2. code (text)
@@ -87,6 +48,8 @@ npm run panel
 6. expireDate (bigint(20))
 7. email (text)
 8. jstimestamp (bigint(20))
+
+---
 
 ##### logs
 
@@ -135,3 +98,44 @@ npm run panel
 9. email (text)
 10. emailSent (tinyint(1))
 11. jstimestamp (bigint(20))
+
+### Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/Mathsqrt2/RedirectionPanel.git
+
+```
+
+Create an .env file in backend folder and add the following variables
+
+```bash
+PORT=
+
+DBHOST=
+DBUSERNAME=
+DBPASSWORD=
+DATABASE=
+
+ORIGIN1=
+ORIGIN2=
+
+SECRET=
+SMTP_SERVICE=
+SMTP_HOST=
+SMTP_PORT=
+SMTP_SECURE=
+SMTP_PASS=
+SMTP_USER=
+
+```
+
+Then run the panel
+
+```bash
+cd redirectionpanel
+npm run launch
+npm run frontend
+npm run backend
+```

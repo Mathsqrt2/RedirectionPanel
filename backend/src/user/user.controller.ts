@@ -22,6 +22,7 @@ import { UserService } from "./user.service";
 import { Request, Response } from "express";
 import * as path from "node:path";
 import * as fs from "node:fs";
+import { LoggerService } from "../utils/logs.service";
 
 @Controller('/api/user')
 
@@ -29,6 +30,7 @@ export class UserController {
 
     constructor(
         private readonly userService: UserService,
+        private readonly logger: LoggerService,
     ) { }
 
     @UseGuards(SoftAuthGuard)
@@ -52,21 +54,39 @@ export class UserController {
     @Get('avatar/:id')
     async getAvatar(
         @Param(`id`) id: string,
+        @Req() req: Request,
         @Res() res: Response,
     ): Promise<AvatarResponse> {
+        const startTime = Date.now();
         try {
             const path_ = path.join(__dirname, `../../../../avatars/${id}.jpg`);
             if (fs.existsSync(path_)) {
+                await this.logger.received({
+                    label: `Profile picture found.`,
+                    description: `Profile picture for user with id: ${id}. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime
+                })
                 res.status(HttpStatus.OK).sendFile(path_);
             } else {
-                console.log('nie istnieje');
-                res.status(HttpStatus.NOT_FOUND).json({ message: `avatar for user with ID: ${id} doesn't exist` })
+                const err = new Error('Image not found.');
+                res.status(HttpStatus.NOT_FOUND).json({
+                    status: HttpStatus.NOT_FOUND,
+                    message: await this.logger.fail({
+                        label: `Avatar doesn't exist`,
+                        description: `Image for userwith ID: ${id} doesn't exist. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                        startTime, err
+                    }),
+                })
             }
         } catch (err) {
             console.log('getAvatar error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to get avatar.`,
+                message: await this.logger.fail({
+                    label: `Avatar for user with ID: ${id} doesn't exist`,
+                    description: `Image for userwith ID: ${id} doesn't exist. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err,
+                }),
             }
         }
     }
@@ -83,6 +103,7 @@ export class UserController {
     }))
     async setAvatar(
         @Param('id') id: number,
+        @Req() req: Request,
         @UploadedFile(
             new ParseFilePipe({
                 validators: [
@@ -91,16 +112,25 @@ export class UserController {
                 ]
             })) image,
     ): Promise<DefaultResponse> {
+        const startTime = Date.now();
         try {
             return {
                 status: HttpStatus.OK,
-                message: `Avatar for user with ID: ${id} created successfully.`
+                message: await this.logger.created({
+                    label: `Avatar created successfully.`,
+                    description: `Avatar for user with ID: ${id} created successfully. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime,
+                })
             }
         } catch (err) {
             console.log('deleteAvatar error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to set avatar.`,
+                message: await this.logger.fail({
+                    label: `Failed to set avatar.`,
+                    description: `Failed to set avatar for user with ID: ${id}. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                }),
             }
         }
     }
@@ -109,21 +139,42 @@ export class UserController {
     @Delete('avatar/:id')
     async deleteAvatar(
         @Param(`id`) id: number,
+        @Req() req: Request,
         @Res() res: Response,
     ): Promise<DefaultResponse> {
+        const startTime = Date.now();
         try {
             const path_ = path.join(__dirname, `../../../../avatars/${id}.jpg`);
             if (fs.existsSync(path_)) {
                 fs.unlinkSync(path_);
-                res.sendStatus(HttpStatus.OK);
+                res.status(HttpStatus.OK).json({
+                    message: await this.logger.deleted({
+                        label: `Avatar removed.`,
+                        description: `Avatar of user with ID: ${id} removed successfully. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                        startTime
+                    }),
+                    status: HttpStatus.OK,
+                });
             } else {
-                res.sendStatus(HttpStatus.NOT_FOUND);
+                const err = new Error('Avatar not found.');
+                res.status(HttpStatus.NOT_FOUND).json({
+                    message: await this.logger.fail({
+                        label: `Avatar doesn't exist`,
+                        description: `Avatar for user with ID: ${id} doesn't exist. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                        startTime, err
+                    }),
+                    status: HttpStatus.NOT_FOUND,
+                });
             }
         } catch (err) {
             console.log('deleteAvatar error: ', err);
             return {
+                message: await this.logger.fail({
+                    label: `Failed to delete avatar.`,
+                    description: `Failed to delete avatar for user with ID: ${id}. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
+                    startTime, err
+                }),
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to delete avatar.`,
             }
         }
     }

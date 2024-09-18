@@ -15,16 +15,22 @@
         <div class="image-side">
 
             <div class="form-container">
-                <form class="profilePictureForm">
+                <form class="profilePictureForm" [formGroup]="imageForm">
                     <div class="profileElementWrapper options">
-                        <input type="button" [value]="image ? 'change' : 'set'" class="input button option" />
-                        <input type="button" *ngIf="image" value="delete" class="input button option" />
+                        <input type="button" [value]="image ? 'change' : 'set'" class="input button option"
+                            (click)="onSetImage()" />
+                        <input type="button" *ngIf="image" value="delete" class="input button option"
+                            (click)="onDeleteImage()" />
                     </div>
                     <div class="profileElementWrapper profilePicture">
                         <img [src]="image ? image : ''" draggable="false" />
                     </div>
-                    <input #setProfilePicture type="file" placeholder="change" />
+                    <input #setProfilePicture type="file" formControlName="image" />
                 </form>
+
+                <div *ngIf="imageError" class="error-code">
+                    Something went wrong.
+                </div>
             </div>
 
             <hr />

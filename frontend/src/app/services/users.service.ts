@@ -339,4 +339,46 @@ export class UsersService {
                 });
         });
     }
+
+    public setAvatar = async (image: File): Promise<boolean> => {
+
+        const body = new FormData();
+        body.append('image', image, image.name);
+        return new Promise(resolve => {
+            this.http.post(`${this.api}/user/avatar/${this.currentUser.getValue().id}`, body, { withCredentials: true, })
+                .pipe(first())
+                .subscribe({
+                    next: (response: DefaultResponse) => {
+                        if (response.status === 200) {
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    },
+                    error: () => {
+                        resolve(false);
+                    },
+                });
+        });
+    }
+
+    public deleteAvatar = async (): Promise<boolean> => {
+        return new Promise(resolve => {
+            this.http.delete(`${this.api}/user/avatar/${this.currentUser.getValue().id}`, { withCredentials: true })
+                .pipe(first())
+                .subscribe({
+                    next: (response: DefaultResponse) => {
+                        console.log('del', response)
+                        if (response.status === 200) {
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    },
+                    error: () => {
+                        resolve(false)
+                    },
+                });
+        });
+    }
 }
