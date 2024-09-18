@@ -45,7 +45,7 @@ git clone https://github.com/Mathsqrt2/RedirectionPanel.git
 
 ```
 
-Create an .env file and add the following variables
+Create an .env file in backend folder and add the following variables
 
 ```bash
 PORT=
@@ -74,3 +74,55 @@ Then run the panel
 cd redirectionpanel
 npm run panel
 ```
+
+#### Database requirements
+
+- codes
+
+1. id (int(11))
+2. code (text)
+3. userId (int(11))
+4. timestamp (timestamp)
+5. status (tinyint(1))
+6. expireDate (bigint(20))
+7. email (text)
+8. jstimestamp (bigint(20))
+
+- logs
+
+1. id (int(11))
+2. label (text)
+3. description (text)
+4. status (text)
+5. duration (int(11))
+6. timestamp (timestamp)
+7. jstimestamp (bigint(20))
+
+- redirections
+- 1. id (int(11))
+- 1. targetUrl (text)
+- 1. route (text)
+- 1. creationTime (timestamp)
+- 1. userId (int(11))
+- 1. category (text)
+- 1. jstimestamp (bigint(20))
+
+- requests
+- 1. id (int(11))
+- 2. redirectionId (int(11))
+- 3. requestIp (int(11))
+- 4. requestTime (timestamp)
+- 5. jstimestamp (bigint(20))
+
+- users
+- 1. id (int(11))
+- 1. login (text)
+- 1. password (text)
+- 1. canDelete (tinyint(1))
+- 1. canUpdate (tinyint(1))
+- 1. canCreate (tinyint(1))
+- 1. canManage (tinyint(1))
+- 1. creationTime (timestamp)
+- 1. email (text)
+- 1. emailSent (tinyint(1))
+- 1. jstimestamp (bigint(20))
