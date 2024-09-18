@@ -22,10 +22,10 @@ export class RedirectionsService {
 
     private fetchRedirections = async (): Promise<boolean> => {
         return new Promise(resolve => {
-            try {
-                this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true })
-                    .pipe(first())
-                    .subscribe(
+            this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true })
+                .pipe(first())
+                .subscribe({
+                    next:
                         (response: RedirectionsResponse) => {
                             if (response.status === 302) {
                                 this.redirections.next(response.content);
@@ -33,19 +33,18 @@ export class RedirectionsService {
                             } else {
                                 resolve(false);
                             }
-                        });
-            } catch (err) {
-                resolve(false);
-            }
+                        },
+                    error: () => resolve(false)
+                });
         });
     }
 
     private fetchRequests = async (): Promise<boolean> => {
         return new Promise(resolve => {
-            try {
-                this.http.get(`${this.baseUrl}/requests`, { withCredentials: true })
-                    .pipe(first())
-                    .subscribe(
+            this.http.get(`${this.baseUrl}/requests`, { withCredentials: true })
+                .pipe(first())
+                .subscribe({
+                    next:
                         (response: RequestResponse) => {
                             if (response.status === 302) {
                                 this.requests.next(response.content);
@@ -53,10 +52,9 @@ export class RedirectionsService {
                             } else {
                                 resolve(false);
                             }
-                        });
-            } catch (err) {
-                resolve(false);
-            }
+                        },
+                    error: () => resolve(false)
+                });
         });
     }
 
@@ -87,13 +85,11 @@ export class RedirectionsService {
 
     private fetchData = async (): Promise<boolean> => {
         return new Promise(async resolve => {
-            try {
-                await this.fetchRedirections();
-                await this.fetchRequests();
+            if (await this.fetchRedirections() && await this.fetchRequests()) {
                 this.assignValues();
                 this.findCategories(this.redirections.getValue());
                 resolve(true);
-            } catch (err) {
+            } else {
                 resolve(false);
             }
         });
@@ -105,54 +101,50 @@ export class RedirectionsService {
 
     public deleteRedirection = (index: number): Promise<boolean> => {
         return new Promise(resolve => {
-            try {
-                this.http.delete(`${this.baseUrl}/redirections/${index}`, { withCredentials: true })
-                    .pipe(first())
-                    .subscribe(
-                        ({ status }: DatabaseResponse) => {
-                            if (status === 200) {
-                                this.redirections.next([...this.redirections.getValue().filter(redirection => redirection.id !== index)]);
-                                this.findCategories(this.redirections.getValue());
-                                resolve(true);
-                            } else {
-                                resolve(false);
-                            }
-                        });
-            } catch (err) {
-                resolve(false);
-            }
+            this.http.delete(`${this.baseUrl}/redirections/${index}`, { withCredentials: true })
+                .pipe(first())
+                .subscribe({
+                    next: ({ status }: DatabaseResponse) => {
+                        if (status === 200) {
+                            this.redirections.next([...this.redirections.getValue().filter(redirection => redirection.id !== index)]);
+                            this.findCategories(this.redirections.getValue());
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    },
+                    error: () => resolve(false)
+                });
         });
     }
 
     public editRedirection = (redirection: Redirection): Promise<boolean> => {
         return new Promise(resolve => {
-            try {
-                this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true })
-                    .pipe(first())
-                    .subscribe(
-                        (response: DatabaseResponse) => {
-                            if (response.status === 200) {
-                                this.redirections.next([...this.redirections.getValue().map(
-                                    (r: Redirection) => redirection.id === r.id ? redirection : r)],
-                                );
-                                this.findCategories(this.redirections.getValue())
-                                resolve(true);
-                            } else {
-                                resolve(false);
-                            }
-                        });
-            } catch (err) {
-                resolve(false);
-            }
+            this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true })
+                .pipe(first())
+                .subscribe({
+                    next: (response: DatabaseResponse) => {
+                        if (response.status === 200) {
+                            this.redirections.next([...this.redirections.getValue().map(
+                                (r: Redirection) => redirection.id === r.id ? redirection : r)],
+                            );
+                            this.findCategories(this.redirections.getValue())
+                            resolve(true);
+                        } else {
+                            resolve(false);
+                        }
+                    },
+                    error: () => resolve(false)
+                });
         });
     }
 
     public createRedirection = (body: Redirection): Promise<boolean> => {
         return new Promise(resolve => {
-            try {
-                this.http.post(`${this.baseUrl}/redirections`, body, { withCredentials: true })
-                    .pipe(first())
-                    .subscribe(
+            this.http.post(`${this.baseUrl}/redirections`, body, { withCredentials: true })
+                .pipe(first())
+                .subscribe({
+                    next:
                         (response: DatabaseResponse) => {
                             if (response.status === 201) {
                                 this.redirections.next([...this.redirections.getValue(), response.content])
@@ -161,10 +153,9 @@ export class RedirectionsService {
                             } else {
                                 resolve(false);
                             }
-                        });
-            } catch (err) {
-                resolve(false);
-            }
+                        },
+                    error: () => resolve(false)
+                });
         });
     }
 }

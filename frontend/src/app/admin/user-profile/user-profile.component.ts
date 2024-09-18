@@ -1,7 +1,7 @@
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
 import { UsersService } from '../../services/users.service';
 import { User } from '../../../../../types/property.types';
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -10,6 +10,8 @@ import { Observable } from 'rxjs';
   styleUrl: './user-profile.component.scss'
 })
 export class UserProfileComponent implements CanComponentDeactivate {
+
+  @ViewChild('setProfilePic') setProfilePicRef: ElementRef;
 
   private domain: string = `http://localhost:3000`;
   protected baseUrl: string = `${this.domain}/api/auth`;
@@ -75,5 +77,9 @@ export class UserProfileComponent implements CanComponentDeactivate {
 
     return true;
   }
+
+  protected onSetImage = (): void => {
+    
+   }
 
 }

@@ -71,30 +71,33 @@ export class AuthService {
             if (!this.accessToken) {
                 this.http.post(`${this.api}/auth/signin`, loginForm)
                     .pipe(first())
-                    .subscribe(
-                        async (response: LoginResponse) => {
-                            if (response.status === 200) {
-                                this.setStatus(response?.accessToken);
-                                if (response?.accessToken) {
-                                    const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
-                                    localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+                    .subscribe({
+                        next:
+                            async (response: LoginResponse) => {
+                                if (response.status === 200) {
+                                    this.setStatus(response?.accessToken);
+                                    if (response?.accessToken) {
+                                        const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+                                        localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
-                                    this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                                    this.usersService.restoreCurrentUserData({
-                                        login: response.login,
-                                        permissions: response.permissions,
-                                        accessToken: response.accessToken,
-                                        id: response.userId,
-                                        email: response.email,
-                                        emailSent: response.emailSent,
-                                    });
-                                    await this.usersService.updateCurrentUser();
-                                    resolve(true)
+                                        this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+                                        this.usersService.restoreCurrentUserData({
+                                            login: response.login,
+                                            permissions: response.permissions,
+                                            accessToken: response.accessToken,
+                                            id: response.userId,
+                                            email: response.email,
+                                            emailSent: response.emailSent,
+                                        });
+                                        await this.usersService.updateCurrentUser();
+                                        resolve(true)
+                                    }
+                                } else {
+                                    resolve(false);
                                 }
-                            } else {
-                                resolve(false);
-                            }
-                        });
+                            },
+                        error: () => resolve(false)
+                    });
             } else {
                 resolve(true);
             }
@@ -109,10 +112,10 @@ export class AuthService {
 
     public registerNewUser = async (body: RegisterProps): Promise<boolean> => {
         return new Promise(resolve => {
-            try {
-                this.http.post(`${this.api}/auth/signup`, body)
-                    .pipe(first())
-                    .subscribe(
+            this.http.post(`${this.api}/auth/signup`, body)
+                .pipe(first())
+                .subscribe({
+                    next:
                         (response: RegisterUserResponse) => {
                             if (response.status === 200) {
                                 this.setStatus(response?.accessToken);
@@ -133,10 +136,9 @@ export class AuthService {
                             } else {
                                 resolve(false);
                             }
-                        });
-            } catch (err) {
-                resolve(false);
-            }
+                        },
+                    error: () => resolve(false)
+                });
         });
     }
 }

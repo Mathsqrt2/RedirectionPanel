@@ -49,10 +49,10 @@ export class LogsService {
             const downloadFilter = this.downloadFilter.getValue();
 
             const req = filter !== 'all' ? `status/${filter}` : ``;
-            try {
-                this.http.get(`${this.baseUrl}/logs/${req}${downloadFilter === 'all data' ? '' : this.getQuery(params)}`, { withCredentials: true })
-                    .pipe(first())
-                    .subscribe(
+            this.http.get(`${this.baseUrl}/logs/${req}${downloadFilter === 'all data' ? '' : this.getQuery(params)}`, { withCredentials: true })
+                .pipe(first())
+                .subscribe({
+                    next:
                         (response: LogResponse) => {
                             if (response.status === 302) {
                                 if (downloadFilter !== 'all data') {
@@ -74,10 +74,9 @@ export class LogsService {
                             } else {
                                 resolve(false);
                             }
-                        });
-            } catch (err) {
-                resolve(false);
-            }
+                        },
+                    error: () => resolve(false)
+                });
         });
     }
 }
