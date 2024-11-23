@@ -4,9 +4,11 @@ import { DatabaseModule } from './database/database.module';
 import { RedirectionsModule } from './redirections/redirections.module';
 import { CodeModule } from './code/code.module';
 import { UserModule } from './user/user.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     AuthModule,
     CodeModule,
     UserModule,

@@ -1,5 +1,4 @@
 import { DataSource } from "typeorm";
-import config from "../config";
 
 export const databaseProviders = [
     {
@@ -7,11 +6,11 @@ export const databaseProviders = [
         useFactory: async () => {
             const dataSource = new DataSource({
                 type: `mysql`,
-                host: config.database.host,
-                port: 3306,
-                username: config.database.username,
-                password: config.database.password,
-                database: config.database.database,
+                host: process.env.DBHOST,
+                port: process.env.DBPORT,
+                username: process.env.DBUSERNAME,
+                password: process.env.DBPASSWORD,
+                database: process.env.DATABASE,
                 entities: [
                     __dirname + `/../**/*.entity{.ts,.js}`,
                 ],
@@ -27,11 +26,11 @@ export const databaseProviders = [
             try {
                 const dataSource = new DataSource({
                     type: `mysql`,
-                    host: config.database.host,
-                    port: 3306,
-                    username: config.database.username,
-                    password: config.database.password,
-                    database: config.database.database,
+                    host: process.env.DBHOST,
+                    port: process.env.DBPORT,
+                    username: process.env.DBUSERNAME,
+                    password: process.env.DBPASSWORD,
+                    database: process.env.DATABASE,
                     synchronize: false,
                     entities: [
                         `${__dirname}/../**/**.entity{.ts,.js}`

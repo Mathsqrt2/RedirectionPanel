@@ -3,7 +3,6 @@ import {
     Injectable, UnauthorizedException
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import config from "../config";
 import { Users } from "../database/orm/users/users.entity";
 import { LoggerService } from "../utils/logs.service";
 import { Repository } from "typeorm";
@@ -33,7 +32,7 @@ export class SoftAuthGuard implements CanActivate {
         }
 
         try {
-            const payload = await this.jwtService.verifyAsync(token, { secret: config.secret });
+            const payload = await this.jwtService.verifyAsync(token, { secret: process.env.SECRET });
 
             if (!payload) {
                 throw new UnauthorizedException(`Invalid token.`);
@@ -95,7 +94,7 @@ export class StrictAuthGuard implements CanActivate {
         }
 
         try {
-            const payload = await this.jwtService.verifyAsync(token, { secret: config.secret });
+            const payload = await this.jwtService.verifyAsync(token, { secret: process.env.SECRET });
 
             if (!payload) {
                 throw new UnauthorizedException(`Invalid token.`);

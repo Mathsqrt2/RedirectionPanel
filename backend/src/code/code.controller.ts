@@ -5,7 +5,6 @@ import { CodesDto } from "../auth/dtos/codes.dto";
 import { CodeService } from "./code.service";
 import { HttpStatus } from "@nestjs/common";
 import { Request } from "express";
-import config from "../config";
 
 @Controller('api/code')
 
@@ -34,7 +33,7 @@ export class CodeController {
     }
 
     @Get(`confirm/:code`)
-    @Redirect(`${config.frontend.domain}/admin/profile`, 302)
+    @Redirect(`${process.env.ORIGIN2}/admin/profile`, 302)
     async receiveVerificationCodeFromEmail(
         @Param(`code`) code: string,
         @Req() req: Request,

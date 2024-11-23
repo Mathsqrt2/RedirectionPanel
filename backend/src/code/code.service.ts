@@ -8,7 +8,6 @@ import { Codes } from "../auth/orm/codes.entity";
 import * as nodemailer from 'nodemailer'
 import { Request } from "express";
 import { TransportDataType } from "types/property.types";
-import config from "../config";
 
 @Injectable()
 
@@ -127,13 +126,13 @@ export class CodeService {
 
 
         const options: nodemailer.TransportOptions & TransportDataType = {
-            host: config.mailer.host,
-            port: config.mailer.port,
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
             secure: false,
-            service: config.mailer.service,
+            service: process.env.SMTP_SERVICE,
             auth: {
-                user: config.mailer.user,
-                pass: config.mailer.pass,
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
             },
         };
 
@@ -151,7 +150,7 @@ export class CodeService {
             const text = `Your verification code is: ${code}.
                 It is active for one day and expires on ${(new Date(expireTime)).toLocaleDateString('pl-PL')}.
                 You can paste it in your profile or click the link
-                <a href=${config.backend.domain}/api/code/confirm/${code}>${config.backend.domain}/${code}</a>.`
+                <a href=${process.env.ORIGIN1}/api/code/confirm/${code}>${process.env.ORIGIN1}/${code}</a>.`
             let html = `<h1>You're welcome</h1>
                 <p>${text}</p>`;
 
@@ -171,7 +170,7 @@ export class CodeService {
             })
 
             await transport.sendMail({
-                from: config.mailer.user,
+                from: process.env.SMTP_USER,
                 to: email,
                 subject: 'Verification code in Redirection Panel Service.',
                 text: text,

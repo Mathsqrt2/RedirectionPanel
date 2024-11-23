@@ -18,7 +18,6 @@ import { User } from "types/property.types";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { SHA256 } from 'crypto-js';
-import config from "../config";
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -183,7 +182,7 @@ export class UserService {
         try {
 
             const checkPermissions = JSON.parse(req?.cookies?.jwt);
-            const token = await this.jwtService.verifyAsync(checkPermissions.accessToken, { secret: config.secret });
+            const token = await this.jwtService.verifyAsync(checkPermissions.accessToken, { secret: process.env.SECRET });
 
             const admin = await this.users.findOneBy({ id: token.sub });
             let user = await this.users.findOneBy({ id: body.userId });
@@ -291,7 +290,7 @@ export class UserService {
 
         try {
 
-            const payload = await this.jwtService.verifyAsync(body.adminToken, { secret: config.secret });
+            const payload = await this.jwtService.verifyAsync(body.adminToken, { secret: process.env.SECRET });
 
             if (!payload) {
                 throw new UnauthorizedException(`Invalid token.`);
@@ -350,7 +349,7 @@ export class UserService {
         try {
 
             const checkPermissions = JSON.parse(req?.cookies?.jwt);
-            const token = await this.jwtService.verifyAsync(checkPermissions.accessToken, { secret: config.secret });
+            const token = await this.jwtService.verifyAsync(checkPermissions.accessToken, { secret: process.env.SECRET });
 
             const admin = await this.users.findOneBy({ id: token.sub });
             const user = await this.users.findOneBy({ id });
@@ -371,9 +370,9 @@ export class UserService {
             }
 
             await this.users.delete({ login: user.login });
-            
+
             const path_ = path.join(__dirname, `../../../../avatars/${user.id}.jpg`)
-            if(fs.existsSync(path_)){
+            if (fs.existsSync(path_)) {
                 fs.unlinkSync(path_);
             }
 
