@@ -34,7 +34,7 @@ export class UserService {
         private readonly logger: LoggerService,
     ) { }
 
-    public getCurrentUserData = async (id: number, req: Request): Promise<CurrentUserResponse> => {
+    public findCurrentUserData = async (id: number, req: Request): Promise<CurrentUserResponse> => {
 
         const startTime = Date.now();
 

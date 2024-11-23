@@ -17,7 +17,7 @@ export class DatabaseController {
 
     @UseGuards(StrictAuthGuard)
     @Get(`/:endpoint`)
-    async getMultipleElements(
+    async findMultipleElements(
         @Param(`endpoint`) endpoint: string,
         @Query(`maxCount`) maxCount?: number,
         @Query(`offset`) offset?: number,
@@ -25,10 +25,13 @@ export class DatabaseController {
         @Query(`maxDate`) maxDate?: string,
     ): Promise<DatabaseResponse> {
         try {
+
             const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }
-            return await this.database.getMultipleElements({ endpoint, conditions });
+            return await this.database.findMultipleElements({ endpoint, conditions });
+        
         } catch (err) {
-            console.log(`getMultipleElements error: `, err);
+       
+            console.log(`findMultipleElements error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Failed to retrieve multiple elements from: "${endpoint}".`,
@@ -38,14 +41,14 @@ export class DatabaseController {
 
     @UseGuards(StrictAuthGuard)
     @Get(`/:endpoint/:id`)
-    async getSingleElementById(
+    async findSingleElementById(
         @Param(`endpoint`) endpoint: string,
         @Param(`id`) id: number,
     ): Promise<DatabaseResponse> {
         try {
-            return await this.database.getSingleElementById({ endpoint, id })
+            return await this.database.findSingleElementById({ endpoint, id })
         } catch (err) {
-            console.log(`getElementById error: `, err);
+            console.log(`findElementById error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Failed to retrieve element from: "${endpoint}", with ID: "${id}".`,
@@ -55,7 +58,7 @@ export class DatabaseController {
 
     @UseGuards(StrictAuthGuard)
     @Get(`/:endpoint/:param/:value`)
-    async getMultipleElementsByParam(
+    async findMultipleElementsByParam(
         @Param(`endpoint`) endpoint: string,
         @Param(`param`) param: string,
         @Param(`value`) value: string | number,
@@ -66,9 +69,9 @@ export class DatabaseController {
     ): Promise<DatabaseResponse> {
         try {
             const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }
-            return await this.database.getMultipleElementsByParam({ endpoint, param, value, conditions });
+            return await this.database.findMultipleElementsByParam({ endpoint, param, value, conditions });
         } catch (err) {
-            console.log(`getMultipleElementsByParam error: `, err);
+            console.log(`findMultipleElementsByParam error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Failed to retrieve multiple elements from: "${endpoint}", by "{${param}:${value}}".`,

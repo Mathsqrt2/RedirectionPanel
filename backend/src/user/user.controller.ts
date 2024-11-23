@@ -35,14 +35,14 @@ export class UserController {
 
     @UseGuards(SoftAuthGuard)
     @Get(':id')
-    async getCurrentUserData(
+    async findCurrentUserData(
         @Param(`id`) id: number,
         @Req() req: Request
     ): Promise<CurrentUserResponse> {
         try {
-            return await this.userService.getCurrentUserData(id, req);
+            return await this.userService.findCurrentUserData(id, req);
         } catch (err) {
-            console.log('getCurrentUserData error: ', err);
+            console.log('findCurrentUserData error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Failed to retrieve current user data.`,
@@ -52,22 +52,27 @@ export class UserController {
 
     @UseGuards(SoftAuthGuard)
     @Get('avatar/:id')
-    async getAvatar(
+    async findAvatar(
         @Param(`id`) id: string,
         @Req() req: Request,
         @Res() res: Response,
     ): Promise<AvatarResponse> {
         const startTime = Date.now();
+
         try {
+
             const path_ = path.join(__dirname, `../../../../avatars/${id}.jpg`);
             if (fs.existsSync(path_)) {
+
                 await this.logger.received({
                     label: `Profile picture found.`,
                     description: `Profile picture for user with id: ${id}. Request IP: ${req.ip}. Time: ${new Date().toLocaleString('pl-PL')}.`,
                     startTime
                 })
                 res.status(HttpStatus.OK).sendFile(path_);
+
             } else {
+
                 const err = new Error('Image not found.');
                 res.status(HttpStatus.NOT_FOUND).json({
                     status: HttpStatus.NOT_FOUND,
@@ -77,9 +82,12 @@ export class UserController {
                         startTime, err
                     }),
                 })
+
             }
+
         } catch (err) {
-            console.log('getAvatar error: ', err);
+
+            console.log('findAvatar error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: await this.logger.fail({
@@ -88,6 +96,7 @@ export class UserController {
                     startTime, err,
                 }),
             }
+
         }
     }
 
@@ -114,6 +123,7 @@ export class UserController {
     ): Promise<DefaultResponse> {
         const startTime = Date.now();
         try {
+
             return {
                 status: HttpStatus.OK,
                 message: await this.logger.created({
@@ -122,7 +132,9 @@ export class UserController {
                     startTime,
                 })
             }
+
         } catch (err) {
+
             console.log('deleteAvatar error: ', err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -132,6 +144,7 @@ export class UserController {
                     startTime, err
                 }),
             }
+
         }
     }
 
@@ -144,6 +157,7 @@ export class UserController {
     ): Promise<DefaultResponse> {
         const startTime = Date.now();
         try {
+
             const path_ = path.join(__dirname, `../../../../avatars/${id}.jpg`);
             if (fs.existsSync(path_)) {
                 fs.unlinkSync(path_);
@@ -155,7 +169,9 @@ export class UserController {
                     }),
                     status: HttpStatus.OK,
                 });
+
             } else {
+
                 const err = new Error('Avatar not found.');
                 res.status(HttpStatus.NOT_FOUND).json({
                     message: await this.logger.fail({
@@ -165,8 +181,10 @@ export class UserController {
                     }),
                     status: HttpStatus.NOT_FOUND,
                 });
+
             }
         } catch (err) {
+
             console.log('deleteAvatar error: ', err);
             return {
                 message: await this.logger.fail({
@@ -176,6 +194,7 @@ export class UserController {
                 }),
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
             }
+
         }
     }
 

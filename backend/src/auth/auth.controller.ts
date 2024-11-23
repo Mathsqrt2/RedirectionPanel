@@ -28,22 +28,22 @@ export class AuthController {
         @Res({ passthrough: true }) response: Response,
         @Req() req: Request,
     ): Promise<LoginUserResponse> {
-        try {
 
-            if (!body.login || !body.password) {
-                throw new BadRequestException();
-            }
+        if (!body.login || !body.password) {
+            throw new BadRequestException();
+        }
+
+        try {
 
             const accessToken = await this.authService.loginUser({ ...body, req })
             response.cookie('jwt', accessToken, { httpOnly: true });
             return accessToken;
 
         } catch (err) {
+
             console.log(`loginUser error: `, err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to log in.`,
-            }
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: `Failed to log in.` }
+
         }
     }
 
@@ -54,15 +54,16 @@ export class AuthController {
         @Req() req: Request,
     ): Promise<RegisterUserResponse> {
         try {
+
             const newUser = await this.authService.registerUser({ ...body, req });
             response.cookie('jwt', newUser.status, { httpOnly: true });
             return newUser;
+
         } catch (err) {
+
             console.log(`registerUser error: `, err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to register new user.`,
-            }
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: `Failed to register new user.` }
+
         }
     }
 
@@ -73,12 +74,13 @@ export class AuthController {
         @Req() req: Request,
     ): Promise<DefaultResponse> {
         try {
+
             return await this.authService.createUserByPanel(body, req);
+
         } catch (err) {
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to create user.`
-            }
+
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: `Failed to create user.` }
+
         }
     }
 }

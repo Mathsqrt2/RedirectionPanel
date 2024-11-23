@@ -17,52 +17,54 @@ export class CodeController {
 
     @UseGuards(SoftAuthGuard)
     @Get('user/:userid')
-    async getActiveCode(
+    async findActiveCode(
         @Param(`userid`) id: number,
         @Req() req: Request
     ): Promise<ResponseWithCode> {
         try {
-            return await this.codeService.getActiveCode(id, req);
+
+            return await this.codeService.findActiveCode(id, req);
+
         } catch (err) {
-            console.log('getActiveCode error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to retrieve active code.`,
-            }
+
+            console.log('findActiveCode error: ', err);
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: `Failed to retrieve active code.` }
+
         }
     }
 
     @Get(`confirm/:code`)
     @Redirect(`${config.frontend.domain}/admin/profile`, 302)
-    async getVerificationCodeFromEmail(
+    async receiveVerificationCodeFromEmail(
         @Param(`code`) code: string,
         @Req() req: Request,
     ): Promise<VerifyEmailResponse> {
         try {
-            return await this.codeService.getVerificationCode(code, req);
+
+            return await this.codeService.receiveVerificationCode(code, req);
+
         } catch (err) {
+
             console.log('verifyEmail error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Failed to verify request with code: "${code}".`,
-            }
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: `Failed to verify request with code: "${code}".` }
+
         }
     }
 
     @UseGuards(SoftAuthGuard)
     @Get(`:code`)
-    async getVerificationCode(
+    async receiveVerificationCode(
         @Param('code') code: string,
         @Req() req: Request,
     ): Promise<VerifyEmailResponse> {
         try {
-            return await this.codeService.getVerificationCode(code, req);
+
+            return await this.codeService.receiveVerificationCode(code, req);
+
         } catch (err) {
+
             console.log('verifyEmail error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Verification failed for the request with code: "${code}".`,
-            }
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: `Verification failed for the request with code: "${code}".` }
         }
     }
 
@@ -73,14 +75,14 @@ export class CodeController {
         @Req() req: Request,
     ): Promise<DefaultResponse> {
         try {
+
             return await this.codeService.sendVerificationEmail(body, req);
+
         } catch (err) {
+
             console.log('verifyEmail error: ', err);
-            return {
-                status: HttpStatus.INTERNAL_SERVER_ERROR,
-                message: `Verification process failed.`,
-            }
+            return { status: HttpStatus.INTERNAL_SERVER_ERROR, message: `Verification process failed.` }
+
         }
     }
-
 }

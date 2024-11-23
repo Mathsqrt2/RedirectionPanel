@@ -29,16 +29,15 @@ export class MainSectionComponent {
         this.admin = newValue.login;
         this.menuRoutes = this.routes.getRoutes().filter(
           (route: RouteModel) => {
-            if (route.getRoute() === 'logs') {
-              if (!this.permissions.canManage) {
-                return false;
-              }
+
+            if (route.getRoute() === 'logs' && !this.permissions.canManage) {
+              return false;
             }
-            if (route.getRoute() === 'users') {
-              if (!this.permissions.canManage) {
-                return false;
-              }
+
+            if (route.getRoute() === 'users' && !this.permissions.canManage) {
+              return false;
             }
+
             return true;
           });
       })

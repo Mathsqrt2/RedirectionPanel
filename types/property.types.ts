@@ -112,17 +112,17 @@ export type LoggerProps = {
 export type DTOs = LogsDto | RedirectionsDto | RequestsDto | UsersDto;
 export type CRUDTypes = Logs | Redirections | Requests | Users | any;
 
-export type getMultipleElementsProps = {
+export type findMultipleElementsProps = {
     endpoint: string,
     conditions?: QueryConditions,
 }
 
-export type getSingleElementByIdProps = {
+export type findSingleElementByIdProps = {
     endpoint: string,
     id: number,
 }
 
-export type getMultipleElementsByParamProps = {
+export type findMultipleElementsByParamProps = {
     endpoint: string,
     param: string,
     value: string | number,

@@ -42,7 +42,7 @@ export class CodeService {
         return `${firstPart}@${lastPart}`;
     }
 
-    public getActiveCode = async (id: number, req: Request): Promise<ResponseWithCode> => {
+    public findActiveCode = async (id: number, req: Request): Promise<ResponseWithCode> => {
         const startTime = Date.now();
 
         try {
@@ -216,7 +216,7 @@ export class CodeService {
         }
     }
 
-    public getVerificationCode = async (code: string, req: Request): Promise<VerifyEmailResponse> => {
+    public receiveVerificationCode = async (code: string, req: Request): Promise<VerifyEmailResponse> => {
         code = code.trim();
         const startTime = Date.now();
 

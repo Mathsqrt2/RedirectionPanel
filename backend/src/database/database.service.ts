@@ -1,8 +1,8 @@
 import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import {
     createSingleElementProps, CRUDTypes, createMultipleElementsProps,
-    getSingleElementByIdProps, getMultipleElementsByParamProps,
-    getMultipleElementsProps, deleteMultipleElementsByParamProps,
+    findSingleElementByIdProps, findMultipleElementsByParamProps,
+    findMultipleElementsProps, deleteMultipleElementsByParamProps,
     deleteSingleElementByIdProps, patchMultipleElementsByParamProps,
     patchSingleElementProps, updateSingleElementProps
 } from "../../../types/property.types";
@@ -36,7 +36,7 @@ export class DatabaseService {
         private logger: LoggerService,
     ) { }
 
-    private getEntity = (endpoint: string) => {
+    private findEntity = (endpoint: string) => {
         switch (endpoint) {
             case 'logs': return Logs;
             case 'redirections': return Redirections;
@@ -58,7 +58,7 @@ export class DatabaseService {
         }
     }
 
-    public getMultipleElements = async ({ endpoint, conditions }: getMultipleElementsProps): Promise<DatabaseResponse> => {
+    public findMultipleElements = async ({ endpoint, conditions }: findMultipleElementsProps): Promise<DatabaseResponse> => {
 
         const { minDate, maxDate, maxCount, offset = 0 } = conditions;
         const startTime = Date.now();
@@ -67,7 +67,7 @@ export class DatabaseService {
             let response: CRUDTypes;
 
             if (maxDate || minDate) {
-                const entity = this.getEntity(endpoint);
+                const entity = this.findEntity(endpoint);
 
                 if (!entity) throw new Error(`The entity for "${endpoint}" does not exist.`);
 
@@ -117,7 +117,7 @@ export class DatabaseService {
         }
     }
 
-    public getSingleElementById = async ({ endpoint, id }: getSingleElementByIdProps): Promise<DatabaseResponse> => {
+    public findSingleElementById = async ({ endpoint, id }: findSingleElementByIdProps): Promise<DatabaseResponse> => {
 
         const startTime = Date.now();
         const model = this.recognizeModel(endpoint);
@@ -155,7 +155,7 @@ export class DatabaseService {
         }
     }
 
-    public getMultipleElementsByParam = async ({ endpoint, param, value, conditions }: getMultipleElementsByParamProps): Promise<DatabaseResponse> => {
+    public findMultipleElementsByParam = async ({ endpoint, param, value, conditions }: findMultipleElementsByParamProps): Promise<DatabaseResponse> => {
 
         const { minDate, maxDate, maxCount, offset = 0 } = conditions;
         const startTime = Date.now();
@@ -166,7 +166,7 @@ export class DatabaseService {
 
             if (maxDate || minDate) {
 
-                const entity = this.getEntity(endpoint);
+                const entity = this.findEntity(endpoint);
                 if (!entity) throw new Error(`The entity for "${endpoint}" does not exist.`);
 
                 if (maxDate && minDate) {
