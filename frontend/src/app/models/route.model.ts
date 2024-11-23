@@ -1,4 +1,4 @@
-import { Route } from "../../../../types/property.types";
+import { Route } from "../../../types/property.types";
 
 export class RouteModel {
 

@@ -4,7 +4,7 @@ import { LoginUserDto } from './dtos/loginUser.dto';
 import {
     DefaultResponse,
     LoginUserResponse, RegisterUserResponse,
-} from '../../../types/response.types';
+} from '../../types/response.types';
 import {
     BadRequestException, Body, Controller,
     HttpStatus, Post,

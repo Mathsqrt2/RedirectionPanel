@@ -1,7 +1,7 @@
 import {
     AvatarResponse, CurrentUserResponse,
     DefaultResponse, UpdateUserResponse
-} from "types/response.types";
+} from "../../types/response.types";
 import {
     Body, Controller, Delete, FileTypeValidator, Get,
     HttpStatus, MaxFileSizeValidator, Param,

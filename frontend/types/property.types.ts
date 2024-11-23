@@ -1,13 +1,3 @@
-import { RedirectionsDto } from "../backend/src/database/orm/redirections/redirections.dto";
-import { Redirections } from "../backend/src/database/orm/redirections/redirections.entity";
-import { Requests } from "../backend/src/database/orm/requests/requests.entity";
-import { RequestsDto } from "../backend/src/database/orm/requests/requests.dto";
-import { UsersDto } from "../backend/src/database/orm/users/users.dto";
-import { Users } from "../backend/src/database/orm/users/users.entity";
-import { Logs } from "../backend/src/database/orm/logs/logs.entity";
-import { LogsDto } from "../backend/src/database/orm/logs/logs.dto";
-import { Request } from "express";
-
 export type Permissions = {
     canCreate: boolean,
     canUpdate: boolean,
@@ -114,8 +104,8 @@ export type LoggerProps = {
     err?: Error,
 }
 
-export type DTOs = LogsDto | RedirectionsDto | RequestsDto | UsersDto;
-export type CRUDTypes = Logs | Redirections | Requests | Users | any;
+export type DTOs = any;
+export type CRUDTypes = any;
 
 export type findMultipleElementsProps = {
     endpoint: string,
@@ -185,13 +175,13 @@ export type RegisterUser = {
     login: string,
     password: string,
     confirmPassword: string,
-    req?: Request,
+    req?: any,
 }
 
 export type LoginUser = {
     login: string,
     password: string,
-    req?: Request,
+    req?: any,
 }
 
 export type LogoutUser = {

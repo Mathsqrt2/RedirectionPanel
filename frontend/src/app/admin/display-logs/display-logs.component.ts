@@ -1,6 +1,6 @@
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
-import { DownloadFilter, Filters } from '../../../../../types/constants.types';
-import { Log, QueryParams } from '../../../../../types/property.types';
+import { DownloadFilter, Filters } from '../../../../types/constants.types';
+import { Log, QueryParams } from '../../../../types/property.types';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { LogsService } from '../../services/logs.service';
 import { Observable } from 'rxjs';

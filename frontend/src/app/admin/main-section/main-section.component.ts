@@ -1,4 +1,4 @@
-import { User, Permissions } from '../../../../../types/property.types';
+import { User, Permissions } from '../../../../types/property.types';
 import { AdminService } from '../../services/admin.service';
 import { UsersService } from '../../services/users.service';
 import { AuthService } from '../../services/auth.service';

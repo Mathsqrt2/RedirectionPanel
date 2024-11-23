@@ -1,5 +1,5 @@
-import { Redirection, User } from "../../../../types/property.types";
-import { ObserverType } from "../../../../types/constants.types";
+import { Redirection, User } from "../../../types/property.types";
+import { ObserverType } from "../../../types/constants.types";
 import {
     ActivatedRouteSnapshot, CanDeactivateFn,
     RouterStateSnapshot

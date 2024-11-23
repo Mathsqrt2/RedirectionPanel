@@ -1,6 +1,6 @@
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
 import { UsersService } from '../../services/users.service';
-import { User } from '../../../../../types/property.types';
+import { User } from '../../../../types/property.types';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { FormControl, FormGroup, Validators } from '@angular/forms';

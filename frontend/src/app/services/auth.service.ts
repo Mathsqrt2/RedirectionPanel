@@ -1,5 +1,5 @@
-import { LoginResponse, RegisterUserResponse } from "../../../../types/response.types";
-import { RegisterProps } from "../../../../types/property.types";
+import { LoginResponse, RegisterUserResponse } from "../../../types/response.types";
+import { RegisterProps } from "../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
 import { UsersService } from "./users.service";
 import { Injectable } from "@angular/core";

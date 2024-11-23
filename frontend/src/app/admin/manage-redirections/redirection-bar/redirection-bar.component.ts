@@ -1,5 +1,5 @@
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
-import { Permissions, Redirection } from '../../../../../../types/property.types';
+import { Permissions, Redirection } from '../../../../../types/property.types';
 import { RedirectionsService } from '../../../services/redirections.service';
 import { Component, HostListener, Input, OnChanges } from '@angular/core';
 

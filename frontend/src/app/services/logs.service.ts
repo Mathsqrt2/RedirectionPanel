@@ -1,7 +1,7 @@
-import { Filters, DownloadFilter } from "../../../../types/constants.types";
+import { Filters, DownloadFilter } from "../../../types/constants.types";
 import { CanDeactivateService } from "./can-deactivate-guard.service";
-import { Log, QueryParams } from "../../../../types/property.types";
-import { LogResponse } from "../../../../types/response.types";
+import { Log, QueryParams } from "../../../types/property.types";
+import { LogResponse } from "../../../types/response.types";
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, first, firstValueFrom } from 'rxjs';
 import { Injectable } from "@angular/core";

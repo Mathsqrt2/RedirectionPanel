@@ -1,4 +1,4 @@
-import { Permissions, User } from "../../../../types/property.types";
+import { Permissions, User } from "../../../types/property.types";
 import { UsersService } from "./users.service";
 import { AuthService } from "./auth.service";
 import { Injectable } from "@angular/core";

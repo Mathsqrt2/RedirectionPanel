@@ -1,4 +1,4 @@
-import { Log } from '../../../../../../types/property.types';
+import { Log } from '../../../../../types/property.types';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({

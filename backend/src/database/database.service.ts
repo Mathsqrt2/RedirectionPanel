@@ -5,13 +5,13 @@ import {
     findMultipleElementsProps, deleteMultipleElementsByParamProps,
     deleteSingleElementByIdProps, patchMultipleElementsByParamProps,
     patchSingleElementProps, updateSingleElementProps
-} from "../../../types/property.types";
+} from "../../types/property.types";
 import {
     Repository, DataSource, LessThanOrEqual,
     MoreThanOrEqual, Between
 } from 'typeorm';
 import { Redirections } from "./orm/redirections/redirections.entity";
-import { DatabaseResponse } from '../../../types/response.types';
+import { DatabaseResponse } from '../../types/response.types';
 import { Requests } from "./orm/requests/requests.entity";
 import { LoggerService } from "../utils/logs.service";
 import { Codes } from "../auth/orm/codes.entity";

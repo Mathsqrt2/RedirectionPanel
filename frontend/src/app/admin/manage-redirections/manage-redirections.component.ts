@@ -1,5 +1,5 @@
 import { CanComponentDeactivate, CanDeactivateService } from '../../services/can-deactivate-guard.service';
-import { Permissions, Redirection, User } from '../../../../../types/property.types';
+import { Permissions, Redirection, User } from '../../../../types/property.types';
 import { RedirectionsService } from '../../services/redirections.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../services/users.service';

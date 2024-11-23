@@ -2,7 +2,7 @@ import {
     ConflictException, HttpStatus, Inject, Injectable,
     NotFoundException, UnauthorizedException
 } from "@nestjs/common";
-import { CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "types/response.types";
+import { CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "../../types/response.types";
 import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
 import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
 import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
@@ -14,7 +14,7 @@ import { LoggerService } from "../utils/logs.service";
 import { CodeService } from "../code/code.service";
 import { DataSource, Repository } from "typeorm";
 import { Codes } from "../auth/orm/codes.entity";
-import { User } from "types/property.types";
+import { User } from "../../types/property.types";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { SHA256 } from 'crypto-js';

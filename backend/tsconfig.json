@@ -18,7 +18,7 @@
       "node",
       "./.env.d.ts"
     ],
-    "baseUrl": "../",
+    "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": false,

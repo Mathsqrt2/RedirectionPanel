@@ -1,7 +1,7 @@
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { UsersService } from '../../../services/users.service';
-import { User } from '../../../../../../types/property.types';
+import { User } from '../../../../../types/property.types';
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({

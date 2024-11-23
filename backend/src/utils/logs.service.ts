@@ -1,4 +1,4 @@
-import { LoggerProps } from "../../../types/property.types";
+import { LoggerProps } from "../../types/property.types";
 import { Inject, Injectable } from "@nestjs/common";
 import { Logs } from "../database/orm/logs/logs.entity";
 import { Repository } from "typeorm";

@@ -2,17 +2,16 @@ import {
     CurrentUserResponse, DefaultResponse, ResponseWithCode,
     UpdateUserResponse, UsersResponse,
     VerifyEmailResponse
-} from "../../../../types/response.types";
+} from "../../../types/response.types";
 import {
     User, ChangePasswordProps,
     NewUserBody, UpdateUserBody, Permissions,
     UpdateEmailProps
-} from "../../../../types/property.types";
+} from "../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first, firstValueFrom } from "rxjs";
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { AuthService } from "./auth.service";
 
 @Injectable()
 

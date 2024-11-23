@@ -1,8 +1,8 @@
-import { Permissions, UpdateUserBody, User } from '../../../../../../types/property.types';
+import { Permissions, UpdateUserBody, User } from '../../../../../types/property.types';
 import { CanDeactivateService } from '../../../services/can-deactivate-guard.service';
-import { UserFromResponse } from '../../../../../../types/response.types';
+import { UserFromResponse } from '../../../../../types/response.types';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Property } from '../../../../../../types/constants.types';
+import { Property } from '../../../../../types/constants.types';
 import { UsersService } from '../../../services/users.service';
 import { Component, Input, OnInit } from '@angular/core';
 

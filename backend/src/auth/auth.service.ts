@@ -1,6 +1,6 @@
 import { ConflictException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { LoginUserResponse, RegisterUserResponse, DefaultResponse } from '../../../types/response.types';
-import { LoginUser, RegisterUser } from '../../../types/property.types';
+import { LoginUserResponse, RegisterUserResponse, DefaultResponse } from '../../types/response.types';
+import { LoginUser, RegisterUser } from '../../types/property.types';
 import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
 import { Users } from '../database/orm/users/users.entity';
 import { LoggerService } from '../utils/logs.service';

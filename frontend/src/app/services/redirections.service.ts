@@ -1,5 +1,5 @@
-import { DatabaseResponse, DefaultResponse, RedirectionsResponse, RequestResponse } from "../../../../types/response.types";
-import { Redirection, RequestData } from "../../../../types/property.types";
+import { DatabaseResponse, DefaultResponse, RedirectionsResponse, RequestResponse } from "../../../types/response.types";
+import { Redirection, RequestData } from "../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
 import { BehaviorSubject, first, firstValueFrom } from "rxjs";
 import { Injectable } from "@angular/core";
