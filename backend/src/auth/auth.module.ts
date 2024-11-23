@@ -5,9 +5,11 @@ import { CodeService } from "../code/code.service";
 import { AuthService } from "./auth.service";
 import { JwtModule } from "@nestjs/jwt";
 import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
     imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
         JwtModule.register({
             secret: process.env.SECRET,
             global: true,

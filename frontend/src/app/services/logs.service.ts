@@ -3,7 +3,7 @@ import { CanDeactivateService } from "./can-deactivate-guard.service";
 import { Log, QueryParams } from "../../../../types/property.types";
 import { LogResponse } from "../../../../types/response.types";
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, first } from 'rxjs';
+import { BehaviorSubject, first, firstValueFrom } from 'rxjs';
 import { Injectable } from "@angular/core";
 
 @Injectable()
@@ -43,40 +43,44 @@ export class LogsService {
     }
 
     public fetchLogs = async (newFetch: boolean = true): Promise<boolean> => {
-        return new Promise(resolve => {
-            const filter = this.filter.getValue();
-            const params = this.params.getValue();
-            const downloadFilter = this.downloadFilter.getValue();
 
-            const req = filter !== 'all' ? `status/${filter}` : ``;
-            this.http.get(`${this.baseUrl}/logs/${req}${downloadFilter === 'all data' ? '' : this.getQuery(params)}`, { withCredentials: true })
-                .pipe(first())
-                .subscribe({
-                    next:
-                        (response: LogResponse) => {
-                            if (response.status === 302) {
-                                if (downloadFilter !== 'all data') {
-                                    this.params.next({ ...params, offset: params.offset + 2 + params.maxCount })
+        const filter = this.filter.getValue();
+        const params = this.params.getValue();
+        const downloadFilter = this.downloadFilter.getValue();
 
-                                    let values = newFetch ? response.content : [...this.allLogs.getValue(), ...response.content];
-                                    values = values.sort((a: Log, b: Log) => b.id - a.id);
-                                    this.allLogs.next(values);
+        const req = filter !== 'all' ? `status/${filter}` : ``;
+        const url = `${this.baseUrl}/logs/${req}${downloadFilter === 'all data' ? '' : this.getQuery(params)}`;
 
-                                    this.canLeave.getSubject('logsLoading').next(false);
-                                } else {
-                                    let values = response.content;
-                                    values = values.sort((a: Log, b: Log) => b.id - a.id);
-                                    this.downloadLogs.next(values);
-                                    this.params.next({ ...params, offset: params.offset + 2 });
+        let response: LogResponse;
 
-                                }
-                                resolve(true);
-                            } else {
-                                resolve(false);
-                            }
-                        },
-                    error: () => resolve(false)
-                });
-        });
+        try {
+            response = await firstValueFrom(this.http.get<LogResponse>(url, { withCredentials: true }).pipe(first()));
+        } catch (err) {
+            return false;
+        }
+
+        if (response.status !== 302) {
+            return false;
+        }
+
+        if (downloadFilter !== 'all data') {
+
+            this.params.next({ ...params, offset: params.offset + 2 + params.maxCount });
+            let values = newFetch ? response.content : [...this.allLogs.getValue(), ...response.content];
+            values = values.sort((a: Log, b: Log) => b.id - a.id);
+            this.allLogs.next(values);
+
+            this.canLeave.getSubject('logsLoading').next(false);
+
+        } else {
+
+            let values = response.content;
+            values = values.sort((a: Log, b: Log) => b.id - a.id);
+            this.downloadLogs.next(values);
+            this.params.next({ ...params, offset: params.offset + 2 });
+
+        }
+
+        return true;
     }
 }

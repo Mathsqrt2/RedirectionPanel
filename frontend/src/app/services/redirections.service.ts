@@ -1,7 +1,7 @@
 import { DatabaseResponse, DefaultResponse, RedirectionsResponse, RequestResponse } from "../../../../types/response.types";
 import { Redirection, RequestData } from "../../../../types/property.types";
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject, first } from "rxjs";
+import { BehaviorSubject, first, firstValueFrom } from "rxjs";
 import { Injectable } from "@angular/core";
 
 @Injectable()
@@ -21,41 +21,41 @@ export class RedirectionsService {
     }
 
     private fetchRedirections = async (): Promise<boolean> => {
-        return new Promise(resolve => {
-            this.http.get(`${this.baseUrl}/redirections`, { withCredentials: true })
-                .pipe(first())
-                .subscribe({
-                    next:
-                        (response: RedirectionsResponse) => {
-                            if (response.status === 302) {
-                                this.redirections.next(response.content);
-                                resolve(true);
-                            } else {
-                                resolve(false);
-                            }
-                        },
-                    error: () => resolve(false)
-                });
-        });
+
+        const url = `${this.baseUrl}/redirections`;
+        let response: RedirectionsResponse;
+        try {
+            response = await firstValueFrom(this.http.get<RedirectionsResponse>(url, { withCredentials: true }));
+        } catch (err) {
+            return false;
+        }
+
+        if (response.status !== 302) {
+            return false;
+        }
+
+        this.redirections.next(response.content);
+        return true;
+
     }
 
     private fetchRequests = async (): Promise<boolean> => {
-        return new Promise(resolve => {
-            this.http.get(`${this.baseUrl}/requests`, { withCredentials: true })
-                .pipe(first())
-                .subscribe({
-                    next:
-                        (response: RequestResponse) => {
-                            if (response.status === 302) {
-                                this.requests.next(response.content);
-                                resolve(true);
-                            } else {
-                                resolve(false);
-                            }
-                        },
-                    error: () => resolve(false)
-                });
-        });
+
+        const url: string = `${this.baseUrl}/requests`;
+        let response: RequestResponse;
+
+        try {
+            response = await firstValueFrom(this.http.get<RequestResponse>(url, { withCredentials: true }).pipe(first()));
+        } catch (err) {
+            return false;
+        }
+
+        if (response.status !== 302) {
+            return false;
+        }
+        this.requests.next(response.content);
+        return true;
+
     }
 
     private assignValues = (): void => {
@@ -84,78 +84,82 @@ export class RedirectionsService {
     }
 
     private fetchData = async (): Promise<boolean> => {
-        return new Promise(async resolve => {
-            if (await this.fetchRedirections() && await this.fetchRequests()) {
-                this.assignValues();
-                this.findCategories(this.redirections.getValue());
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        });
+
+        if (await this.fetchRedirections() && await this.fetchRequests()) {
+            this.assignValues();
+            this.findCategories(this.redirections.getValue());
+            return true;
+        }
+
+        return false;
     }
 
     public getCategories = (): string[] => {
         return this.categories.getValue();
     }
 
-    public deleteRedirection = (index: number): Promise<boolean> => {
-        return new Promise(resolve => {
-            this.http.delete(`${this.baseUrl}/redirections/${index}`, { withCredentials: true })
-                .pipe(first())
-                .subscribe({
-                    next: ({ status }: DatabaseResponse) => {
-                        if (status === 200) {
-                            this.redirections.next([...this.redirections.getValue().filter(redirection => redirection.id !== index)]);
-                            this.findCategories(this.redirections.getValue());
-                            resolve(true);
-                        } else {
-                            resolve(false);
-                        }
-                    },
-                    error: () => resolve(false)
-                });
-        });
+    public deleteRedirection = async (index: number): Promise<boolean> => {
+
+        const url: string = "";
+        let response: DatabaseResponse;
+
+        try {
+            response = await firstValueFrom(this.http.delete<DatabaseResponse>(url, { withCredentials: true }).pipe(first()));
+        } catch (err) {
+            return false;
+        }
+
+        if (response.status !== 200) {
+            return false;
+        }
+
+        this.redirections.next([...this.redirections.getValue().filter(redirection => redirection.id !== index)]);
+        this.findCategories(this.redirections.getValue());
+        return true;
+
     }
 
-    public editRedirection = (redirection: Redirection): Promise<boolean> => {
-        return new Promise(resolve => {
-            this.http.put(`${this.baseUrl}/redirections/${redirection.id}`, redirection, { withCredentials: true })
-                .pipe(first())
-                .subscribe({
-                    next: (response: DatabaseResponse) => {
-                        if (response.status === 200) {
-                            this.redirections.next([...this.redirections.getValue().map(
-                                (r: Redirection) => redirection.id === r.id ? redirection : r)],
-                            );
-                            this.findCategories(this.redirections.getValue())
-                            resolve(true);
-                        } else {
-                            resolve(false);
-                        }
-                    },
-                    error: () => resolve(false)
-                });
-        });
+    public editRedirection = async (redirection: Redirection): Promise<boolean> => {
+
+        const url: string = `${this.baseUrl}/redirections/${redirection.id}`;
+        let response: DatabaseResponse;
+
+        try {
+            response = await firstValueFrom(this.http.put<DatabaseResponse>(url, redirection, { withCredentials: true }).pipe(first()));
+        } catch (err) {
+            return false;
+        }
+
+        if (response.status !== 200) {
+            return false;
+        }
+
+        this.redirections.next([...this.redirections.getValue().map(
+            (r: Redirection) => redirection.id === r.id ? redirection : r)],
+        );
+        this.findCategories(this.redirections.getValue());
+        return true;
+
     }
 
-    public createRedirection = (body: Redirection): Promise<boolean> => {
-        return new Promise(resolve => {
-            this.http.post(`${this.baseUrl}/redirections`, body, { withCredentials: true })
-                .pipe(first())
-                .subscribe({
-                    next:
-                        (response: DatabaseResponse) => {
-                            if (response.status === 201) {
-                                this.redirections.next([...this.redirections.getValue(), response.content])
-                                this.findCategories(this.redirections.getValue());
-                                resolve(true);
-                            } else {
-                                resolve(false);
-                            }
-                        },
-                    error: () => resolve(false)
-                });
-        });
+    public createRedirection = async (body: Redirection): Promise<boolean> => {
+
+        const url: string = `${this.baseUrl}/redirections`;
+        let response: DatabaseResponse;
+
+        try {
+            response = await firstValueFrom(this.http.post<DatabaseResponse>(url, body, { withCredentials: true }).pipe(first()));
+        } catch (err) {
+            return false;
+        }
+
+        if (response.status !== 201) {
+            return false;
+        }
+
+        this.redirections.next([...this.redirections.getValue(), response.content])
+        this.findCategories(this.redirections.getValue());
+        return true;
+
     }
 }

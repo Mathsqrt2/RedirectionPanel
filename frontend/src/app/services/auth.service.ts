@@ -4,6 +4,7 @@ import { HttpClient } from "@angular/common/http";
 import { UsersService } from "./users.service";
 import { Injectable } from "@angular/core";
 import { first } from "rxjs/operators";
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 
@@ -11,7 +12,7 @@ export class AuthService {
 
     private domain: string = `http://localhost:3000`;
     private api: string = `${this.domain}/api`;
-    private isLoggedIn: Boolean = false;
+    private isLoggedIn: boolean = false;
     private accessToken: string | null = null;
 
     constructor(
@@ -57,51 +58,50 @@ export class AuthService {
     }
 
     public isAuthenticated = async (): Promise<boolean> => {
-        return new Promise((resolve) => {
-            if (this.isLoggedIn) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        });
+        return this.isLoggedIn;
     }
 
     public login = async (loginForm: { userLogin: string, userPassword: string }): Promise<boolean> => {
-        return new Promise((resolve) => {
-            if (!this.accessToken) {
-                this.http.post(`${this.api}/auth/signin`, loginForm)
-                    .pipe(first())
-                    .subscribe({
-                        next:
-                            async (response: LoginResponse) => {
-                                if (response.status === 200) {
-                                    this.setStatus(response?.accessToken);
-                                    if (response?.accessToken) {
-                                        const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
-                                        localStorage.accessToken = JSON.stringify({ ...response, expireDate });
 
-                                        this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                                        this.usersService.restoreCurrentUserData({
-                                            login: response.login,
-                                            permissions: response.permissions,
-                                            accessToken: response.accessToken,
-                                            id: response.userId,
-                                            email: response.email,
-                                            emailSent: response.emailSent,
-                                        });
-                                        await this.usersService.updateCurrentUser();
-                                        resolve(true)
-                                    }
-                                } else {
-                                    resolve(false);
-                                }
-                            },
-                        error: () => resolve(false)
-                    });
-            } else {
-                resolve(true);
-            }
+        if (this.accessToken) {
+            return true;
+        }
+
+        const url = `${this.api}/auth/signin`;
+        let response: LoginResponse;
+
+        try {
+            response = await firstValueFrom(this.http.post<LoginResponse>(url, loginForm).pipe(first()));
+        } catch (err) {
+            return false;
+        }
+
+        if (response.status !== 200) {
+            return false;
+        }
+
+        if (!response.accessToken) {
+            return false;
+        }
+
+        this.setStatus(response?.accessToken);
+
+        const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+        localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+
+        this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+        this.usersService.restoreCurrentUserData({
+            login: response.login,
+            permissions: response.permissions,
+            accessToken: response.accessToken,
+            id: response.userId,
+            email: response.email,
+            emailSent: response.emailSent,
         });
+
+        await this.usersService.updateCurrentUser();
+        return true;
+
     }
 
     public logout = (): void => {
@@ -111,34 +111,34 @@ export class AuthService {
     }
 
     public registerNewUser = async (body: RegisterProps): Promise<boolean> => {
-        return new Promise(resolve => {
-            this.http.post(`${this.api}/auth/signup`, body)
-                .pipe(first())
-                .subscribe({
-                    next:
-                        (response: RegisterUserResponse) => {
-                            if (response.status === 200) {
-                                this.setStatus(response?.accessToken);
 
-                                const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
-                                localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+        const url = `${this.api}/auth/signup`;
+        let response: RegisterUserResponse;
 
-                                this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
-                                this.usersService.restoreCurrentUserData({
-                                    login: response.login,
-                                    permissions: response.permissions,
-                                    accessToken: response.accessToken,
-                                    id: response.userId,
-                                });
-                                this.usersService.updateCurrentUser();
+        try {
+            response = await firstValueFrom(this.http.post<RegisterUserResponse>(url, body).pipe(first()));
+        } catch (err) {
+            return false;
+        }
 
-                                resolve(true);
-                            } else {
-                                resolve(false);
-                            }
-                        },
-                    error: () => resolve(false)
-                });
+        if (response.status !== 200) {
+            return false;
+        }
+
+        this.setStatus(response?.accessToken);
+
+        const expireDate = Date.now() + (1000 * 60 * 60 * 24 * 7)
+        localStorage.accessToken = JSON.stringify({ ...response, expireDate });
+
+        this.setCookie("jwt", `${JSON.stringify({ accessToken: response.accessToken })}`, 10);
+        this.usersService.restoreCurrentUserData({
+            login: response.login,
+            permissions: response.permissions,
+            accessToken: response.accessToken,
+            id: response.userId,
         });
+        this.usersService.updateCurrentUser();
+
+        return true;
     }
 }

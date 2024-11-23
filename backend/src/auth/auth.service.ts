@@ -132,7 +132,9 @@ export class AuthService {
                     startTime,
                 })
             };
+
         } catch (err) {
+
             return {
                 status: HttpStatus.BAD_REQUEST,
                 message: await this.logger.fail({
@@ -143,6 +145,7 @@ export class AuthService {
                 })
             }
         }
+
     }
 
     public createUserByPanel = async (body: CreateUserByPanelDto, req: Request): Promise<DefaultResponse | DefaultResponse> => {

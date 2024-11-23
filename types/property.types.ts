@@ -72,7 +72,12 @@ export type RequestData = {
     id: number,
     requestIp: string,
     redirectionId: number,
-    requestTime: any,
+    requestTime: number,
+}
+
+export type UpdateEmailProps = {
+    newEmail?: string,
+    emailSent: boolean
 }
 
 export type Log = {
