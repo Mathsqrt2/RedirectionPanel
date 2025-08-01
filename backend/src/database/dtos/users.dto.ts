@@ -3,21 +3,21 @@ import { IsString, IsBoolean } from 'class-validator';
 export class UsersDto {
 
     @IsString()
-    login: string;
+    public login: string;
 
     @IsString()
-    password: string;
+    public password: string;
 
     @IsBoolean()
-    canDelete: boolean;
+    public canDelete: boolean;
 
     @IsBoolean()
-    canUpdate: boolean;
+    public canUpdate: boolean;
 
     @IsBoolean()
-    canCreate: boolean;
+    public canCreate: boolean;
 
     @IsBoolean()
-    canManage: boolean;
+    public canManage: boolean;
 
 }

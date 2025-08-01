@@ -3,9 +3,9 @@ import { IsString, IsNumber } from 'class-validator';
 export class RequestsDto {
 
     @IsNumber()
-    redirectionId: number;
+    public redirectionId: number;
 
     @IsString()
-    requestIp: string;
+    public requestIp: string;
 
 }

@@ -3,15 +3,15 @@ import { IsString, IsNumber } from 'class-validator';
 export class LogsDto {
 
     @IsString()
-    label: string;
+    public label: string;
 
     @IsString()
-    description: string;
+    public description: string;
 
     @IsString()
-    status: string;
+    public status: string;
 
     @IsNumber()
-    duration: number;
+    public duration: number;
 
 }

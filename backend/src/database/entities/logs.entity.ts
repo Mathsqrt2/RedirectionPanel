@@ -1,13 +1,10 @@
 import {
-    Entity, Column, PrimaryGeneratedColumn,
-    Timestamp, Generated
+    Entity, Column, Timestamp, Generated
 } from "typeorm";
+import { BasicPropertiesEntity } from "./base.entity";
 
 @Entity()
-export class Logs {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Logs extends BasicPropertiesEntity {
 
     @Column()
     label: string;
@@ -26,6 +23,5 @@ export class Logs {
 
     @Generated()
     timestamp: Timestamp;
-
 
 }

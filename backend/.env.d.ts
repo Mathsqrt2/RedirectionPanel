@@ -10,6 +10,7 @@ declare namespace NodeJS {
         
         ORIGIN1: string;
         ORIGIN2: string;
+        ORIGIN3: string;
         SECRET: string;
         
         SMTP_SERVICE: string;

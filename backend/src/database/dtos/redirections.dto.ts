@@ -3,15 +3,15 @@ import { IsString, IsNumber } from 'class-validator';
 export class RedirectionsDto {
 
     @IsString()
-    targetUrl: string;
+    public targetUrl: string;
 
     @IsString()
-    route: string;
+    public route: string;
 
     @IsString()
-    category: string;
+    public category: string;
 
     @IsNumber()
-    user: number;
+    public user: number;
 
 }

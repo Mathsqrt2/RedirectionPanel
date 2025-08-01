@@ -3,7 +3,7 @@ import {
     Injectable, UnauthorizedException
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { Users } from "../database/orm/users/users.entity";
+import { Users } from "../database/entities/users.entity";
 import { LoggerService } from "../utils/logs.service";
 import { Repository } from "typeorm";
 

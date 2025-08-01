@@ -1,6 +1,6 @@
 import { LoggerProps } from "../../types/property.types";
 import { Inject, Injectable } from "@nestjs/common";
-import { Logs } from "../database/orm/logs/logs.entity";
+import { Logs } from "../database/entities/logs.entity";
 import { Repository } from "typeorm";
 
 @Injectable()

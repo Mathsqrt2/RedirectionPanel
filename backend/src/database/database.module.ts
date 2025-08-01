@@ -1,32 +1,36 @@
-import { Module } from "@nestjs/common";
-import { DatabaseService } from "./database.service";
 import { DatabaseController } from "./database.controller";
-import { databaseProviders } from "./database.providers";
-import { usersProviders } from "./orm/users/users.providers";
-import { logsProviders } from "./orm/logs/logs.providers";
-import { redirectionsProviders } from "./orm/redirections/redirections.providers";
-import { requestsProviders } from "./orm/requests/requests.providers";
-import { codesProviders } from "../auth/orm/codes.providers";
 import { LoggerService } from "../utils/logs.service";
-
-
-export const providers = [
-    LoggerService,
-    DatabaseService,
-    ...databaseProviders,
-    ...logsProviders,
-    ...redirectionsProviders,
-    ...requestsProviders,
-    ...usersProviders,
-    ...codesProviders,
-];
+import { DatabaseService } from "./database.service";
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import * as Entities from "./entities";
 
 @Module({
+    imports: [
+        TypeOrmModule.forRootAsync({
+            useFactory: () => ({
+                type: `mysql`,
+                host: process.env.DBHOST,
+                port: +process.env.DBPORT,
+                username: process.env.DBUSERNAME,
+                password: process.env.DBPASSWORD,
+                database: process.env.DATABASE,
+                entities: Object.values(Entities),
+            })
+        }),
+    ],
     controllers: [
         DatabaseController
     ],
-    providers,
-    exports: providers,
+    providers: [
+        LoggerService,
+        DatabaseService,
+    ],
+    exports: [
+        LoggerService,
+        DatabaseService,
+        TypeOrmModule.forFeature(Object.values(Entities))
+    ],
 })
 
 export class DatabaseModule { }

@@ -14,7 +14,7 @@ import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
 import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
 import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
 import { RemoveEmailDto } from "../auth/dtos/removeEmail.dto";
-import { UpdatePswdDto } from "../auth/dtos/updatepswd.dto";
+import { UpdatePswdDto } from "../auth/dtos/updatePassword.dto";
 import { RemoveUserDto } from "../auth/dtos/removeUser.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { SoftAuthGuard } from "../auth/auth.guard";

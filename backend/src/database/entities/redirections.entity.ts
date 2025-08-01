@@ -1,14 +1,11 @@
+import { BasicPropertiesEntity } from "./base.entity";
 import {
-    Entity, Column, PrimaryGeneratedColumn,
-    Timestamp, Generated, Unique
+    Entity, Column, Timestamp, Generated, Unique
 } from "typeorm";
 
 @Entity()
 @Unique([`route`])
-export class Redirections {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Redirections extends BasicPropertiesEntity {
 
     @Column()
     targetUrl: string;

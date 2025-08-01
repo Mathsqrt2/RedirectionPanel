@@ -1,10 +1,10 @@
 import { ConflictException, HttpStatus, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { DefaultResponse, ResponseWithCode, VerifyEmailResponse } from "../../types/response.types";
-import { Users } from "../database/orm/users/users.entity";
+import { Users } from "../database/entities/users.entity";
 import { LoggerService } from "../utils/logs.service";
 import { CodesDto } from "../auth/dtos/codes.dto";
 import { DataSource, Repository } from "typeorm";
-import { Codes } from "../auth/orm/codes.entity";
+import { Codes } from "../database/entities/codes.entity";
 import * as nodemailer from 'nodemailer'
 import { Request } from "express";
 import { TransportDataType } from "../../types/property.types";
@@ -128,7 +128,7 @@ export class CodeService {
         const options: nodemailer.TransportOptions & TransportDataType = {
             host: process.env.SMTP_HOST,
             port: process.env.SMTP_PORT,
-            secure: false,
+            secure: true,
             service: process.env.SMTP_SERVICE,
             auth: {
                 user: process.env.SMTP_USER,
@@ -144,9 +144,8 @@ export class CodeService {
         }
 
         try {
-            const creationTime = new Date();
-            const expireTime = new Date().setDate(creationTime.getDate() + 1);
 
+            const expireTime = new Date().setDate(new Date().getDate() + 1);
             const text = `Your verification code is: ${code}.
                 It is active for one day and expires on ${(new Date(expireTime)).toLocaleDateString('pl-PL')}.
                 You can paste it in your profile or click the link
@@ -237,7 +236,7 @@ export class CodeService {
                 throw new ConflictException(`The user assigned to this code no longer exists.`);
             }
 
-            user = { ...user, email: codeRead.email, emailSent: null, canCreate: true, canUpdate: true };
+            user = this.users.create({ ...user, email: codeRead.email, emailSent: null, canCreate: true, canUpdate: true });
 
             await this.users.save({ ...user });
             const { canCreate, canUpdate, canDelete, canManage } = user;

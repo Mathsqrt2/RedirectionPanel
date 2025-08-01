@@ -1,13 +1,11 @@
+import { BasicPropertiesEntity } from "./base.entity";
 import {
     Entity, Column, PrimaryGeneratedColumn,
     Timestamp, Generated
 } from "typeorm";
 
 @Entity()
-export class Codes {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Codes extends BasicPropertiesEntity {
 
     @Column()
     code: string;

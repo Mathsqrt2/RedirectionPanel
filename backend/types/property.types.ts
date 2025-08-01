@@ -1,11 +1,11 @@
-import { RedirectionsDto } from "src/database/orm/redirections/redirections.dto";
-import { Redirections } from "src/database/orm/redirections/redirections.entity";
-import { Requests } from "src/database/orm/requests/requests.entity";
-import { RequestsDto } from "src/database/orm/requests/requests.dto";
-import { UsersDto } from "src/database/orm/users/users.dto";
-import { Users } from "src/database/orm/users/users.entity";
-import { Logs } from "src/database/orm/logs/logs.entity";
-import { LogsDto } from "src/database/orm/logs/logs.dto";
+import { RedirectionsDto } from "src/database/dtos/redirections.dto";
+import { Redirections } from "src/database/entities/redirections.entity";
+import { Requests } from "src/database/entities/requests.entity";
+import { RequestsDto } from "src/database/dtos/requests.dto";
+import { UsersDto } from "src/database/dtos/users.dto";
+import { Users } from "src/database/entities/users.entity";
+import { Logs } from "src/database/entities/logs.entity";
+import { LogsDto } from "src/database/dtos/logs.dto";
 import { Request } from "express";
 
 export type Permissions = {

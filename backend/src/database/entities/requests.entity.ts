@@ -1,13 +1,10 @@
 import {
-    Entity, Column, PrimaryGeneratedColumn,
-    Timestamp, Generated
+    Entity, Column, Timestamp, Generated
 } from "typeorm";
+import { BasicPropertiesEntity } from "./base.entity";
 
 @Entity()
-export class Requests {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Requests extends BasicPropertiesEntity {
 
     @Column()
     redirectionId: number;

@@ -10,15 +10,16 @@ import {
     Repository, DataSource, LessThanOrEqual,
     MoreThanOrEqual, Between
 } from 'typeorm';
-import { Redirections } from "./orm/redirections/redirections.entity";
+import { Redirections } from "./entities/redirections.entity";
 import { DatabaseResponse } from '../../types/response.types';
-import { Requests } from "./orm/requests/requests.entity";
+import { Requests } from "./entities/requests.entity";
 import { LoggerService } from "../utils/logs.service";
-import { Codes } from "../auth/orm/codes.entity";
-import { Users } from "./orm/users/users.entity";
-import { Logs } from "./orm/logs/logs.entity";
+import { Codes } from "./entities/codes.entity";
+import { Users } from "./entities/users.entity";
+import { Logs } from "./entities/logs.entity";
 import { HttpStatus } from "@nestjs/common";
 import { NotFoundError } from "rxjs";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class DatabaseService {
@@ -27,11 +28,11 @@ export class DatabaseService {
     private offset = (-1000 * 60 * 60 * 24) - this.timezoneOffset;
 
     constructor(
-        @Inject(`REDIRECTIONS`) private redirections: Repository<Redirections>,
-        @Inject(`REQUESTS`) private requests: Repository<Requests>,
-        @Inject('CODES') private codes: Repository<Codes>,
-        @Inject(`USERS`) private users: Repository<Users>,
-        @Inject(`LOGS`) private logs: Repository<Logs>,
+        @InjectRepository(Redirections) private redirections: Repository<Redirections>,
+        @InjectRepository(Requests) private requests: Repository<Requests>,
+        @InjectRepository(Codes) private codes: Repository<Codes>,
+        @InjectRepository(Users) private users: Repository<Users>,
+        @InjectRepository(Logs) private logs: Repository<Logs>,
         private dataSource: DataSource,
         private logger: LoggerService,
     ) { }

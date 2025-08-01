@@ -1,14 +1,11 @@
 import {
-    Entity, Column, PrimaryGeneratedColumn,
-    Timestamp, Generated, Unique
+    Entity, Column, Timestamp, Generated, Unique
 } from "typeorm";
+import { BasicPropertiesEntity } from "./base.entity";
 
 @Entity()
 @Unique(['login'])
-export class Users {
-
-    @PrimaryGeneratedColumn()
-    id: number;
+export class Users extends BasicPropertiesEntity {
 
     @Column({ unique: true })
     login: string;

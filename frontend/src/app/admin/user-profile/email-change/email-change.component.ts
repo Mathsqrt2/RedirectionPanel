@@ -66,30 +66,32 @@ export class EmailChangeComponent implements OnInit {
 
   public onSendVerificationCode = async (): Promise<void> => {
 
-
     this.usersService.changeEmailProcess.next(false);
 
-    if (this.setNewEmailForm.status === 'VALID') {
-      const body = {
-        id: this.currentUser.id,
-        email: this.setNewEmailForm.value.newEmail,
-      }
+    if (this.setNewEmailForm.status !== 'VALID') {
+      return;
+    }
+    
+    const body = {
+      id: this.currentUser.id,
+      email: this.setNewEmailForm.value.newEmail,
+    }
 
-      if (this.currentUser.email) {
-        const canRemove = window.confirm(`This action will remove the existing email. Are you sure?`);
-        if (canRemove) {
-          await this.usersService.sendVerificationEmail(body);
-          this.usersService.pendingEmail.next(body.email);
-          this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
-          this.setNewEmailForm.reset();
-        }
-      } else {
+    if (this.currentUser.email) {
+      const canRemove = window.confirm(`This action will remove the existing email. Are you sure?`);
+      if (canRemove) {
         await this.usersService.sendVerificationEmail(body);
         this.usersService.pendingEmail.next(body.email);
         this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
         this.setNewEmailForm.reset();
       }
+    } else {
+      await this.usersService.sendVerificationEmail(body);
+      this.usersService.pendingEmail.next(body.email);
+      this.usersService.getCurrentUser().next({ ...this.currentUser, emailSent: true })
+      this.setNewEmailForm.reset();
     }
+
   }
 
   protected onCancel = async (): Promise<void> => {
