@@ -1,8 +1,5 @@
 import { BasicPropertiesEntity } from "./base.entity";
-import {
-    Entity, Column, PrimaryGeneratedColumn,
-    Timestamp, Generated
-} from "typeorm";
+import { Entity, Column, Timestamp, Generated } from "typeorm";
 
 @Entity()
 export class Codes extends BasicPropertiesEntity {
@@ -21,8 +18,5 @@ export class Codes extends BasicPropertiesEntity {
 
     @Column()
     email: string;
-
-    @Generated()
-    timestamp: Timestamp;
 
 }

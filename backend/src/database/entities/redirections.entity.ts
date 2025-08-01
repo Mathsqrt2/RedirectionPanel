@@ -1,7 +1,5 @@
 import { BasicPropertiesEntity } from "./base.entity";
-import {
-    Entity, Column, Timestamp, Generated, Unique
-} from "typeorm";
+import { Entity, Column, Unique } from "typeorm";
 
 @Entity()
 @Unique([`route`])
@@ -18,11 +16,5 @@ export class Redirections extends BasicPropertiesEntity {
 
     @Column()
     category: string;
-
-    @Generated()
-    creationTime: Timestamp;
-
-    @Column()
-    jstimestamp: number;
 
 }

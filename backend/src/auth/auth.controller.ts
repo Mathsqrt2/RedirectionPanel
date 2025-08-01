@@ -1,15 +1,10 @@
-import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
-import { RegisterUserDto } from './dtos/registerUser.dto';
-import { LoginUserDto } from './dtos/loginUser.dto';
+import { LoginUserDto, RegisterUserDto, CreateUserByPanelDto } from './dtos';
 import {
-    DefaultResponse,
-    LoginUserResponse, RegisterUserResponse,
+    DefaultResponse, LoginUserResponse, RegisterUserResponse,
 } from '../../types/response.types';
 import {
     BadRequestException, Body, Controller,
-    HttpStatus, Post,
-    Req, Res,
-    UseGuards
+    HttpStatus, Post, Req, Res, UseGuards
 } from '@nestjs/common';
 import { StrictAuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';

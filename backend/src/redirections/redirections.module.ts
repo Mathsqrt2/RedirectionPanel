@@ -1,13 +1,17 @@
-import { Module } from "@nestjs/common";
 import { RedirectionsController } from "./redirections.controller";
-import { providers } from "../database/database.module";
 import { LoggerService } from "../utils/logs.service";
+import { Module } from "@nestjs/common";
+import { DatabaseModule } from "src/database/database.module";
 
 @Module({
-    controllers: [RedirectionsController],
+    imports: [
+        DatabaseModule,
+    ],
+    controllers: [
+        RedirectionsController
+    ],
     providers: [
         LoggerService,
-        ...providers
     ],
 })
 

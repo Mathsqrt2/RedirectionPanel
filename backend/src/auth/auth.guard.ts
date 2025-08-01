@@ -2,9 +2,9 @@ import {
     CanActivate, ExecutionContext, Inject,
     Injectable, UnauthorizedException
 } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { Users } from "../database/entities/users.entity";
 import { LoggerService } from "../utils/logs.service";
+import { Users } from "../database/entities";
+import { JwtService } from "@nestjs/jwt";
 import { Repository } from "typeorm";
 
 @Injectable()

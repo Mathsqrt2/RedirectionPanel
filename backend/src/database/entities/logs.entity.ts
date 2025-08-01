@@ -1,7 +1,5 @@
-import {
-    Entity, Column, Timestamp, Generated
-} from "typeorm";
 import { BasicPropertiesEntity } from "./base.entity";
+import { Entity, Column } from "typeorm";
 
 @Entity()
 export class Logs extends BasicPropertiesEntity {
@@ -17,11 +15,5 @@ export class Logs extends BasicPropertiesEntity {
 
     @Column()
     duration: number;
-
-    @Column()
-    jstimestamp: number;
-
-    @Generated()
-    timestamp: Timestamp;
 
 }

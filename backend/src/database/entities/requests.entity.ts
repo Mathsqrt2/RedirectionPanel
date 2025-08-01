@@ -1,6 +1,4 @@
-import {
-    Entity, Column, Timestamp, Generated
-} from "typeorm";
+import { Entity, Column, Timestamp, Generated } from "typeorm";
 import { BasicPropertiesEntity } from "./base.entity";
 
 @Entity()
@@ -14,8 +12,5 @@ export class Requests extends BasicPropertiesEntity {
 
     @Generated()
     requestTime: Timestamp;
-
-    @Column()
-    jstimestamp: number;
 
 }

@@ -1,13 +1,12 @@
 import { ConflictException, HttpStatus, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { DefaultResponse, ResponseWithCode, VerifyEmailResponse } from "../../types/response.types";
-import { Users } from "../database/entities/users.entity";
+import { TransportDataType } from "../../types/property.types";
+import { Users, Codes } from "../database/entities";
 import { LoggerService } from "../utils/logs.service";
 import { CodesDto } from "../auth/dtos/codes.dto";
 import { DataSource, Repository } from "typeorm";
-import { Codes } from "../database/entities/codes.entity";
 import * as nodemailer from 'nodemailer'
 import { Request } from "express";
-import { TransportDataType } from "../../types/property.types";
 
 @Injectable()
 

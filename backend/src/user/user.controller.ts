@@ -3,26 +3,22 @@ import {
     DefaultResponse, UpdateUserResponse
 } from "../../types/response.types";
 import {
-    Body, Controller, Delete, FileTypeValidator, Get,
-    HttpStatus, MaxFileSizeValidator, Param,
-    ParseFilePipe,
-    Patch, Post, Put, Req, Res, UploadedFile, UseGuards,
+    Body, Controller, Delete, FileTypeValidator, Get, HttpStatus, MaxFileSizeValidator,
+    Param, ParseFilePipe, Patch, Post, Put, Req, Res, UploadedFile, UseGuards,
     UseInterceptors
 } from "@nestjs/common";
 import { diskStorage } from "multer";
-import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
-import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
-import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
-import { RemoveEmailDto } from "../auth/dtos/removeEmail.dto";
-import { UpdatePswdDto } from "../auth/dtos/updatePassword.dto";
-import { RemoveUserDto } from "../auth/dtos/removeUser.dto";
+import {
+    RemoveUserDto, UpdatePermissionsDto, UpdateStatusDto,
+    UpdatePasswordDto, RemoveEmailDto, UpdateWholeUserDto
+} from "../auth/dtos";
 import { FileInterceptor } from "@nestjs/platform-express";
+import { LoggerService } from "../utils/logs.service";
 import { SoftAuthGuard } from "../auth/auth.guard";
 import { UserService } from "./user.service";
 import { Request, Response } from "express";
 import * as path from "node:path";
 import * as fs from "node:fs";
-import { LoggerService } from "../utils/logs.service";
 
 @Controller('/api/user')
 
@@ -253,7 +249,7 @@ export class UserController {
     @UseGuards(SoftAuthGuard)
     @Patch(`password`)
     async updatePassword(
-        @Body() body: UpdatePswdDto,
+        @Body() body: UpdatePasswordDto,
         @Req() req: Request,
     ): Promise<DefaultResponse> {
         try {

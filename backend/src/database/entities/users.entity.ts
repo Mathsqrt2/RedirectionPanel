@@ -31,9 +31,6 @@ export class Users extends BasicPropertiesEntity {
     @Column({ default: null })
     emailSent: boolean;
 
-    @Column()
-    jstimestamp: number;
-
     @Generated()
     creationTime: Timestamp;
 

@@ -2,8 +2,7 @@ import { DTOs, QueryConditions } from "../../types/property.types";
 import { DatabaseResponse } from "../../types/response.types";
 import {
     Controller, Post, Param, Body, Get,
-    Query, Put, Patch, Delete,
-    HttpStatus, UseGuards
+    Query, Put, Patch, Delete, HttpStatus, UseGuards
 } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
 import { StrictAuthGuard } from "../auth/auth.guard";
@@ -28,9 +27,9 @@ export class DatabaseController {
 
             const conditions: QueryConditions = { maxCount, offset, minDate, maxDate }
             return await this.database.findMultipleElements({ endpoint, conditions });
-        
+
         } catch (err) {
-       
+
             console.log(`findMultipleElements error: `, err);
             return {
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
