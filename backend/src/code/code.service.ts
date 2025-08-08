@@ -1,10 +1,9 @@
+import { TransportDataType, DefaultResponse, ResponseWithCode, VerifyEmailResponse } from '@libs/types';
 import { ConflictException, HttpStatus, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { DefaultResponse, ResponseWithCode, VerifyEmailResponse } from "../../types/response.types";
-import { TransportDataType } from "../../types/property.types";
-import { Users, Codes } from "../database/entities";
 import { LoggerService } from "../utils/logs.service";
-import { CodesDto } from "../auth/dtos/codes.dto";
+import { Users, Codes } from "../database/entities";
 import { DataSource, Repository } from "typeorm";
+import { CodesDto } from "../auth/dtos";
 import * as nodemailer from 'nodemailer'
 import { Request } from "express";
 

@@ -1,5 +1,5 @@
 import { BasicPropertiesEntity } from "./base.entity";
-import { Entity, Column, Timestamp, Generated } from "typeorm";
+import { Entity, Column } from "typeorm";
 
 @Entity()
 export class Codes extends BasicPropertiesEntity {

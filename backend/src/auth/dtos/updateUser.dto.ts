@@ -1,20 +1,21 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsDefined, IsOptional, IsString } from "class-validator";
 
 export class UpdateWholeUserDto {
-    
+
+    @IsDefined()
     @IsString()
     adminToken: string;
 
-    @IsString()
     @IsOptional()
-    newLogin?: string | null;
+    @IsString()
+    newLogin?: string;
 
-    @IsString()
     @IsOptional()
-    newPassword?: string | null;
+    @IsString()
+    newPassword?: string;
 
-    @IsString()
     @IsOptional()
-    newEmail?: string | null;
+    @IsString()
+    newEmail?: string;
 
 }

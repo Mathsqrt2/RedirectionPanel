@@ -1,7 +1,8 @@
-import { IsBoolean, IsOptional, IsString } from "class-validator";
+import { IsBoolean, IsDefined, IsOptional, IsString } from "class-validator";
 
 export class UpdateStatusDto {
 
+    @IsDefined()
     @IsBoolean()
     emailSent: boolean;
 

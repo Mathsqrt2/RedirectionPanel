@@ -1,8 +1,9 @@
+import { IsDefined, IsString } from "class-validator";
 import { LoginUserDto } from "./loginUser.dto";
-import { IsString } from "class-validator";
 
 export class RegisterUserDto extends LoginUserDto {
 
+    @IsDefined()
     @IsString()
     confirmPassword: string
 

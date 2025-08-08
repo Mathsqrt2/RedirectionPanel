@@ -1,6 +1,5 @@
 import { Controller, Get, Inject, Ip, Param, Redirect } from "@nestjs/common";
-import { Redirections } from "../database/entities/redirections.entity";
-import { Requests } from "../database/entities/requests.entity";
+import { Requests, Redirections } from "../database/entities";
 import { LoggerService } from "../utils/logs.service";
 import { Repository } from "typeorm";
 import { SHA256 } from 'crypto-js';

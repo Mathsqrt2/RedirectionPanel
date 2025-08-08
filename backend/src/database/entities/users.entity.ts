@@ -1,6 +1,4 @@
-import {
-    Entity, Column, Timestamp, Generated, Unique
-} from "typeorm";
+import { Entity, Column, Timestamp, Generated, Unique } from "typeorm";
 import { BasicPropertiesEntity } from "./base.entity";
 
 @Entity()

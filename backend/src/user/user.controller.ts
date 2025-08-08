@@ -1,11 +1,7 @@
-import {
-    AvatarResponse, CurrentUserResponse,
-    DefaultResponse, UpdateUserResponse
-} from "../../types/response.types";
+import { AvatarResponse, CurrentUserResponse, DefaultResponse, UpdateUserResponse } from '@libs/types';
 import {
     Body, Controller, Delete, FileTypeValidator, Get, HttpStatus, MaxFileSizeValidator,
-    Param, ParseFilePipe, Patch, Post, Put, Req, Res, UploadedFile, UseGuards,
-    UseInterceptors
+    Param, ParseFilePipe, Patch, Post, Put, Req, Res, UploadedFile, UseGuards, UseInterceptors
 } from "@nestjs/common";
 import { diskStorage } from "multer";
 import {

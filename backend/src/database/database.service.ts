@@ -1,25 +1,20 @@
-import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import {
     createSingleElementProps, CRUDTypes, createMultipleElementsProps,
     findSingleElementByIdProps, findMultipleElementsByParamProps,
     findMultipleElementsProps, deleteMultipleElementsByParamProps,
     deleteSingleElementByIdProps, patchMultipleElementsByParamProps,
-    patchSingleElementProps, updateSingleElementProps
-} from "../../types/property.types";
+    patchSingleElementProps, updateSingleElementProps, DatabaseResponse
+} from '@libs/types';
 import {
     Repository, DataSource, LessThanOrEqual,
     MoreThanOrEqual, Between
 } from 'typeorm';
-import { Redirections } from "./entities/redirections.entity";
-import { DatabaseResponse } from '../../types/response.types';
-import { Requests } from "./entities/requests.entity";
+import { Redirections, Requests, Codes, Users, Logs } from "./entities";
 import { LoggerService } from "../utils/logs.service";
-import { Codes } from "./entities/codes.entity";
-import { Users } from "./entities/users.entity";
-import { Logs } from "./entities/logs.entity";
+import { InjectRepository } from "@nestjs/typeorm";
 import { HttpStatus } from "@nestjs/common";
 import { NotFoundError } from "rxjs";
-import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class DatabaseService {

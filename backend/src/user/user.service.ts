@@ -1,25 +1,21 @@
+import { User, CurrentUserResponse, DefaultResponse, UpdateUserResponse } from '@libs/types';
+import {
+    UpdatePermissionsDto, UpdateStatusDto, UpdateWholeUserDto,
+    RemoveEmailDto, RemoveUserDto, UpdatePasswordDto
+} from "../auth/dtos";
 import {
     ConflictException, HttpStatus, Inject, Injectable,
     NotFoundException, UnauthorizedException
 } from "@nestjs/common";
-import { CurrentUserResponse, DefaultResponse, UpdateUserResponse } from "../../types/response.types";
-import { UpdatePermissionsDto } from "../auth/dtos/updatePermissions.dto";
-import { UpdateStatusDto } from "../auth/dtos/updateEmailStatus.dto";
-import { UpdateWholeUserDto } from "../auth/dtos/updateUser.dto";
-import { RemoveEmailDto } from "../auth/dtos/removeEmail.dto";
-import { UpdatePswdDto } from "../auth/dtos/updatePassword.dto";
-import { RemoveUserDto } from "../auth/dtos/removeUser.dto";
-import { Users } from "../database/entities/users.entity";
 import { LoggerService } from "../utils/logs.service";
+import { Users, Codes } from "../database/entities";
 import { CodeService } from "../code/code.service";
 import { DataSource, Repository } from "typeorm";
-import { Codes } from "../database/entities/codes.entity";
-import { User } from "../../types/property.types";
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { SHA256 } from 'crypto-js';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import path from 'path';
+import fs from 'fs';
 
 @Injectable()
 
@@ -237,7 +233,7 @@ export class UserService {
         return false
     }
 
-    public updatePassword = async (body: UpdatePswdDto, req: Request): Promise<DefaultResponse> => {
+    public updatePassword = async (body: UpdatePasswordDto, req: Request): Promise<DefaultResponse> => {
 
         const startTime = Date.now();
 

@@ -1,7 +1,5 @@
+import { DefaultResponse, LoginUserResponse, RegisterUserResponse } from '@libs/types';
 import { LoginUserDto, RegisterUserDto, CreateUserByPanelDto } from './dtos';
-import {
-    DefaultResponse, LoginUserResponse, RegisterUserResponse,
-} from '../../types/response.types';
 import {
     BadRequestException, Body, Controller,
     HttpStatus, Post, Req, Res, UseGuards

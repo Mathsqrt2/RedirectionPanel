@@ -13,6 +13,12 @@
       "@types/*": [
         "../types/*.types.ts"
       ],
+      "@libs/types": [
+        "libs/types/src"
+      ],
+      "@libs/types/*": [
+        "libs/types/src/*"
+      ]
     },
     "types": [
       "node",

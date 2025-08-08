@@ -1,5 +1,4 @@
-import { DTOs, QueryConditions } from "../../types/property.types";
-import { DatabaseResponse } from "../../types/response.types";
+import { DTOs, QueryConditions, DatabaseResponse } from '@libs/types';
 import {
     Controller, Post, Param, Body, Get,
     Query, Put, Patch, Delete, HttpStatus, UseGuards
