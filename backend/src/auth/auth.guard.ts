@@ -2,15 +2,17 @@ import {
     CanActivate, ExecutionContext, Inject,
     Injectable, UnauthorizedException
 } from "@nestjs/common";
-import { LoggerService } from "../utils/logs.service";
-import { Users } from "../database/entities";
+import { InjectRepository } from "@nestjs/typeorm";
+import { LoggerService } from "@libs/logger";
 import { JwtService } from "@nestjs/jwt";
+import { User } from "@libs/entities";
 import { Repository } from "typeorm";
 
 @Injectable()
 export class SoftAuthGuard implements CanActivate {
+
     constructor(
-        @Inject(`USERS`) private users: Repository<Users>,
+        @InjectRepository(User) private users: Repository<User>,
         private jwtService: JwtService,
         private logger: LoggerService,
     ) { }
@@ -72,9 +74,9 @@ export class SoftAuthGuard implements CanActivate {
 
 export class StrictAuthGuard implements CanActivate {
     constructor(
-        @Inject(`USERS`) private users: Repository<Users>,
-        private jwtService: JwtService,
-        private logger: LoggerService,
+        @InjectRepository(User) private readonly users: Repository<User>,
+        private readonly jwtService: JwtService,
+        private readonly logger: LoggerService,
     ) { }
 
     async canActivate(context: ExecutionContext): Promise<boolean> {

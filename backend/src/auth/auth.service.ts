@@ -1,18 +1,19 @@
 import { LoginUser, RegisterUser, LoginUserResponse, RegisterUserResponse, DefaultResponse } from '@libs/types';
 import { ConflictException, HttpStatus, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserByPanelDto } from './dtos/createUserByPanel.dto';
-import { LoggerService } from '../utils/logs.service';
 import { CodeService } from '../code/code.service';
-import { Users } from '../database/entities';
+import { LoggerService } from '@libs/logger'
+import { User } from '@libs/entities';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { SHA256 } from 'crypto-js';
 import { Request } from 'express';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthService {
     constructor(
-        @Inject(`USERS`) private readonly users: Repository<Users>,
+        @InjectRepository(User) private readonly users: Repository<User>,
         private readonly jwtService: JwtService,
         private readonly codeService: CodeService,
         private readonly logger: LoggerService,

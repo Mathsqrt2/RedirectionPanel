@@ -1,20 +1,20 @@
 import { BasicPropertiesEntity } from "./base.entity";
 import { Entity, Column, Unique } from "typeorm";
 
-@Entity()
+@Entity({ name: `redirections` })
 @Unique([`route`])
-export class Redirections extends BasicPropertiesEntity {
+export class Redirection extends BasicPropertiesEntity {
 
     @Column()
-    targetUrl: string;
+    public targetUrl: string;
 
     @Column({ unique: true })
-    route: string;
+    public route: string;
 
     @Column()
-    userId: number;
+    public userId: number;
 
     @Column()
-    category: string;
+    public category: string;
 
 }

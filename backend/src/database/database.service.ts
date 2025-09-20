@@ -10,8 +10,8 @@ import {
     Repository, DataSource, LessThanOrEqual,
     MoreThanOrEqual, Between
 } from 'typeorm';
-import { Redirections, Requests, Codes, Users, Logs } from "./entities";
-import { LoggerService } from "../utils/logs.service";
+import { Redirection, Request, Code, User, Log } from "@libs/entities";
+import { LoggerService } from "@libs/logger";
 import { InjectRepository } from "@nestjs/typeorm";
 import { HttpStatus } from "@nestjs/common";
 import { NotFoundError } from "rxjs";
@@ -23,22 +23,22 @@ export class DatabaseService {
     private offset = (-1000 * 60 * 60 * 24) - this.timezoneOffset;
 
     constructor(
-        @InjectRepository(Redirections) private redirections: Repository<Redirections>,
-        @InjectRepository(Requests) private requests: Repository<Requests>,
-        @InjectRepository(Codes) private codes: Repository<Codes>,
-        @InjectRepository(Users) private users: Repository<Users>,
-        @InjectRepository(Logs) private logs: Repository<Logs>,
+        @InjectRepository(Redirection) private redirections: Repository<Redirection>,
+        @InjectRepository(Request) private requests: Repository<Request>,
+        @InjectRepository(Code) private codes: Repository<Code>,
+        @InjectRepository(User) private users: Repository<User>,
+        @InjectRepository(Log) private logs: Repository<Log>,
         private dataSource: DataSource,
         private logger: LoggerService,
     ) { }
 
     private findEntity = (endpoint: string) => {
         switch (endpoint) {
-            case 'logs': return Logs;
-            case 'redirections': return Redirections;
-            case 'requests': return Requests;
-            case 'users': return Users;
-            case 'codes': return Codes;
+            case 'logs': return Log;
+            case 'redirections': return Redirection;
+            case 'requests': return Request;
+            case 'users': return User;
+            case 'codes': return Code;
             default: throw new Error(`The endpoint "${endpoint}" does not exist.`);
         }
     }

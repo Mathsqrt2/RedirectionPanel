@@ -1,11 +1,11 @@
-import { RedirectionsDto } from "src/database/dtos/redirections.dto";
-import { Redirections } from "src/database/entities/redirections.entity";
-import { Requests } from "src/database/entities/requests.entity";
-import { RequestsDto } from "src/database/dtos/requests.dto";
-import { UsersDto } from "src/database/dtos/users.dto";
-import { Users } from "src/database/entities/users.entity";
-import { Logs } from "src/database/entities/logs.entity";
-import { LogsDto } from "src/database/dtos/logs.dto";
+import {
+    User as UserEntity, Log as LogEntity, Request as RequestEntity,
+    Redirection as RedirectionEntity
+} from "@libs/entities";
+import { RedirectionsDto } from "@libs/dtos/redirections.dto";
+import { RequestsDto } from "@libs/dtos/requests.dto";
+import { UsersDto } from "@libs/dtos/users.dto";
+import { LogsDto } from "@libs/dtos/logs.dto";
 import { Request } from "express";
 
 export type Permissions = {
@@ -115,7 +115,7 @@ export type LoggerProps = {
 }
 
 export type DTOs = LogsDto | RedirectionsDto | RequestsDto | UsersDto;
-export type CRUDTypes = Logs | Redirections | Requests | Users | any;
+export type CRUDTypes = LogEntity | RedirectionEntity | RequestEntity | UserEntity | any;
 
 export type findMultipleElementsProps = {
     endpoint: string,

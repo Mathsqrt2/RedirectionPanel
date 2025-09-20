@@ -1,16 +1,17 @@
 import { Controller, Get, Inject, Ip, Param, Redirect } from "@nestjs/common";
-import { Requests, Redirections } from "../database/entities";
-import { LoggerService } from "../utils/logs.service";
+import { Request, Redirection } from "@libs/entities";
+import { LoggerService } from "@libs/logger";
 import { Repository } from "typeorm";
 import { SHA256 } from 'crypto-js';
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Controller(`:redirection`)
 
 export class RedirectionsController {
 
     constructor(
-        @Inject(`REDIRECTIONS`) private redirections: Repository<Redirections>,
-        @Inject(`REQUESTS`) private requests: Repository<Requests>,
+        @InjectRepository(Redirection) private redirections: Repository<Redirection>,
+        @InjectRepository(Request) private requests: Repository<Request>,
         private logger: LoggerService,
     ) { }
 
@@ -29,7 +30,7 @@ export class RedirectionsController {
     ) {
         const startTime = Date.now();
         const requestId = this.assignRequestID(`${redirection}`, Math.floor(startTime / 1000));
-        let url: Redirections;
+        let url: Redirection;
 
         try {
             url = await this.redirections.findOneBy({ route: redirection });

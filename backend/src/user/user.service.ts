@@ -4,32 +4,33 @@ import {
     RemoveEmailDto, RemoveUserDto, UpdatePasswordDto
 } from "../auth/dtos";
 import {
-    ConflictException, HttpStatus, Inject, Injectable,
+    ConflictException, HttpStatus, Injectable,
     NotFoundException, UnauthorizedException
 } from "@nestjs/common";
-import { LoggerService } from "../utils/logs.service";
-import { Users, Codes } from "../database/entities";
+import { LoggerService } from "@libs/logger";
+import { User as UserEntity, Code as CodeEntity } from "@libs/entities";
 import { CodeService } from "../code/code.service";
 import { DataSource, Repository } from "typeorm";
+import { existsSync, unlinkSync } from 'fs';
 import { JwtService } from "@nestjs/jwt";
 import { Request } from "express";
 import { SHA256 } from 'crypto-js';
-import path from 'path';
-import fs from 'fs';
+import { resolve } from 'path';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 
 export class UserService {
 
     constructor(
-        @Inject(`USERS`) private readonly users: Repository<Users>,
+        @InjectRepository(UserEntity) private readonly users: Repository<UserEntity>,
         private readonly dataSource: DataSource,
         private readonly jwtService: JwtService,
         private readonly codeService: CodeService,
         private readonly logger: LoggerService,
     ) { }
 
-    public findCurrentUserData = async (id: number, req: Request): Promise<CurrentUserResponse> => {
+    public async findCurrentUserData(id: number, req: Request): Promise<CurrentUserResponse> {
 
         const startTime = Date.now();
 
@@ -79,7 +80,7 @@ export class UserService {
         }
     }
 
-    public updateEmailStatus = async (id: number, body: UpdateStatusDto, req: Request): Promise<DefaultResponse> => {
+    public async updateEmailStatus(id: number, body: UpdateStatusDto, req: Request): Promise<DefaultResponse> {
 
         const startTime = Date.now();
 
@@ -99,11 +100,11 @@ export class UserService {
 
             if (body.emailSent === false) {
                 user.email = null;
-                const code = await this.dataSource.getRepository(Codes).findOneBy({ userId: user.id, status: true });
+                const code = await this.dataSource.getRepository(CodeEntity).findOneBy({ userId: user.id, status: true });
 
                 if (code) {
                     code.status = false;
-                    await this.dataSource.getRepository(Codes).save({ ...code });
+                    await this.dataSource.getRepository(CodeEntity).save({ ...code });
                 }
             }
 
@@ -133,7 +134,7 @@ export class UserService {
         }
     }
 
-    public removeEmail = async (id: number, { password }: RemoveEmailDto): Promise<DefaultResponse> => {
+    public async removeEmail(id: number, { password }: RemoveEmailDto): Promise<DefaultResponse> {
 
         const startTime = Date.now();
 
@@ -172,7 +173,7 @@ export class UserService {
         }
     }
 
-    public updatePermissions = async (body: UpdatePermissionsDto, req: Request): Promise<DefaultResponse> => {
+    public async updatePermissions(body: UpdatePermissionsDto, req: Request): Promise<DefaultResponse> {
         const startTime = Date.now();
 
         try {
@@ -217,13 +218,13 @@ export class UserService {
         }
     }
 
-    private securePassword = (password: string): string => {
+    private securePassword(password: string): string {
         const seed = `${Date.now()}`;
         const salt = SHA256(seed).toString();
         return `${salt}$${SHA256(`${password}$${salt}`).toString()}`;
     }
 
-    private comparePasswords = (password: string, saltedHash: string): boolean => {
+    private comparePasswords(password: string, saltedHash: string): boolean {
         const parts = saltedHash.split('$');
 
         if (SHA256(`${password}$${parts[0]}`).toString() === parts[1]) {
@@ -233,7 +234,7 @@ export class UserService {
         return false
     }
 
-    public updatePassword = async (body: UpdatePasswordDto, req: Request): Promise<DefaultResponse> => {
+    public async updatePassword(body: UpdatePasswordDto, req: Request): Promise<DefaultResponse> {
 
         const startTime = Date.now();
 
@@ -280,7 +281,7 @@ export class UserService {
         }
     }
 
-    public updateUser = async (id: number, body: UpdateWholeUserDto, req: Request): Promise<UpdateUserResponse | DefaultResponse> => {
+    public async updateUser(id: number, body: UpdateWholeUserDto, req: Request): Promise<UpdateUserResponse | DefaultResponse> {
 
         const startTime = Date.now();
 
@@ -338,7 +339,7 @@ export class UserService {
         }
     }
 
-    public deactivateUser = async (id: number, { password, login }: RemoveUserDto, req: Request): Promise<DefaultResponse> => {
+    public async deactivateUser(id: number, { password, login }: RemoveUserDto, req: Request): Promise<DefaultResponse> {
 
         const startTime = Date.now();
 
@@ -367,9 +368,9 @@ export class UserService {
 
             await this.users.delete({ login: user.login });
 
-            const path_ = path.join(__dirname, `../../../../avatars/${user.id}.jpg`)
-            if (fs.existsSync(path_)) {
-                fs.unlinkSync(path_);
+            const path_ = resolve(...[__dirname, `..`, `..`, `..`, `..`, `avatars`, `${user.id}.jpg`]);
+            if (existsSync(path_)) {
+                unlinkSync(path_);
             }
 
             return {

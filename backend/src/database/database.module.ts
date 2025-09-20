@@ -1,9 +1,9 @@
 import { DatabaseController } from "./database.controller";
-import { LoggerService } from "../utils/logs.service";
 import { DatabaseService } from "./database.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { LoggerService } from "@libs/logger";
+import * as Entities from "@libs/entities";
 import { Module } from "@nestjs/common";
-import * as Entities from "./entities";
 
 @Module({
     imports: [

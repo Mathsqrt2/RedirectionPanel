@@ -1,10 +1,11 @@
 import { DTOs, QueryConditions, DatabaseResponse } from '@libs/types';
 import {
-    Controller, Post, Param, Body, Get,
-    Query, Put, Patch, Delete, HttpStatus, UseGuards
+    Controller, Post, Param, Body, Get, UseGuards,
+    Query, Put, Patch, Delete, HttpStatus,
 } from "@nestjs/common";
 import { DatabaseService } from "./database.service";
 import { StrictAuthGuard } from "../auth/auth.guard";
+import { FindMultipleElementsDto } from '@libs/dtos';
 
 @Controller(`api`)
 export class DatabaseController {
@@ -17,10 +18,7 @@ export class DatabaseController {
     @Get(`/:endpoint`)
     async findMultipleElements(
         @Param(`endpoint`) endpoint: string,
-        @Query(`maxCount`) maxCount?: number,
-        @Query(`offset`) offset?: number,
-        @Query(`minDate`) minDate?: string,
-        @Query(`maxDate`) maxDate?: string,
+        @Query() { maxCount, offset, minDate, maxDate }: FindMultipleElementsDto,
     ): Promise<DatabaseResponse> {
         try {
 

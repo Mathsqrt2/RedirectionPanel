@@ -18,6 +18,24 @@
       ],
       "@libs/types/*": [
         "libs/types/src/*"
+      ],
+      "@libs/logger": [
+        "libs/logger/src"
+      ],
+      "@libs/logger/*": [
+        "libs/logger/src/*"
+      ],
+      "@libs/dtos": [
+        "libs/dtos/src"
+      ],
+      "@libs/dtos/*": [
+        "libs/dtos/src/*"
+      ],
+      "@libs/entities": [
+        "libs/entities/src"
+      ],
+      "@libs/entities/*": [
+        "libs/entities/src/*"
       ]
     },
     "types": [

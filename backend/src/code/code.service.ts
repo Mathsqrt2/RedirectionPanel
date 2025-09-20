@@ -1,8 +1,9 @@
 import { TransportDataType, DefaultResponse, ResponseWithCode, VerifyEmailResponse } from '@libs/types';
-import { ConflictException, HttpStatus, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { LoggerService } from "../utils/logs.service";
-import { Users, Codes } from "../database/entities";
+import { ConflictException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from "typeorm";
+import { LoggerService } from "@libs/logger"
+import { User, Code } from "@libs/entities";
 import { CodesDto } from "../auth/dtos";
 import * as nodemailer from 'nodemailer'
 import { Request } from "express";
@@ -12,8 +13,8 @@ import { Request } from "express";
 export class CodeService {
 
     constructor(
-        @Inject(`CODES`) private readonly codes: Repository<Codes>,
-        @Inject(`USERS`) private readonly users: Repository<Users>,
+        @InjectRepository(Code) private readonly codes: Repository<Code>,
+        @InjectRepository(User) private readonly users: Repository<User>,
         private readonly dataSource: DataSource,
         private readonly logger: LoggerService,
     ) { }
@@ -44,13 +45,13 @@ export class CodeService {
 
         try {
 
-            const code = await this.dataSource.getRepository(Codes).findOneBy({ userId: id, status: true });
+            const code = await this.dataSource.getRepository(Code).findOneBy({ userId: id, status: true });
 
             if (!code) {
                 throw new ConflictException(`The code for user with id: "${id}" does not exist.`);
             }
 
-            if (Date.now() > code.expireDate) {
+            if (new Date() > code.expireDate) {
                 throw new ConflictException(`The last code for user with id: "${id}" has expired.`)
             }
 
@@ -58,7 +59,7 @@ export class CodeService {
                 id: code.id,
                 userId: code.userId,
                 status: code.status,
-                expireDate: code.expireDate,
+                expireDate: code.expireDate.getTime(),
                 email: this.hideEmailDetails(code.email)
             }
 
@@ -151,7 +152,7 @@ export class CodeService {
             let html = `<h1>You're welcome</h1>
                 <p>${text}</p>`;
 
-            const existingCode = await this.dataSource.getRepository(Codes).findOneBy({ id, status: true });
+            const existingCode = await this.dataSource.getRepository(Code).findOneBy({ id, status: true });
 
             if (existingCode) {
                 existingCode.status = false;
@@ -194,10 +195,10 @@ export class CodeService {
                 throw new NotFoundException(`User with id: ${id} not found`);
             }
 
-            const code = await this.dataSource.getRepository(Codes).findOneBy({ id, status: true });
+            const code = await this.dataSource.getRepository(Code).findOneBy({ id, status: true });
 
             if (code) {
-                await this.dataSource.getRepository(Codes).save({ ...code, status: false });
+                await this.dataSource.getRepository(Code).save({ ...code, status: false });
             }
 
             return ({
@@ -224,7 +225,7 @@ export class CodeService {
                 throw new ConflictException(`The code does not exist.`);
             }
 
-            if (Date.now() > codeRead.expireDate || !codeRead.status) {
+            if (new Date() > codeRead.expireDate || !codeRead.status) {
                 throw new ConflictException(`The code: "${codeRead.code}" has expired.`);
             }
 
